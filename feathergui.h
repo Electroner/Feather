@@ -42,10 +42,13 @@ class FeatherGUI
 		bool isOpen;
 		
 		float iconSize;
+		float zoomIncrement;
+		float zoom;
 		
 		RGB BackGroundRGB;
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
+		ImFont* CurrentFont;
 		
 	public:
 		
@@ -67,8 +70,7 @@ class FeatherGUI
 		void setIconSize(float _size);
 		float getIconSize();
 		
-		bool loadImage(std::string _path);
-		
+		bool loadImage(std::string _path);		
 };
 
 #endif // !FEATHERGUI

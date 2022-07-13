@@ -4,14 +4,13 @@
 #define ICONPATH "/Images/Feather.png"
 
 //#define DEBUG
-#define main WinMain
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int argc, char* argv[])
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine, int nCmdShow)
 {
 	glfwSetErrorCallback(glfw_error_callback);
 	GLFWwindow* window;

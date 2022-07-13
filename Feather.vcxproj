@@ -147,7 +147,6 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="ExampleGUI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pathwork.cpp" />
     <ClCompile Include="stb.cpp" />
