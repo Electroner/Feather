@@ -3,6 +3,8 @@
 #include "IconsFontAwesome.h"
 
 void FeatherGUI::BuildGUI() {
+	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
+	
 	//Create a main menu
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu(ICON_FA_FILE_ALT " File")) {
@@ -54,79 +56,167 @@ void FeatherGUI::BuildGUI() {
 		ImGui::Separator();
 		//Settings
 		if (ImGui::BeginMenu(ICON_FA_SUN " Settings")) {
+			if (ImGui::MenuItem( " GUI Placements", "|Ctrl+Alt+D")) {
+				std::cout << "Placement GUI opened" << std::endl;
+				this->placementConfig = true;
+			}
+			if (ImGui::MenuItem( " GUI Colors", "|Ctrl+Alt+G")) {
+
+			}
+			if (ImGui::MenuItem( " GUI Fonts", "|Ctrl+Alt+F")) {
+
+			}
+			if (ImGui::MenuItem(" Open Debug Log", "|Ctrl+Alt+C")) {
+				this->debugConsole = true;
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
 	}
+
+	//TOOLS WINDOW
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	//Create a window on the left maximized that occupies toolsPanelPixels of the space.
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, io->DisplaySize.y), ImGuiCond_Always);
+	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	//TODO
+	ImGui::PopStyleColor();
+	ImGui::End();
 	
-	//Begin("Imagen Displayer");
-	//Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / GetIO().Framerate, GetIO().Framerate);
-	//static int selector = 0;
-	//ImGui::SliderInt(": Seleccion Imagen", &selector, 0, 2);
-	//
-	//if (Images.empty()) {
-	//	if (!loadImage("./resoruces/exampleimages/manzana.png")) {
-	//		Text("Error loading image");
-	//	}
-	//	if (!loadImage("./resoruces/exampleimages/naranja.png")) {
-	//		Text("Error loading image");
-	//	}
-	//	if (!loadImage("./resoruces/exampleimages/nebula.jpg")) {
-	//		Text("Error loading image");
-	//	}
-	//}
-	//else 
-	//{
-	//	CurrentImage = Images.at(selector);
-	//}
-	//
-	////Show CurrentImage data in ImGui
-	//if (CurrentImage.loaded) {
-	//	Text("------------------------------------------------");
-	//	Text("Identifier = %p", CurrentImage.texture);
-	//	Text("Size = %d x %d", CurrentImage.width, CurrentImage.height);
-	//	Text("Channels: %d", CurrentImage.channels);
-	//	Text("Mouse wheel: %f", io->MouseWheel);
-	//}
+	//MAIN SEPARATOR
+	ImGui::Separator();
 
-	//if (io->MouseWheel > 0) {	//UP
-	//		//increase lineal zoom by 0.1 if this one is less than 3
-	//	if (this->zoom > 0.0F) {
-	//		this->zoom -= this->zoomIncrement;
-	//	}
-	//}
-	//if (io->MouseWheel < 0) {	//DOWN
-	//	//decrease lineal zoom by 0.1 if this one is greater than 0.1
-	//	if (this->zoom < 10.0F) {
-	//		this->zoom += this->zoomIncrement;
-	//	}
-	//}
-	//
-	//ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
-	//ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
-	//if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
-	//if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
-	//ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
-
-	//ImGuiIO& io = ImGui::GetIO();
-	//ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	//draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
-	//draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
-	//draw_list->AddImage((void*)(intptr_t)CurrentImage.texture, canvas_p0, canvas_p1, ImVec2(0, 1.0F * this->zoom), ImVec2(1.0F * this->zoom, 0));
-
-	//Show CurrentImage in ImGui
-	if(!this->Images.empty())
-	if (CurrentImage.data != NULL) {
-		ImGui::Image((void*)(intptr_t)CurrentImage.texture, ImVec2(CurrentImage.width * this->zoom, CurrentImage.height * this->zoom));
+	//LOADING IMAGES
+	if (Images.empty()) {
+		if (!loadImage("./resoruces/exampleimages/manzana.png")) {
+			std::cout << "Error Loading the Image manzana.png" << std::endl;
+		}
+		if (!loadImage("./resoruces/exampleimages/naranja.png")) {
+			std::cout << "Error Loading the Image naranja.png" << std::endl;
+		}
+		CurrentImage = Images.back();
+		std::cout << "Current Image Properties: " << std::endl;
+		std::cout << "Identifier: " << CurrentImage.texture << std::endl;
+		std::cout << "Size = " << CurrentImage.width << "x" << CurrentImage.height << std::endl;
+		std::cout << "Channels: " << CurrentImage.channels << std::endl;
 	}
 
+	//IMAGE WINDOW
+	ImGui::SetNextWindowPos(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, this->MenuSizePixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y), ImGuiCond_Always);
+	ImGui::Begin("Image Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoBackground);
+	//Move the image
+	ImGui::SetCursorPos(ImVec2(this->imageShiftX, this->imageShiftY));
+	//TODO
+	//Draw Image
+	if (!this->Images.empty()) {
+		if (CurrentImage.data != NULL) {
+			ImGui::Image((void*)(intptr_t)CurrentImage.texture, ImVec2(CurrentImage.width * this->zoom, CurrentImage.height * this->zoom));
+		}
+	}
 	ImGui::End();
+
+	//MAIN SEPARATOR
+	ImGui::Separator();
+
+	//PROPERTIES WINDOW
+	float temp_percentage = (1.0F - (float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
+	ImGui::SetNextWindowPos(ImVec2(temp_percentage * this->io->DisplaySize.x, this->MenuSizePixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, this->io->DisplaySize.y), ImGuiCond_Always);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	ImGui::Begin("Properties Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	//TODO
+	ImGui::Text("Properties");
+	ImGui::PopStyleColor();
+	ImGui::End();
+	
+
+	//--------------------EXTERN WINDOWS--------------------
+
+	//PLACEMENT CONFIG WINDOW
+	if (this->placementConfig) {
+		ImGui::Begin("Placement Config", &this->placementConfig);
+		//Create a slider for the toolsPanelPercentage
+		ImGui::SliderInt("Tools Panel Pixels", &this->toolsPanelPixels, 32, 128);
+
+		float color[4]= {GetBackGroundColor().r,GetBackGroundColor().g, GetBackGroundColor().b, 1.0F};
+		//Change background color
+		ImGui::ColorEdit3("Background Color", color);
+		SetBackGroundColor(color[0], color[1], color[2]);
+
+		//Disable windows rounding
+		ImGui::Checkbox("Button Rounding", &this->disableWindowsRounding);
+		if (this->disableWindowsRounding) {
+			ImGui::GetStyle().FrameRounding = 0.0F;
+		}
+		else 
+		{
+			ImGui::GetStyle().FrameRounding = 5.0F;
+		}
+		ImGui::End();
+	}
+
+	//DEBUG CONSOLE WINDOW
+	if (this->debugConsole) {
+		ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse);
+		//FPS
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//Print the mouse
+		ImGui::Text("Mouse Position: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
+		//Slider int
+		ImGui::Text("Movement X: %d", this->imageShiftX);
+		ImGui::Text("Movement Y: %d", this->imageShiftY);
+
+		ImGui::Separator();
+		ImGui::Text(ss.str().c_str());
+		ImGui::End();
+	}
+
+	//--------------------FUNTIONS--------------------
+
+	//Dragging the Image over the window
+	if (ImGui::IsMouseDown(1)) {
+		this->imageShiftX += (this->io->MouseDelta.x);
+		this->imageShiftY += (this->io->MouseDelta.y);
+	}
+
+	//Double click set zoom to 1.0F and the image shift to the center of the Image Window
+	if (ImGui::IsMouseDoubleClicked(1)) {
+		this->zoom = 1.0F;
+		//Center X is (1-(x+z))/2+x, where x is toolsPanelPixels and z is propertiesPanelPixels, substract the size of the image
+		this->imageShiftX = (1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (CurrentImage.width * this->zoom / 2.0F);
+		//Center Y is the size of the screen minus the size of the image divided by 2
+		this->imageShiftY = io->DisplaySize.y / 2.0F - (CurrentImage.height * this->zoom / 2.0F);
+	}
+	
+	//UP
+	if (io->MouseWheel > 0) {
+		//increase lineal zoom by 0.1 if this one is less than 3
+		if (this->zoom < 10.0F) {
+			this->zoom += this->zoomIncrement;
+		}
+	}
+	//DOWN
+	if (io->MouseWheel < 0) {
+		//decrease lineal zoom by 0.1 if this one is greater than 0.1
+		if (this->zoom > 0.0F) {
+			this->zoom -= this->zoomIncrement;
+		}
+	}
+
+	//MOUSE
+	//set mouse location inside the image window
+	//Position - size of the tool panel and menu
+	this->MouseImagePositionX = this->io->MousePos.x - this->toolsPanelPixels - this->SeparatorSizePixels;
+	this->MouseImagePositionY = this->io->MousePos.y - this->MenuSizePixels - this->SeparatorSizePixels;
 }
 
 FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 {
 	this->windowContext = _windowContext;
-	
+	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
+
 	// Initialize the Feather GUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -136,7 +226,20 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resoruces/consolas.ttf", 16);
 	ImGui::StyleColorsDark();
 	
+	//Link the buffer
+	this->coutbuff = std::cout.rdbuf();
+	std::cout.rdbuf(ss.rdbuf());
+
+	this->MouseImagePositionX = 0;
+	this->MouseImagePositionY = 0;
+
+	//Windows
 	this->isOpen = true;
+	this->debugConsole = false;
+	this->placementConfig = false;
+	this->disableWindowsRounding = true;
+
+	//Fonts and Text
 	this->iconSize = 12.0;
 
 	//Adding Icons
@@ -159,7 +262,14 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	}
 
 	this->zoom = 1;
-	this->zoomIncrement = 0.05F;
+	this->zoomIncrement = 0.1F;
+	this->imageShiftX = 8;
+	this->imageShiftY = 8;
+
+	//GUI PLACEMENTS
+	this->toolsPanelPixels = 32;
+	this->propertiesPanelPixels = 256;
+	
 }
 
 FeatherGUI::~FeatherGUI() {
