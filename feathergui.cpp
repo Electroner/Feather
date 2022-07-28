@@ -128,6 +128,18 @@ void FeatherGUI::BuildGUI() {
 	ImGui::Begin("Properties Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	ImGui::Text("Properties");
+	ImGui::Separator();
+	//Layers reordering line 2277
+	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage.width && 
+		this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage.height) {
+		ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
+	} 
+	else
+	{
+		ImGui::Text("Current Pixel: (-,-)");
+	}
+	ImGui::Text("Zoom: %.2f", this->zoom);
+
 	ImGui::PopStyleColor();
 	ImGui::End();
 	
@@ -139,6 +151,8 @@ void FeatherGUI::BuildGUI() {
 		ImGui::Begin("Placement Config", &this->placementConfig);
 		//Create a slider for the toolsPanelPercentage
 		ImGui::SliderInt("Tools Panel Pixels", &this->toolsPanelPixels, 32, 128);
+		//Create a slider for the propertiesPanelPercentage
+		ImGui::SliderInt("Properties Panel Pixels", &this->propertiesPanelPixels, 128, 512);
 
 		float color[4]= {GetBackGroundColor().r,GetBackGroundColor().g, GetBackGroundColor().b, 1.0F};
 		//Change background color
@@ -168,6 +182,9 @@ void FeatherGUI::BuildGUI() {
 		ImGui::Text("Movement X: %d", this->imageShiftX);
 		ImGui::Text("Movement Y: %d", this->imageShiftY);
 
+		//Print the zoom
+		ImGui::Text("Zoom: %.2f", this->zoom);
+
 		ImGui::Separator();
 		ImGui::Text(ss.str().c_str());
 		ImGui::End();
@@ -187,7 +204,7 @@ void FeatherGUI::BuildGUI() {
 		//Center X is (1-(x+z))/2+x, where x is toolsPanelPixels and z is propertiesPanelPixels, substract the size of the image
 		this->imageShiftX = (1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (CurrentImage.width * this->zoom / 2.0F);
 		//Center Y is the size of the screen minus the size of the image divided by 2
-		this->imageShiftY = io->DisplaySize.y / 2.0F - (CurrentImage.height * this->zoom / 2.0F);
+		this->imageShiftY = io->DisplaySize.y / 2.0F - (CurrentImage.height / 2.0F);
 	}
 	
 	//UP
@@ -206,10 +223,15 @@ void FeatherGUI::BuildGUI() {
 	}
 
 	//MOUSE
-	//set mouse location inside the image window
-	//Position - size of the tool panel and menu
-	this->MouseImagePositionX = this->io->MousePos.x - this->toolsPanelPixels - this->SeparatorSizePixels;
-	this->MouseImagePositionY = this->io->MousePos.y - this->MenuSizePixels - this->SeparatorSizePixels;
+	
+	//Position of the mouse inside the Image Window
+	//this->MouseImagePositionX = this->io->MousePos.x - this->toolsPanelPixels - this->SeparatorSizePixels;
+	//this->MouseImagePositionY = this->io->MousePos.y - this->MenuSizePixels - this->SeparatorSizePixels;
+	
+	//Same but compensating the image shift and zoom
+	this->MouseImagePositionX = (int)ceil(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
+	this->MouseImagePositionY = (int)ceil(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+	
 }
 
 FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
@@ -269,7 +291,6 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//GUI PLACEMENTS
 	this->toolsPanelPixels = 32;
 	this->propertiesPanelPixels = 256;
-	
 }
 
 FeatherGUI::~FeatherGUI() {
