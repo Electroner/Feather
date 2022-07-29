@@ -74,19 +74,6 @@ void FeatherGUI::BuildGUI() {
 		ImGui::EndMainMenuBar();
 	}
 
-	//TOOLS WINDOW
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
-	//Create a window on the left maximized that occupies toolsPanelPixels of the space.
-	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, io->DisplaySize.y), ImGuiCond_Always);
-	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
-	//TODO
-	ImGui::PopStyleColor();
-	ImGui::End();
-	
-	//MAIN SEPARATOR
-	ImGui::Separator();
-
 	//LOADING IMAGES
 	if (Images.empty()) {
 		if (!loadImage("./resoruces/exampleimages/manzana.png")) {
@@ -100,14 +87,28 @@ void FeatherGUI::BuildGUI() {
 		std::cout << "Identifier: " << CurrentImage.texture << std::endl;
 		std::cout << "Size = " << CurrentImage.width << "x" << CurrentImage.height << std::endl;
 		std::cout << "Channels: " << CurrentImage.channels << std::endl;
+		this->centerImage();
 	}
 
+	//TOOLS WINDOW
+	//Create a window on the left maximized that occupies toolsPanelPixels of the space.
+	ImGui::SetNextWindowPos(ImVec2(0, (float)this->MenuSizePixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels - 1), ImGuiCond_Always);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	//TODO
+	ImGui::End();
+	ImGui::PopStyleColor();
+	
+	//MAIN SEPARATOR
+	ImGui::Separator();
+
 	//IMAGE WINDOW
-	ImGui::SetNextWindowPos(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, this->MenuSizePixels), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * (float)io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::Begin("Image Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoBackground);
 	//Move the image
-	ImGui::SetCursorPos(ImVec2(this->imageShiftX, this->imageShiftY));
+	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 	//TODO
 	//Draw Image
 	if (!this->Images.empty()) {
@@ -122,26 +123,65 @@ void FeatherGUI::BuildGUI() {
 
 	//PROPERTIES WINDOW
 	float temp_percentage = (1.0F - (float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
-	ImGui::SetNextWindowPos(ImVec2(temp_percentage * this->io->DisplaySize.x, this->MenuSizePixels), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, this->io->DisplaySize.y), ImGuiCond_Always);
+	ImGui::SetNextWindowPos(ImVec2(temp_percentage * this->io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels)/2), ImGuiCond_Always);
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
 	ImGui::Begin("Properties Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
-	ImGui::Text("Properties");
+	//TabItem
+	if (ImGui::BeginTabBar("Properties", ImGuiTabBarFlags_None)) {
+		if (ImGui::BeginTabItem("Image")) {
+			ImGui::Text("Data of the Image");
+			ImGui::Separator();
+			ImGui::Text("Identifier: %d", CurrentImage.texture);
+			ImGui::Text("Size = %d x %d", CurrentImage.width, CurrentImage.height);
+			ImGui::Text("Channels: %d", CurrentImage.channels);
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::End();
+	//New Section for Layers
+	ImGui::SetNextWindowPos(ImVec2(temp_percentage* this->io->DisplaySize.x, (this->io->DisplaySize.y + this->MenuSizePixels) / 2), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels) / 2 - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::Separator();
-	//Layers reordering line 2277
-	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage.width && 
+	ImGui::Begin("Layers Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	//Layers
+	if (ImGui::BeginTabBar("Layers", ImGuiTabBarFlags_None)) {
+		if (ImGui::BeginTabItem("Layers")) {
+			ImGui::Text("TEST");
+			ImGui::Separator();
+
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::End();
+	ImGui::PopStyleColor();
+	
+	//MAIN SEPARATOR
+	ImGui::Separator();
+
+	//INFO WINDOW
+	ImGui::SetNextWindowPos(ImVec2(0, this->io->DisplaySize.y - this->infoPanelPixels), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(this->io->DisplaySize.x, (float)this->infoPanelPixels), ImGuiCond_Always);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	//Adjust the font size to fit the window
+	ImGui::Begin("Info Bar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
+	//TODO
+	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage.width &&
 		this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage.height) {
 		ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
-	} 
+	}
 	else
 	{
 		ImGui::Text("Current Pixel: (-,-)");
 	}
-	ImGui::Text("Zoom: %.2f", this->zoom);
-
-	ImGui::PopStyleColor();
+	//Print the zoom on the same line
+	ImGui::SameLine();
+	ImGui::Text("  |  Zoom: %.2f", this->zoom);
 	ImGui::End();
+	ImGui::PopStyleColor();
 	
 
 	//--------------------EXTERN WINDOWS--------------------
@@ -194,17 +234,13 @@ void FeatherGUI::BuildGUI() {
 
 	//Dragging the Image over the window
 	if (ImGui::IsMouseDown(1)) {
-		this->imageShiftX += (this->io->MouseDelta.x);
-		this->imageShiftY += (this->io->MouseDelta.y);
+		this->imageShiftX += static_cast<int>(this->io->MouseDelta.x);
+		this->imageShiftY += static_cast<int>(this->io->MouseDelta.y);
 	}
 
 	//Double click set zoom to 1.0F and the image shift to the center of the Image Window
 	if (ImGui::IsMouseDoubleClicked(1)) {
-		this->zoom = 1.0F;
-		//Center X is (1-(x+z))/2+x, where x is toolsPanelPixels and z is propertiesPanelPixels, substract the size of the image
-		this->imageShiftX = (1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (CurrentImage.width * this->zoom / 2.0F);
-		//Center Y is the size of the screen minus the size of the image divided by 2
-		this->imageShiftY = io->DisplaySize.y / 2.0F - (CurrentImage.height / 2.0F);
+		this->centerImage();
 	}
 	
 	//UP
@@ -291,6 +327,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//GUI PLACEMENTS
 	this->toolsPanelPixels = 32;
 	this->propertiesPanelPixels = 256;
+	this->infoPanelPixels = 32;
 }
 
 FeatherGUI::~FeatherGUI() {
@@ -364,4 +401,12 @@ void FeatherGUI::setIconSize(float _size) {
 
 float FeatherGUI::getIconSize() {
 	return this->iconSize;
+}
+
+void FeatherGUI::centerImage() {
+	this->zoom = 1.0F;
+	//Center X is (1-(x+z))/2+x, where x is toolsPanelPixels and z is propertiesPanelPixels, substract the size of the image
+	this->imageShiftX = static_cast<int>((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (CurrentImage.width * this->zoom / 2.0F));
+	//Center Y is the size of the screen minus the size of the image divided by 2
+	this->imageShiftY = static_cast<int>(io->DisplaySize.y / 2.0F - (CurrentImage.height / 2.0F));
 }
