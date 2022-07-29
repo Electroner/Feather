@@ -44,21 +44,22 @@ class FeatherGUI
 		bool debugConsole;
 		bool placementConfig;
 		bool disableWindowsRounding;
-		int windowWidth;
-		int windowHeight;
+		int windowWidth; //Pixels
+		int windowHeight; //Pixels
 		
 		//FONTS AND TEXT VARS
-		float iconSize;
+		float iconSize; //Pixels
 
 		//IMAGE VARS
-		float zoomIncrement;
-		float zoom;
-		int imageShiftX;
-		int imageShiftY;
+		float zoomIncrement; //Percentage of zoom per click
+		float zoom; // Percentage
+		int imageShiftX; //Pixels
+		int imageShiftY; //Pixels
 		
 		//GENERAL UI PLACEMENT VARS
-		int toolsPanelPixels;
-		int propertiesPanelPixels;
+		int toolsPanelPixels; //Pixels
+		int propertiesPanelPixels; //Pixels
+		int infoPanelPixels; //Pixels
 
 		//IMGUI VARS
 		RGB BackGroundRGB;
@@ -66,11 +67,11 @@ class FeatherGUI
 		ImageStr CurrentImage;
 		ImFont* CurrentFont;
 		
-		int MouseImagePositionX;
-		int MouseImagePositionY;
+		int MouseImagePositionX; //Pixels
+		int MouseImagePositionY; //Pixels
 
-		const int MenuSizePixels = 22;
-		const int SeparatorSizePixels = 8;
+		const int MenuSizePixels = 22; //Pixels
+		const int SeparatorSizePixels = 8; //Pixels
 
 		//CONSOLE
 		std::streambuf* coutbuff;
@@ -98,6 +99,8 @@ class FeatherGUI
 
 		void SetBackGroundColor(float _r, float _g, float _b);
 		RGB GetBackGroundColor();
+
+		void centerImage();
 };
 
 #endif // !FEATHERGUI
