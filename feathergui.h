@@ -27,6 +27,8 @@ struct RGB {
 
 struct ImageStr {
 	std::string imagePath;
+	std::string extension;
+	std::string name;
 	int width;
 	int height;
 	int channels;
@@ -43,7 +45,7 @@ class FeatherGUI
 		bool isOpen;
 		bool debugConsole;
 		bool placementConfig;
-		bool disableWindowsRounding;
+		bool disableOptionsRounding;
 		int windowWidth; //Pixels
 		int windowHeight; //Pixels
 		
@@ -53,6 +55,8 @@ class FeatherGUI
 		//IMAGE VARS
 		float zoomIncrement; //Percentage of zoom per click
 		float zoom; // Percentage
+		float maxZoom; //Absolut ezoom level
+		float minZoom; //Absolut ezoom level
 		int imageShiftX; //Pixels
 		int imageShiftY; //Pixels
 		
@@ -73,15 +77,24 @@ class FeatherGUI
 		const int MenuSizePixels = 22; //Pixels
 		const int SeparatorSizePixels = 8; //Pixels
 
+		float windowRounding;
+
+		//OPTIONS VARS
+		bool Vsync;
+
 		//CONSOLE
 		std::streambuf* coutbuff;
 		std::ostringstream ss;
 		
-		//---------------------------METODS---------------------------
+		//---------------------------METHODS---------------------------
 		void setIconSize(float _size);
 		float getIconSize();
 		
 		bool loadImage(std::string _path);	
+
+		//---------------------------OPENGL---------------------------
+		void SetSync(bool _sync);
+		bool GetSync();
 		
 	public:
 		
@@ -90,6 +103,8 @@ class FeatherGUI
 
 		FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version);
 		~FeatherGUI();
+
+		void HelpMarker(const char* desc);
 		
 		bool IsOpened();
 
@@ -99,8 +114,24 @@ class FeatherGUI
 
 		void SetBackGroundColor(float _r, float _g, float _b);
 		RGB GetBackGroundColor();
-
+		
+		void calculateZoom();
 		void centerImage();
+
+		//STATIC MENUS
+		void BuildMenu();
+		void BuildTools();
+		void BuildImageDisplayer();
+		void BuildProperties();
+		void BuildLayers();
+		void BuildInfo();
+		
+		//DYNAMIC MENUS
+		void BuildConfigMenu();
+		void BuildConsoleDebugMenu();
+
+		//INPUT FUNCTIONS
+		void InputFunctions();
 };
 
 #endif // !FEATHERGUI
