@@ -70,6 +70,11 @@ class FeatherGUI
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
 		ImFont* CurrentFont;
+
+		//ICON IMAGES
+		std::vector<ImageStr> toolsIcons;
+		ImVec4 colorNoSelectedMenu;
+		ImVec4 colorSelectedMenu;
 		
 		int MouseImagePositionX; //Pixels
 		int MouseImagePositionY; //Pixels
@@ -82,6 +87,9 @@ class FeatherGUI
 		//OPTIONS VARS
 		bool Vsync;
 
+		//TOOLS VARS
+		int CurrentTool;
+
 		//CONSOLE
 		std::streambuf* coutbuff;
 		std::ostringstream ss;
@@ -91,6 +99,7 @@ class FeatherGUI
 		float getIconSize();
 		
 		bool loadImage(std::string _path);	
+		bool loadIcon(std::string _path);
 
 		//---------------------------OPENGL---------------------------
 		void SetSync(bool _sync);
@@ -135,3 +144,4 @@ class FeatherGUI
 };
 
 #endif // !FEATHERGUI
+
