@@ -2,10 +2,25 @@
 #include "pathwork.h"
 #include "IconsFontAwesome.h"
 
+//TODO
+/*
+	-> Add all the options to the menu
+	-> Add the ability to change the icon size
+	-> Add a import export configuration
+	-> Add a configuration file
+	-> Add a configuration option to enable/disable the default zoom
+	-> Make the default zoom configurable
+	-> Sort and make the configuration menu more user friendly
+	-> Create a move all the functionality of the image to a new ImageWork.h / ImageWork.cpp
+	-> Load the tools image
+	
+	# Search if there is any option to set the images into the executable
+*/
+
 void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
-	if (Images.empty()) {
+	/*if (Images.empty()) {
 		if (!loadImage("./resoruces/exampleimages/manzana.png")) {
 			std::cout << "Error Loading the Image manzana.png" << std::endl;
 		}
@@ -21,7 +36,7 @@ void FeatherGUI::BuildGUI() {
 		std::cout << "Size = " << CurrentImage.width << "x" << CurrentImage.height << std::endl;
 		std::cout << "Channels: " << CurrentImage.channels << std::endl;
 		this->centerImage();
-	}
+	}*/
 	
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
@@ -61,7 +76,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->io = &ImGui::GetIO();
 	(void)io;
 	//io->Fonts->AddFontDefault();
-	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resoruces/consolas.ttf", 16);
+	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resoruces/fonts/consolas.ttf", 16);
 	ImGui::StyleColorsDark();
 	
 	//Link the buffer
@@ -84,7 +99,17 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//Adding Icons
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	io->Fonts->AddFontFromFileTTF("./resoruces/icon_regular.ttf", this->getIconSize(), &icons_config, icons_ranges);
+	io->Fonts->AddFontFromFileTTF("./resoruces/fonts/icon_regular.ttf", this->getIconSize(), &icons_config, icons_ranges);
+	//Loading Icons
+	if (!loadIcon("./resoruces/icons/Pencil.png")) {
+		std::cout << "Error Loading the Image Pencil.png" << std::endl;
+	}
+	if (!loadIcon("./resoruces/icons/Brush.png")) {
+		std::cout << "Error Loading the Image Brush.png" << std::endl;
+	}
+	if (!loadIcon("./resoruces/icons/Rubber.png")) {
+		std::cout << "Error Loading the Image Rubber.jpg" << std::endl;
+	}
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(_windowContext, true);
@@ -99,6 +124,10 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->BackGroundRGB.g = 0.25;
 	this->BackGroundRGB.b = 0.25;
 	this->BackGroundRGB.delta = 1.0;
+
+	//Colors of the buttons when a tool is selected and when it is not
+	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
 
 	//set to false every loaded image in the vector
 	for (int i = 0; i < Images.size(); i++) {
@@ -116,6 +145,9 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->toolsPanelPixels = 32;
 	this->propertiesPanelPixels = 256;
 	this->infoPanelPixels = 32;
+
+	//TOOLS VARs
+	this->CurrentTool = -1;
 }
 
 FeatherGUI::~FeatherGUI() {
@@ -141,6 +173,11 @@ void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
 	this->BackGroundRGB.r = r;
 	this->BackGroundRGB.g = g;
 	this->BackGroundRGB.b = b;
+
+	//Colors of the buttons when a tool is selected and when it is not
+	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
+
 }
 
 RGB FeatherGUI::GetBackGroundColor() {
@@ -163,12 +200,22 @@ bool FeatherGUI::loadImage(std::string _path) {
 	ImageStr unloadedImage;
 	unloadedImage.imagePath = _path;
 	std::cout << "Loading image: " << _path << std::endl;
-	unloadedImage.data = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &unloadedImage.channels, 3);
+	//Get the numbers of channels in the image
+	int channels;
+	unsigned char* image = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &channels, 0);
+	if (!image) {
+		std::cout << "Error Loading the Image: " << _path << std::endl;
+		return false;
+	}
+	unloadedImage.data = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &unloadedImage.channels, channels);
 	if (!unloadedImage.data) {
 		fprintf(stderr, "Cannot load image '%s'\n", _path.c_str());
 		unloadedImage.loaded = true;
 		return false;
 	}
+
+	//free image
+	stbi_image_free(image);
 
 	//Set the name of the image from the path
 	unloadedImage.name = _path.substr(_path.find_last_of('/') + 1);
@@ -178,6 +225,11 @@ bool FeatherGUI::loadImage(std::string _path) {
 	unloadedImage.name = unloadedImage.name.substr(0, unloadedImage.name.find_last_of('.'));
 	std::cout << "Image name: " << unloadedImage.name << std::endl << std::endl;
 
+	//Enable transparency
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	// Create a OpenGL texture identifier and binding
 	glGenTextures(1, &unloadedImage.texture);
 	glBindTexture(GL_TEXTURE_2D, unloadedImage.texture);
@@ -185,13 +237,16 @@ bool FeatherGUI::loadImage(std::string _path) {
 	// Setup filtering parameters for display
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
 	// Upload pixels into texture
 	#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	#endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	if(channels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+	} else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
 	stbi_image_free(unloadedImage.data);
 	
 	unloadedImage.loaded = true;
@@ -202,14 +257,74 @@ bool FeatherGUI::loadImage(std::string _path) {
 	return true;
 }
 
+bool FeatherGUI::loadIcon(std::string _path) {
+	//Load texture from file
+	ImageStr unloadedImage;
+	unloadedImage.imagePath = _path;
+	std::cout << "Loading icon: " << _path << std::endl;
+	int channels;
+	unsigned char* image = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &channels, 0);
+	if (!image) {
+		std::cout << "Error Loading the icon: " << _path << std::endl;
+		return false;
+	}
+	unloadedImage.data = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &unloadedImage.channels, channels);
+	if (!unloadedImage.data) {
+		fprintf(stderr, "Cannot load icon '%s'\n", _path.c_str());
+		unloadedImage.loaded = true;
+		return false;
+	}
+
+	//free image
+	stbi_image_free(image);
+
+	//Set the name of the image from the path
+	unloadedImage.name = _path.substr(_path.find_last_of('/') + 1);
+	unloadedImage.extension = _path.substr(_path.find_last_of('.') + 1);
+	std::cout << "Icon extension: " << unloadedImage.extension << std::endl;
+	//Erase the extension of the name
+	unloadedImage.name = unloadedImage.name.substr(0, unloadedImage.name.find_last_of('.'));
+	std::cout << "Icon name: " << unloadedImage.name << std::endl << std::endl;
+
+	// Create a OpenGL texture identifier and binding
+	glGenTextures(1, &unloadedImage.texture);
+	glBindTexture(GL_TEXTURE_2D, unloadedImage.texture);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Upload pixels into texture
+	#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	#endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	if (channels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	stbi_image_free(unloadedImage.data);
+
+	unloadedImage.loaded = true;
+
+	//Add image to Images vector
+	toolsIcons.push_back(unloadedImage);
+
+	return true;
+}
+
 void FeatherGUI::SetSync(bool _sync) {
 	if(_sync) {
 		this->Vsync = true;
 		glfwSwapInterval(1);
+		std::cout << "Vsync enabled" << std::endl;
 	}
 	else {
 		this->Vsync = false;
 		glfwSwapInterval(0);
+		std::cout << "Vsync disabled" << std::endl;
 	}
 }
 
@@ -260,6 +375,11 @@ void FeatherGUI::calculateZoom() {
 
 	//Set the increment in the 1% of the diference between min and max
 	this->zoomIncrement = (this->maxZoom - this->minZoom) / 100.0F;
+
+	std::cout << "Adjusted Zoom to: " << this->zoom << std::endl;
+	std::cout << "Adjusted Max Zoom: " << this->maxZoom << std::endl;
+	std::cout << "Adjusted Min Zoom: " << this->minZoom << std::endl;
+	std::cout << "Adjusted Zoom Increment: " << this->zoomIncrement << std::endl;
 }
 
 void FeatherGUI::centerImage() {
@@ -269,6 +389,8 @@ void FeatherGUI::centerImage() {
 	//Center Y is the size of the screen minus the size of the image divided by 2
 	this->imageShiftY = static_cast<int>((io->DisplaySize.y - this->infoPanelPixels - this->MenuSizePixels) / 2.0F - (CurrentImage.height * this->zoom / 2.0F));
 
+	std::cout << "Adjusted Image Shift X: " << this->imageShiftX << std::endl;
+	std::cout << "Adjusted Image Shift Y: " << this->imageShiftY << std::endl;
 }
 
 void FeatherGUI::BuildMenu() {
@@ -350,6 +472,30 @@ void FeatherGUI::BuildTools() {
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
 	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
+	ImVec4 colorActualButton;
+	//Para todas las herramientas (tamaño del vector de Iconos)
+	for (int i = 0; i < this->toolsIcons.size(); i++) {
+		if (this->CurrentTool == i) {
+			colorActualButton = this->colorSelectedMenu;
+		}
+		else
+		{
+			colorActualButton = this->colorNoSelectedMenu;
+		}
+		//Create a iconbutton for each tool using the images of the icons vector with transparent background
+		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[i].texture, ImVec2(this->toolsPanelPixels / 2, this->toolsPanelPixels / 2), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
+			if(this->CurrentTool == i)
+			{
+				std::cout << "Tool " << i << " deselected" << std::endl;
+				this->CurrentTool = -1;
+			}
+			else
+			{
+				std::cout << "Tool " << i << " selected" << std::endl;
+				this->CurrentTool = i;
+			}
+		}
+	}
 	//TODOEND
 	ImGui::End();
 	ImGui::PopStyleColor();
