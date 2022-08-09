@@ -41,6 +41,10 @@ void FeatherGUI::BuildGUI() {
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, this->windowRounding);
+	//Make all menus red
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_Tab, this->colorSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedMenu);
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -59,6 +63,9 @@ void FeatherGUI::BuildGUI() {
 			this->BuildConsoleDebugMenu();
 		}
 	}
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
 	
 	//--------------------INPUT FUNTIONS--------------------
@@ -469,11 +476,11 @@ void FeatherGUI::BuildTools() {
 	//Create a window on the left maximized that occupies toolsPanelPixels of the space.
 	ImGui::SetNextWindowPos(ImVec2(0, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels - 1), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
 	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	ImVec4 colorActualButton;
-	//Para todas las herramientas (tamaño del vector de Iconos)
+	//Para todas las herramientas (tama�o del vector de Iconos)
 	for (int i = 0; i < this->toolsIcons.size(); i++) {
 		if (this->CurrentTool == i) {
 			colorActualButton = this->colorSelectedMenu;
@@ -530,7 +537,7 @@ void FeatherGUI::BuildProperties() {
 	float temp_percentage = ((float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
 	ImGui::SetNextWindowPos(ImVec2((1.0F - temp_percentage) * this->io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels) / 2), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
 	ImGui::Begin("Properties Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	//TabItem
@@ -594,7 +601,7 @@ void FeatherGUI::BuildInfo() {
 	//INFO WINDOW
 	ImGui::SetNextWindowPos(ImVec2(0, this->io->DisplaySize.y - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(this->io->DisplaySize.x, (float)this->infoPanelPixels), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
 	//Adjust the font size to fit the window
 	ImGui::Begin("Info Bar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
