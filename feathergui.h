@@ -73,8 +73,12 @@ class FeatherGUI
 
 		//ICON IMAGES
 		std::vector<ImageStr> toolsIcons;
+
+		//COLORS
+		bool whiteIcons;
 		ImVec4 colorNoSelectedMenu;
 		ImVec4 colorSelectedMenu;
+		ImVec4 colorWindowBar;
 		
 		int MouseImagePositionX; //Pixels
 		int MouseImagePositionY; //Pixels

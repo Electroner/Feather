@@ -42,9 +42,9 @@ void FeatherGUI::BuildGUI() {
 	//Make all menus rounds with window Rounding
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, this->windowRounding);
 	//Make all menus red
-	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedMenu);
-	ImGui::PushStyleColor(ImGuiCol_Tab, this->colorSelectedMenu);
-	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedMenu); // Background of the windows
+	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedMenu); //Tabs in layer and options and selected tool
+	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Ventana
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -117,6 +117,16 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resoruces/icons/Rubber.png")) {
 		std::cout << "Error Loading the Image Rubber.jpg" << std::endl;
 	}
+	//Load the Black Icons
+	if (!loadIcon("./resoruces/icons/Black_Pencil.png")) {
+		std::cout << "Error Loading the Image Black Pencil.png" << std::endl;
+	}
+	if (!loadIcon("./resoruces/icons/Black_Brush.png")) {
+		std::cout << "Error Loading the Image Black Brush.png" << std::endl;
+	}
+	if (!loadIcon("./resoruces/icons/Black_Rubber.png")) {
+		std::cout << "Error Loading the Image Black Rubber.jpg" << std::endl;
+	}
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(_windowContext, true);
@@ -131,10 +141,13 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->BackGroundRGB.g = 0.25;
 	this->BackGroundRGB.b = 0.25;
 	this->BackGroundRGB.delta = 1.0;
+	
+	this->whiteIcons = true;
 
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.10F, this->GetBackGroundColor().g - 0.10F, this->GetBackGroundColor().b - 0.10F, 1.0f);
 	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
+	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.5F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
 
 	//set to false every loaded image in the vector
 	for (int i = 0; i < Images.size(); i++) {
@@ -181,10 +194,18 @@ void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
 	this->BackGroundRGB.g = g;
 	this->BackGroundRGB.b = b;
 
+	//if the colors is white (rgb > 128) set whiteIcons = false
+	if (this->BackGroundRGB.r > 128 && this->BackGroundRGB.g > 128 && this->BackGroundRGB.b > 128) {
+		this->whiteIcons = false;
+	}
+	else {
+		this->whiteIcons = true;
+	}
+	
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.10F, this->GetBackGroundColor().g - 0.10F, this->GetBackGroundColor().b - 0.10F, 1.0f);
 	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
-
+	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
 }
 
 RGB FeatherGUI::GetBackGroundColor() {
@@ -481,7 +502,7 @@ void FeatherGUI::BuildTools() {
 	//TODO
 	ImVec4 colorActualButton;
 	//Para todas las herramientas (tama�o del vector de Iconos)
-	for (int i = 0; i < this->toolsIcons.size(); i++) {
+	for (int i = 0; i < this->toolsIcons.size()/2; i++) {
 		if (this->CurrentTool == i) {
 			colorActualButton = this->colorSelectedMenu;
 		}

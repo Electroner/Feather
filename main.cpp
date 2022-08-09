@@ -48,6 +48,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	//Set title of the window
 	glfwSetWindowTitle(window, "Feather");
 
+	//Make it fullscreen
+	//glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, 1920, 1080, GLFW_DONT_CARE);
+
+	//Make the windows maximized
+	glfwMaximizeWindow(window);
+
 	//Create the GUI
 	FeatherGUI gui(window, glsl_version);
 
