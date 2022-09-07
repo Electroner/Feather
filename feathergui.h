@@ -18,24 +18,7 @@
 #include "ImageIO/stb_image.h"
 #include "ImageIO/stb_image_write.h"
 
-struct RGB {
-	float r;
-	float g;
-	float b;
-	float delta;
-};
-
-struct ImageStr {
-	std::string imagePath;
-	std::string extension;
-	std::string name;
-	int width;
-	int height;
-	int channels;
-	unsigned char* data;
-	GLuint texture;
-	bool loaded;
-};
+#include "ImageWork.h"
 
 class FeatherGUI
 {
@@ -66,9 +49,10 @@ class FeatherGUI
 		int infoPanelPixels; //Pixels
 
 		//IMGUI VARS
+		ImageWork workStation;
 		RGB BackGroundRGB;
-		std::vector<ImageStr> Images;
-		ImageStr CurrentImage;
+		std::vector<ImageStr>* Images;
+		ImageStr* CurrentImage;
 		ImFont* CurrentFont;
 
 		//ICON IMAGES
@@ -76,9 +60,11 @@ class FeatherGUI
 
 		//COLORS
 		bool whiteIcons;
-		ImVec4 colorNoSelectedMenu;
-		ImVec4 colorSelectedMenu;
+		ImVec4 colorNoSelectedTool;
+		ImVec4 colorSelectedTool;
 		ImVec4 colorWindowBar;
+		ImVec4 colorSelectedWindow;
+		ImVec4 colorNoSelectedWindow;
 		
 		int MouseImagePositionX; //Pixels
 		int MouseImagePositionY; //Pixels
@@ -109,25 +95,10 @@ class FeatherGUI
 		void SetSync(bool _sync);
 		bool GetSync();
 		
-	public:
-		
-		GLFWwindow* windowContext;
-		ImGuiIO* io;
-
-		FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version);
-		~FeatherGUI();
-
 		void HelpMarker(const char* desc);
-		
-		bool IsOpened();
+		void FloatingText(char* desc);
+		void FloatingText(const char* desc);
 
-		void InitGUI();
-		void BuildGUI();
-		void RenderGUI();
-
-		void SetBackGroundColor(float _r, float _g, float _b);
-		RGB GetBackGroundColor();
-		
 		void calculateZoom();
 		void centerImage();
 
@@ -138,13 +109,30 @@ class FeatherGUI
 		void BuildProperties();
 		void BuildLayers();
 		void BuildInfo();
-		
+
 		//DYNAMIC MENUS
 		void BuildConfigMenu();
 		void BuildConsoleDebugMenu();
 
 		//INPUT FUNCTIONS
 		void InputFunctions();
+		
+	public:
+		
+		GLFWwindow* windowContext;
+		ImGuiIO* io;
+
+		FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version);
+		~FeatherGUI();
+		
+		bool IsOpened();
+
+		void InitGUI();
+		void BuildGUI();
+		void RenderGUI();
+
+		void SetBackGroundColor(float _r, float _g, float _b);
+		RGB GetBackGroundColor();
 };
 
 #endif // !FEATHERGUI

@@ -31,6 +31,12 @@
     <Filter Include="Archivos de origen\Directories">
       <UniqueIdentifier>{266a3c1a-74f8-452d-927d-0bfffedd6297}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de encabezado\ImageWork">
+      <UniqueIdentifier>{bd86191c-be4a-4508-8021-984ae8879f03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\ImageWork">
+      <UniqueIdentifier>{278c0ad6-5a61-41d2-995f-752fe44f6ddb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -65,6 +71,9 @@
     </ClCompile>
     <ClCompile Include="feathergui.cpp">
       <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork.cpp">
+      <Filter>Archivos de origen\ImageWork</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +124,9 @@
     </ClInclude>
     <ClInclude Include="IconsFontAwesome.h">
       <Filter>Archivos de encabezado\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageWork.h">
+      <Filter>Archivos de encabezado\ImageWork</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

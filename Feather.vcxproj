@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="feathergui.cpp" />
+    <ClCompile Include="ImageWork.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="feathergui.h" />
     <ClInclude Include="IconsFontAwesome.h" />
+    <ClInclude Include="ImageWork.h" />
     <ClInclude Include="pathwork.h" />
     <ClInclude Include="ImageIO\stb_image.h" />
     <ClInclude Include="ImageIO\stb_image_resize.h" />

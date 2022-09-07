@@ -42,8 +42,8 @@ void FeatherGUI::BuildGUI() {
 	//Make all menus rounds with window Rounding
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, this->windowRounding);
 	//Make all menus red
-	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedMenu); // Background of the windows
-	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedMenu); //Tabs in layer and options and selected tool
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedWindow); // Background of the windows
+	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedWindow); //Tabs in layer and options and selected tool
 	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Ventana
 	//BUILDGUI
 	{
@@ -145,13 +145,17 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->whiteIcons = true;
 
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.10F, this->GetBackGroundColor().g - 0.10F, this->GetBackGroundColor().b - 0.10F, 1.0f);
-	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
 	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.5F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.1F, this->GetBackGroundColor().g - 0.1F, this->GetBackGroundColor().b - 0.1F, 1.0f);
+	this->colorNoSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.90F, this->GetBackGroundColor().g - 0.90F, this->GetBackGroundColor().b - 0.90F, 1.0f);
+	this->colorNoSelectedTool = this->colorSelectedWindow;
+	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
 
+	workStation.init(&this->Images,&this->CurrentImage);
+	
 	//set to false every loaded image in the vector
-	for (int i = 0; i < Images.size(); i++) {
-		Images[i].loaded = false;
+	for (int i = 0; i < this->Images->size(); i++) {
+		this->Images->at(i).loaded = false;
 	}
 
 	this->zoom = 1;
@@ -189,13 +193,28 @@ void FeatherGUI::HelpMarker(const char* desc)
 	}
 }
 
+void FeatherGUI::FloatingText(char* desc) {
+	FloatingText((const char*)desc);
+}
+
+void FeatherGUI::FloatingText(const char* desc) {
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+
 void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
 	this->BackGroundRGB.r = r;
 	this->BackGroundRGB.g = g;
 	this->BackGroundRGB.b = b;
 
 	//if the colors is white (rgb > 128) set whiteIcons = false
-	if (this->BackGroundRGB.r > 128 && this->BackGroundRGB.g > 128 && this->BackGroundRGB.b > 128) {
+	if (this->BackGroundRGB.r > 0.5 && this->BackGroundRGB.g > 0.5 && this->BackGroundRGB.b > 0.5) {
 		this->whiteIcons = false;
 	}
 	else {
@@ -203,9 +222,11 @@ void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
 	}
 	
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorNoSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.10F, this->GetBackGroundColor().g - 0.10F, this->GetBackGroundColor().b - 0.10F, 1.0f);
-	this->colorSelectedMenu = ImVec4(this->GetBackGroundColor().r - 0.25F, this->GetBackGroundColor().g - 0.25F, this->GetBackGroundColor().b - 0.25F, 1.0f);
 	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
+	this->colorSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.1F, this->GetBackGroundColor().g - 0.1F, this->GetBackGroundColor().b - 0.1F, 1.0f);
+	this->colorNoSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.90F, this->GetBackGroundColor().g - 0.90F, this->GetBackGroundColor().b - 0.90F, 1.0f);
+	this->colorNoSelectedTool = this->colorSelectedWindow;
+	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
 }
 
 RGB FeatherGUI::GetBackGroundColor() {
@@ -280,7 +301,7 @@ bool FeatherGUI::loadImage(std::string _path) {
 	unloadedImage.loaded = true;
 
 	//Add image to Images vector
-	Images.push_back(unloadedImage);
+	this->Images->push_back(unloadedImage);
 
 	return true;
 }
@@ -382,8 +403,8 @@ void FeatherGUI::calculateZoom() {
 	int size_y = io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels;
 
 	//Image Sizes
-	int image_x = CurrentImage.width;
-	int image_y = CurrentImage.height;
+	int image_x = this->CurrentImage->width;
+	int image_y = this->CurrentImage->height;
 
 	//Calculate the zoom
 	if (image_x / size_x > image_y / size_y) {
@@ -413,9 +434,9 @@ void FeatherGUI::calculateZoom() {
 void FeatherGUI::centerImage() {
 	calculateZoom();
 	//Center X is (1-(x+z))/2+x, where x is toolsPanelPixels and z is propertiesPanelPixels, substract the size of the image
-	this->imageShiftX = static_cast<int>((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (CurrentImage.width * this->zoom / 2.0F));
+	this->imageShiftX = static_cast<int>((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x / 2.0F - (this->CurrentImage->width * this->zoom / 2.0F));
 	//Center Y is the size of the screen minus the size of the image divided by 2
-	this->imageShiftY = static_cast<int>((io->DisplaySize.y - this->infoPanelPixels - this->MenuSizePixels) / 2.0F - (CurrentImage.height * this->zoom / 2.0F));
+	this->imageShiftY = static_cast<int>((io->DisplaySize.y - this->infoPanelPixels - this->MenuSizePixels) / 2.0F - (this->CurrentImage->height * this->zoom / 2.0F));
 
 	std::cout << "Adjusted Image Shift X: " << this->imageShiftX << std::endl;
 	std::cout << "Adjusted Image Shift Y: " << this->imageShiftY << std::endl;
@@ -435,7 +456,7 @@ void FeatherGUI::BuildMenu() {
 				if (!loadImage(filename)) {
 					ImGui::Text("Error loading image");
 				}
-				this->CurrentImage = this->Images.back();
+				this->CurrentImage = &this->Images->back();
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save", "|Ctrl+S")) {
 
@@ -497,21 +518,43 @@ void FeatherGUI::BuildTools() {
 	//Create a window on the left maximized that occupies toolsPanelPixels of the space.
 	ImGui::SetNextWindowPos(ImVec2(0, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels - 1), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorSelectedWindow);
 	ImGui::Begin("Tools Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	ImVec4 colorActualButton;
-	//Para todas las herramientas (tama�o del vector de Iconos)
+	//For every icon in the folder
+	int temp_i;
 	for (int i = 0; i < this->toolsIcons.size()/2; i++) {
-		if (this->CurrentTool == i) {
-			colorActualButton = this->colorSelectedMenu;
+		temp_i = i;
+		if (this->whiteIcons) {
+			temp_i = i;
+		}
+		else 
+		{
+			temp_i = i + this->toolsIcons.size() / 2;
+		}
+		//Select the color for selected icon
+		if (this->CurrentTool == i) 
+		{
+			colorActualButton = this->colorSelectedTool;
+			if (this->whiteIcons) 
+			{
+				colorActualButton = this->colorSelectedTool;
+				temp_i = i + this->toolsIcons.size() / 2;
+			}
+			else 
+			{
+				colorActualButton = this->colorSelectedTool;
+				temp_i = i;
+			}
 		}
 		else
 		{
-			colorActualButton = this->colorNoSelectedMenu;
+			colorActualButton = this->colorNoSelectedTool;
 		}
 		//Create a iconbutton for each tool using the images of the icons vector with transparent background
-		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[i].texture, ImVec2(this->toolsPanelPixels / 2, this->toolsPanelPixels / 2), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
+		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[temp_i].texture, ImVec2(this->toolsPanelPixels / 2, this->toolsPanelPixels / 2), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
+			//create a floatingtext with index
 			if(this->CurrentTool == i)
 			{
 				std::cout << "Tool " << i << " deselected" << std::endl;
@@ -541,9 +584,9 @@ void FeatherGUI::BuildImageDisplayer() {
 	//Move the image
 	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 	//Draw Image
-	if (!this->Images.empty()) {
-		if (CurrentImage.data != NULL) {
-			ImGui::Image((void*)(intptr_t)CurrentImage.texture, ImVec2(CurrentImage.width * this->zoom, CurrentImage.height * this->zoom));
+	if (!this->Images->empty()) {
+		if (this->CurrentImage->data != NULL) {
+			ImGui::Image((void*)(intptr_t)this->CurrentImage->texture, ImVec2(this->CurrentImage->width * this->zoom, this->CurrentImage->height * this->zoom));
 		}
 	}
 	//TODOEND
@@ -558,7 +601,7 @@ void FeatherGUI::BuildProperties() {
 	float temp_percentage = ((float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
 	ImGui::SetNextWindowPos(ImVec2((1.0F - temp_percentage) * this->io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels) / 2), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorSelectedWindow);
 	ImGui::Begin("Properties Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	//TabItem
@@ -566,9 +609,9 @@ void FeatherGUI::BuildProperties() {
 		if (ImGui::BeginTabItem("Images")) {
 			ImGui::Text("Data of the Image");
 			ImGui::Separator();
-			ImGui::Text("Identifier: %d", CurrentImage.texture);
-			ImGui::Text("Size = %d x %d", CurrentImage.width, CurrentImage.height);
-			ImGui::Text("Channels: %d", CurrentImage.channels);
+			ImGui::Text("Identifier: %d", this->CurrentImage->texture);
+			ImGui::Text("Size = %d x %d", this->CurrentImage->width, CurrentImage->height);
+			ImGui::Text("Channels: %d", this->CurrentImage->channels);
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -589,18 +632,18 @@ void FeatherGUI::BuildLayers() {
 	ImGui::Begin("Layers Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	if (ImGui::BeginTabBar("Layers", ImGuiTabBarFlags_None)) {
 		if (ImGui::BeginTabItem("Layers")) {
-			for (int i = 0; i < this->Images.size(); i++) {
-				ImGui::Image((void*)(intptr_t)this->Images[i].texture, ImVec2(100 * temp_percentage, 100 * temp_percentage));
+			for (int i = 0; i < this->Images->size(); i++) {
+				ImGui::Image((void*)(intptr_t)this->Images->at(i).texture, ImVec2(100 * temp_percentage, 100 * temp_percentage));
 				ImGui::SameLine();
-				ImGui::Selectable(this->Images[i].name.c_str());
+				ImGui::Selectable(this->Images->at(i).name.c_str());
 				if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
 				{
 					int n_next = i + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
-					if (n_next >= 0 && n_next < this->Images.size())
+					if (n_next >= 0 && n_next < this->Images->size())
 					{
 						std::swap(this->Images[i], this->Images[n_next]);
 						ImGui::ResetMouseDragDelta();
-						CurrentImage = Images.front();
+						CurrentImage = &Images->front();
 						centerImage();
 					}
 				}
@@ -622,14 +665,14 @@ void FeatherGUI::BuildInfo() {
 	//INFO WINDOW
 	ImGui::SetNextWindowPos(ImVec2(0, this->io->DisplaySize.y - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(this->io->DisplaySize.x, (float)this->infoPanelPixels), ImGuiCond_Always);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorNoSelectedMenu);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, this->colorSelectedWindow);
 	//Adjust the font size to fit the window
 	ImGui::Begin("Info Bar", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	//TODO
 	{
 		//Check first if the mouse is over the Image Window
-		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage.width &&
-			this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage.height) {
+		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
+			this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
 			ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
 		}
 		else
