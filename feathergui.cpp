@@ -843,8 +843,8 @@ void FeatherGUI::InputFunctions() {
 	//If the mouse is over the image
 	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
 		this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
-		//If mouse click
-		if (ImGui::IsMouseClicked(0)) {		
+		//If mouse click or holded
+		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
 			if (this->CurrentTool != -1) {
 				workStation.useTool(this->CurrentTool,this->MouseImagePositionX,this->MouseImagePositionY);
 				this->UpdateImage();
