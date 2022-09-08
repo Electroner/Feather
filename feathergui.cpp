@@ -20,14 +20,14 @@
 void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
-	if (this->Images->empty()) {
+	/*if (this->Images->empty()) {
 		if (!loadImage("./resoruces/exampleimages/test.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
 
 		*this->CurrentImage = this->Images->front();
 		this->centerImage();
-	}
+	}*/
 	
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
@@ -158,6 +158,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->minZoom = 0.01F;
 	this->imageShiftX = 8;
 	this->imageShiftY = 8;
+	this->newImages = 0;
 
 	//GUI PLACEMENTS
 	this->toolsPanelPixels = 32;
@@ -408,8 +409,8 @@ void FeatherGUI::calculateZoom() {
 	//If the image is wider than taller then the image will be zoomed in horizontally and vertically
 	
 	//Window Sizes
-	int size_x = (1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x;
-	int size_y = io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels;
+	int size_x = static_cast<int>((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x);
+	int size_y = static_cast<int>(io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels);
 
 	//Image Sizes
 	int image_x = this->CurrentImage->width;
@@ -468,7 +469,7 @@ void FeatherGUI::BuildMenu() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu(ICON_FA_FILE_ALT " File")) {
 			if (ImGui::MenuItem(ICON_FA_FILE_IMAGE " New", "|Ctrl+N")) {
-
+				this->newImage();
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE " Open", "|Ctrl+O")) {
 				std::string filename;
@@ -570,7 +571,7 @@ void FeatherGUI::BuildTools() {
 		}
 		else 
 		{
-			temp_i = i + this->toolsIcons.size() / 2;
+			temp_i = static_cast<int>(i + this->toolsIcons.size() / 2);
 		}
 		//Select the color for selected icon
 		if (this->CurrentTool == i) 
@@ -579,7 +580,7 @@ void FeatherGUI::BuildTools() {
 			if (this->whiteIcons) 
 			{
 				colorActualButton = this->colorSelectedTool;
-				temp_i = i + this->toolsIcons.size() / 2;
+				temp_i = static_cast<int>(i + this->toolsIcons.size() / 2);
 			}
 			else 
 			{
@@ -592,7 +593,7 @@ void FeatherGUI::BuildTools() {
 			colorActualButton = this->colorNoSelectedTool;
 		}
 		//Create a iconbutton for each tool using the images of the icons vector with transparent background
-		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[temp_i].texture, ImVec2(this->toolsPanelPixels / 2, this->toolsPanelPixels / 2), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
+		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[temp_i].texture, ImVec2(static_cast<float>(this->toolsPanelPixels / 2), static_cast<float>(this->toolsPanelPixels / 2)), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
 			//create a floatingtext with index
 			if(this->CurrentTool == i)
 			{
@@ -855,4 +856,47 @@ void FeatherGUI::InputFunctions() {
 	//Position of the mouse inside the Image Window compensating the image shift and zoom
 	this->MouseImagePositionX = (int)ceil(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
 	this->MouseImagePositionY = (int)ceil(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+}
+
+void FeatherGUI::newImage() {
+	//Create a Image object
+	ImageStr blank;
+	//Set the image as blank
+	blank.channels = 3;
+	blank.width = 100;
+	blank.height = 100;
+	blank.data = new unsigned char[blank.width * blank.height * blank.channels];
+	//For every pixel set it white
+	for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
+		blank.data[i] = 255;
+	}
+	//Set the image as loaded
+	blank.loaded = true;
+	//Set the image as the current image adding newImages index
+	blank.name = "New Image " + std::to_string(newImages);
+	this->newImages++;
+	//Enable transparency
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Create a OpenGL texture identifier and binding
+	glGenTextures(1, &blank.texture);
+	glBindTexture(GL_TEXTURE_2D, blank.texture);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
+
+	this->Images->push_back(blank);
+	workStation.selectImage(static_cast<int>(this->Images->size() - 1));
+
+	//center Image
+	this->centerImage();
 }

@@ -42,6 +42,7 @@ class FeatherGUI
 		float minZoom; //Absolut ezoom level
 		int imageShiftX; //Pixels
 		int imageShiftY; //Pixels
+		int newImages; //How many new images has been created
 		
 		//GENERAL UI PLACEMENT VARS
 		int toolsPanelPixels; //Pixels
@@ -117,6 +118,9 @@ class FeatherGUI
 
 		//INPUT FUNCTIONS
 		void InputFunctions();
+
+		//IMAGE RELATED FUNCTIONS
+		void newImage();
 		
 	public:
 		

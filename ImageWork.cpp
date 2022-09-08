@@ -31,7 +31,6 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 }
 
 void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {	
-	std::cout << "Current Image: " << this->CurrentImage.texture << std::endl;
 	int index = ((_MouseImagePositionY - 1) * this->CurrentImage.width * this->CurrentImage.channels) + ((_MouseImagePositionX - 1) * this->CurrentImage.channels);
 	//Paint the pixel black
 	CurrentImage.data[index] = 0;
