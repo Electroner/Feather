@@ -101,6 +101,7 @@ class FeatherGUI
 
 		void calculateZoom();
 		void centerImage();
+		void UpdateImage();
 
 		//STATIC MENUS
 		void BuildMenu();

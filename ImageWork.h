@@ -24,7 +24,7 @@ struct ImageStr {
 	int width;
 	int height;
 	int channels;
-	unsigned char* data;
+	GLubyte* data;
 	GLuint texture;
 	bool loaded;
 };
@@ -36,9 +36,18 @@ class ImageWork {
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
 
+		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY);
+		
 	public:
 		
 		ImageWork();
 		~ImageWork();
 		void init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage);
+
+		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
+		void selectFrontImage();
+		void selectImage(int _index);
+		void swapImage(int _indexa, int _indexb);
 };

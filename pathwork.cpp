@@ -28,8 +28,8 @@ std::string browse(HWND hwnd)
 	OPENFILENAME ofn = { sizeof(OPENFILENAME) };
 	ofn.hwndOwner = hwnd;
 	ofn.lpstrFilter =
-		"Image files (*.png)\0*.jpg\0"
-		"All files\0*.*\0";
+		"All files\0*.*\0"
+		"Image files (*.png)\0*.jpg\0";
 	ofn.lpstrFile = &path[0];
 	ofn.nMaxFile = MAX_PATH;
 	ofn.Flags = OFN_FILEMUSTEXIST;

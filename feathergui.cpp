@@ -8,11 +8,11 @@
 	-> Add the ability to change the icon size
 	-> Add a import export configuration
 	-> Add a configuration file
+	-> Fix the zoom
 	-> Add a configuration option to enable/disable the default zoom
 	-> Make the default zoom configurable
 	-> Sort and make the configuration menu more user friendly
-	-> Create a move all the functionality of the image to a new ImageWork.h / ImageWork.cpp
-	-> Load the tools image
+	-> Create a move all the functionality of the image to a new ImageWork.h / ImageWork.cpp ~~
 	
 	# Search if there is any option to set the images into the executable
 */
@@ -20,23 +20,14 @@
 void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
-	/*if (Images.empty()) {
-		if (!loadImage("./resoruces/exampleimages/manzana.png")) {
-			std::cout << "Error Loading the Image manzana.png" << std::endl;
+	if (this->Images->empty()) {
+		if (!loadImage("./resoruces/exampleimages/test.png")) {
+			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
-		if (!loadImage("./resoruces/exampleimages/naranja.png")) {
-			std::cout << "Error Loading the Image naranja.png" << std::endl;
-		}
-		if (!loadImage("./resoruces/exampleimages/nebula.jpg")) {
-			std::cout << "Error Loading the Image nebula.jpg" << std::endl;
-		}
-		CurrentImage = Images.front();
-		std::cout << "Current Image Properties: " << std::endl;
-		std::cout << "Identifier: " << CurrentImage.texture << std::endl;
-		std::cout << "Size = " << CurrentImage.width << "x" << CurrentImage.height << std::endl;
-		std::cout << "Channels: " << CurrentImage.channels << std::endl;
+
+		*this->CurrentImage = this->Images->front();
 		this->centerImage();
-	}*/
+	}
 	
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
@@ -49,18 +40,21 @@ void FeatherGUI::BuildGUI() {
 	{
 		//--------------------STATIC WINDOWS--------------------
 		this->BuildMenu();
-		this->BuildTools();
-		this->BuildImageDisplayer();
-		this->BuildProperties();
-		this->BuildLayers();
-		this->BuildInfo();
+		if(this->isOpen){
+			this->BuildTools();
+			this->BuildImageDisplayer();
+			this->BuildProperties();
+			this->BuildLayers();
+			this->BuildInfo();
 		
-		//--------------------DYNAMIC WINDOWS--------------------
-		if (this->placementConfig) {
-			this->BuildConfigMenu();
-		}
-		if (this->debugConsole) {
-			this->BuildConsoleDebugMenu();
+		
+			//--------------------DYNAMIC WINDOWS--------------------
+			if (this->placementConfig) {
+				this->BuildConfigMenu();
+			}
+			if (this->debugConsole) {
+				this->BuildConsoleDebugMenu();
+			}
 		}
 	}
 	ImGui::PopStyleColor();
@@ -151,11 +145,11 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->colorNoSelectedTool = this->colorSelectedWindow;
 	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
 
-	workStation.init(&this->Images,&this->CurrentImage);
+	workStation.init(&Images,&CurrentImage);
 	
 	//set to false every loaded image in the vector
 	for (int i = 0; i < this->Images->size(); i++) {
-		this->Images->at(i).loaded = false;
+		Images->at(i).loaded = false;
 	}
 
 	this->zoom = 1;
@@ -291,12 +285,27 @@ bool FeatherGUI::loadImage(std::string _path) {
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 	#endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	if(channels == 4) {
+	if(channels == 4) 
+	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
-	} else {
+	} 
+	else 
+	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
 	}
 	stbi_image_free(unloadedImage.data);
+	
+	//Reserve memory for the image
+	unloadedImage.data = new GLubyte[unloadedImage.width * unloadedImage.height * unloadedImage.channels];
+	
+	if (channels == 4) 
+	{
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	else
+	{
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
 	
 	unloadedImage.loaded = true;
 
@@ -442,6 +451,18 @@ void FeatherGUI::centerImage() {
 	std::cout << "Adjusted Image Shift Y: " << this->imageShiftY << std::endl;
 }
 
+void FeatherGUI::UpdateImage() {
+	//Select the current texture
+	glBindTexture(GL_TEXTURE_2D,this->CurrentImage->texture);
+	//Render back the texture of opengl
+	if (this->CurrentImage->channels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	}
+}
+
 void FeatherGUI::BuildMenu() {
 	//Create a main menu
 	if (ImGui::BeginMainMenuBar()) {
@@ -452,11 +473,22 @@ void FeatherGUI::BuildMenu() {
 			if (ImGui::MenuItem(ICON_FA_FILE " Open", "|Ctrl+O")) {
 				std::string filename;
 				filename = browse(0);
-				//load the image
-				if (!loadImage(filename)) {
-					ImGui::Text("Error loading image");
+				//If the filename doesnt have ":" error			
+				if (filename.find(':') == std::string::npos) {
+					std::cout << "No file selected" << std::endl;
 				}
-				this->CurrentImage = &this->Images->back();
+				else
+				{
+					//load the image
+					if (!loadImage(filename)) 
+					{
+						std::cout << "Error loading image" << std::endl;
+					}
+					else 
+					{
+						*this->CurrentImage = this->Images->front();
+					}
+				}
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save", "|Ctrl+S")) {
 
@@ -466,6 +498,13 @@ void FeatherGUI::BuildMenu() {
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_WINDOW_CLOSE " Close", "|Alt+F4")) {
+				//Free every image
+				for (int i = 0; i < this->Images->size(); i++) {
+					//Free the image
+					glDeleteTextures(1, &this->Images->at(i).texture);
+					//delete Image data
+					delete this->Images->at(i).data;
+				}
 				this->isOpen = false;
 			}
 			ImGui::EndMenu();
@@ -580,7 +619,7 @@ void FeatherGUI::BuildImageDisplayer() {
 	ImGui::SetNextWindowPos(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * (float)io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::Begin("Image Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollWithMouse);
-	//TODO
+
 	//Move the image
 	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 	//Draw Image
@@ -641,9 +680,9 @@ void FeatherGUI::BuildLayers() {
 					int n_next = i + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
 					if (n_next >= 0 && n_next < this->Images->size())
 					{
-						std::swap(this->Images[i], this->Images[n_next]);
+						std::swap(this->Images->at(i), this->Images->at(n_next));
 						ImGui::ResetMouseDragDelta();
-						CurrentImage = &Images->front();
+						*this->CurrentImage = this->Images->front();
 						centerImage();
 					}
 				}
@@ -671,9 +710,20 @@ void FeatherGUI::BuildInfo() {
 	//TODO
 	{
 		//Check first if the mouse is over the Image Window
-		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
-			this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
+		if (this->MouseImagePositionX > 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
+			this->MouseImagePositionY > 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
 			ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
+			
+			//Read from the texture of opengl and Get the color of the pixel
+			ImGui::SameLine();
+			int index = ((this->MouseImagePositionY-1) * this->CurrentImage->width + (this->MouseImagePositionX-1)) * this->CurrentImage->channels;
+			if (this->CurrentImage->channels == 4) {
+				ImGui::Text(" |  Color: (%d, %d, %d, %d)", this->CurrentImage->data[index], this->CurrentImage->data[index + 1], this->CurrentImage->data[index + 2], this->CurrentImage->data[index + 3]);
+			}
+			else
+			{
+				ImGui::Text(" |  Color: (%d, %d, %d)", this->CurrentImage->data[index], this->CurrentImage->data[index + 1], this->CurrentImage->data[index + 2]);
+			}
 		}
 		else
 		{
@@ -687,6 +737,8 @@ void FeatherGUI::BuildInfo() {
 	ImGui::End();
 	ImGui::PopStyleColor();
 }
+
+//######################### EXTERN WINDOWS #########################
 
 void FeatherGUI::BuildConfigMenu() {
 	//PLACEMENT CONFIG WINDOW
@@ -788,12 +840,19 @@ void FeatherGUI::InputFunctions() {
 	}
 
 	//MOUSE
+	//If the mouse is over the image
+	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
+		this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
+		//If mouse click
+		if (ImGui::IsMouseClicked(0)) {		
+			if (this->CurrentTool != -1) {
+				workStation.useTool(this->CurrentTool,this->MouseImagePositionX,this->MouseImagePositionY);
+				this->UpdateImage();
+			}
+		}
+	}
 
-	//Position of the mouse inside the Image Window
-	//this->MouseImagePositionX = this->io->MousePos.x - this->toolsPanelPixels - this->SeparatorSizePixels;
-	//this->MouseImagePositionY = this->io->MousePos.y - this->MenuSizePixels - this->SeparatorSizePixels;
-
-	//Same but compensating the image shift and zoom
+	//Position of the mouse inside the Image Window compensating the image shift and zoom
 	this->MouseImagePositionX = (int)ceil(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
 	this->MouseImagePositionY = (int)ceil(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
 }
