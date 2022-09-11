@@ -35,6 +35,7 @@ class ImageWork {
 
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
+		RGB toolcolor;
 
 		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY);
@@ -46,8 +47,11 @@ class ImageWork {
 		~ImageWork();
 		void init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage);
 
-		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
 		void selectFrontImage();
 		void selectImage(int _index);
 		void swapImage(int _indexa, int _indexb);
+		
+		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
+		void setToolColor(RGB _color);
+		RGB getToolColor();
 };

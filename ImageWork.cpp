@@ -32,10 +32,9 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 
 void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {	
 	int index = ((_MouseImagePositionY - 1) * this->CurrentImage.width * this->CurrentImage.channels) + ((_MouseImagePositionX - 1) * this->CurrentImage.channels);
-	//Paint the pixel black
-	CurrentImage.data[index] = 0;
-	CurrentImage.data[index + 1] = 0;
-	CurrentImage.data[index + 2] = 0;
+	CurrentImage.data[index] = static_cast<int>(this->toolcolor.r*255);
+	CurrentImage.data[index + 1] = static_cast<int>(this->toolcolor.g*255);
+	CurrentImage.data[index + 2] = static_cast<int>(this->toolcolor.b*255);
 	if (CurrentImage.channels == 4) {
 		
 		CurrentImage.data[index + 3] = 255;
@@ -71,4 +70,12 @@ void ImageWork::selectImage(int _index) {
 
 void ImageWork::swapImage(int _indexa, int _indexb) {
 	std::swap(this->Images.at(_indexa), this->Images.at(_indexb));
+}
+
+void ImageWork::setToolColor(RGB _color) {
+	this->toolcolor = _color;
+}
+
+RGB ImageWork::getToolColor() {
+	return this->toolcolor;
 }

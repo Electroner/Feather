@@ -655,9 +655,21 @@ void FeatherGUI::BuildProperties() {
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
+		ImGui::Separator();
+		//If pencil tool is selected
+		if (this->CurrentTool == 0) {
+			//Create a ColorEdit3
+			RGB temp_color_RGB = this->workStation.getToolColor();
+			float temp_color[4] = { temp_color_RGB.r,temp_color_RGB.g, temp_color_RGB.b, 1.0F };
+			ImGui::ColorEdit3("Color", temp_color);
+			temp_color_RGB.r = temp_color[0];
+			temp_color_RGB.g = temp_color[1];
+			temp_color_RGB.b = temp_color[2];
+			this->workStation.setToolColor(temp_color_RGB);
+		}
 	}
 	ImGui::End();
-	
+
 	//MAIN SEPARATOR
 	ImGui::Separator();
 }
