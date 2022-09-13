@@ -112,6 +112,9 @@ class FeatherGUI
 		void BuildLayers();
 		void BuildInfo();
 
+		//OPTIONS RELATED FUNCTIONS
+		void BuildToolProperties();
+
 		//DYNAMIC MENUS
 		void BuildConfigMenu();
 		void BuildConsoleDebugMenu();

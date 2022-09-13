@@ -453,14 +453,14 @@ void FeatherGUI::centerImage() {
 }
 
 void FeatherGUI::UpdateImage() {
-	//Select the current texture
-	glBindTexture(GL_TEXTURE_2D,this->CurrentImage->texture);
-	//Render back the texture of opengl
+	//Create a pixel array to store a pixel RGB
+	unsigned char pixel[3] = { workStation.getToolColor().r, workStation.getToolColor().g, workStation.getToolColor().b};
+	
+	//Update the texture with glTexSubImage2D
 	if (this->CurrentImage->channels == 4) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->CurrentImage->data);
-	}
-	else {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+	}else{
+		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
 	}
 }
 
@@ -657,16 +657,7 @@ void FeatherGUI::BuildProperties() {
 		ImGui::EndTabBar();
 		ImGui::Separator();
 		//If pencil tool is selected
-		if (this->CurrentTool == 0) {
-			//Create a ColorEdit3
-			RGB temp_color_RGB = this->workStation.getToolColor();
-			float temp_color[4] = { temp_color_RGB.r,temp_color_RGB.g, temp_color_RGB.b, 1.0F };
-			ImGui::ColorEdit3("Color", temp_color);
-			temp_color_RGB.r = temp_color[0];
-			temp_color_RGB.g = temp_color[1];
-			temp_color_RGB.b = temp_color[2];
-			this->workStation.setToolColor(temp_color_RGB);
-		}
+		this->BuildToolProperties();
 	}
 	ImGui::End();
 
@@ -825,6 +816,8 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	ImGui::End();
 }
 
+//######################### INPUT FUNCTIONS #########################
+
 void FeatherGUI::InputFunctions() {
 	//Dragging the Image over the window
 	if (ImGui::IsMouseDown(1)) {
@@ -870,6 +863,8 @@ void FeatherGUI::InputFunctions() {
 	this->MouseImagePositionY = (int)ceil(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
 }
 
+//######################### MENU FUNCTIONS #########################
+
 void FeatherGUI::newImage() {
 	//Create a Image object
 	ImageStr blank;
@@ -911,4 +906,25 @@ void FeatherGUI::newImage() {
 
 	//center Image
 	this->centerImage();
+}
+
+//######################### PROPERTIES FUNCTIONS #########################
+
+void FeatherGUI::BuildToolProperties() {
+	RGB temp_color_RGB = this->workStation.getToolColor();
+	float temp_color[4] = { temp_color_RGB.r,temp_color_RGB.g, temp_color_RGB.b, 1.0F };
+	switch (this->CurrentTool)
+	{
+		case 0:
+			//Create a ColorEdit3
+			ImGui::ColorEdit4("Color", temp_color);
+			temp_color_RGB.r = temp_color[0];
+			temp_color_RGB.g = temp_color[1];
+			temp_color_RGB.b = temp_color[2];
+			this->workStation.setToolColor(temp_color_RGB);
+		break;
+		
+		default:
+			break;
+	}
 }
