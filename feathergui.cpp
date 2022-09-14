@@ -35,7 +35,8 @@ void FeatherGUI::BuildGUI() {
 	//Make all menus red
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedWindow); // Background of the windows
 	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedWindow); //Tabs in layer and options and selected tool
-	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Ventana
+	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Window
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, this->colorWindowBar);
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -49,6 +50,9 @@ void FeatherGUI::BuildGUI() {
 		
 		
 			//--------------------DYNAMIC WINDOWS--------------------
+			if (newImagePopUp) {
+				this->newImage();
+			}
 			if (this->placementConfig) {
 				this->BuildConfigMenu();
 			}
@@ -57,6 +61,7 @@ void FeatherGUI::BuildGUI() {
 			}
 		}
 	}
+	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
@@ -90,9 +95,10 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 
 	//Windows
 	this->isOpen = true;
-	this->debugConsole = true;
-	this->placementConfig = false;
 	this->disableOptionsRounding = true;
+	this->placementConfig = false;
+	this->debugConsole = true;
+	this->newImagePopUp = false;
 
 	//Fonts and Text
 	this->iconSize = 12.0;
@@ -158,7 +164,6 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->minZoom = 0.01F;
 	this->imageShiftX = 8;
 	this->imageShiftY = 8;
-	this->newImages = 0;
 
 	//GUI PLACEMENTS
 	this->toolsPanelPixels = 32;
@@ -416,7 +421,7 @@ void FeatherGUI::calculateZoom() {
 	int image_x = this->CurrentImage->width;
 	int image_y = this->CurrentImage->height;
 
-	//Calculate the zoom
+	//Calculate the zoom to fit the image in the secreen
 	if (image_x / size_x > image_y / size_y) {
 		this->zoom = (float)size_x / ((float)image_x + 32.0F);
 	}
@@ -426,11 +431,13 @@ void FeatherGUI::calculateZoom() {
 	
 	//TODO Improve this
 	
-	//Set the maximun to fit a pixel in a 100 screen pixels
-	this->maxZoom = ((float)image_x) / 100.0F;
-	
 	//Set the minimun to fit 100 pixels in a pixel
 	this->minZoom = 100.0F / ((float)image_x);
+
+	float diff = this->zoom - this->minZoom;
+	
+	//Set the max zoom with the diff multiplied by the factor of adjust
+	this->maxZoom = this->zoom + diff * 32;
 
 	//Set the increment in the 1% of the diference between min and max
 	this->zoomIncrement = (this->maxZoom - this->minZoom) / 100.0F;
@@ -453,13 +460,18 @@ void FeatherGUI::centerImage() {
 }
 
 void FeatherGUI::UpdateImage() {
-	//Create a pixel array to store a pixel RGB
-	unsigned char pixel[3] = { workStation.getToolColor().r, workStation.getToolColor().g, workStation.getToolColor().b};
-	
 	//Update the texture with glTexSubImage2D
 	if (this->CurrentImage->channels == 4) {
+		//Create a pixel array to store a pixel RGB
+		unsigned char pixel[4] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255), 
+									static_cast<unsigned char>(workStation.getToolColor().g * 255), 
+									static_cast<unsigned char>(workStation.getToolColor().b * 255) , 255};
 		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
 	}else{
+		//Create a pixel array to store a pixel RGB
+		unsigned char pixel[3] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255),
+									static_cast<unsigned char>(workStation.getToolColor().g * 255),
+									static_cast<unsigned char>(workStation.getToolColor().b * 255) };
 		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
 	}
 }
@@ -469,7 +481,8 @@ void FeatherGUI::BuildMenu() {
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu(ICON_FA_FILE_ALT " File")) {
 			if (ImGui::MenuItem(ICON_FA_FILE_IMAGE " New", "|Ctrl+N")) {
-				this->newImage();
+				this->newImagePopUp = true;
+				std::cout << "Opened New Image window Pop Up" << std::endl;
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE " Open", "|Ctrl+O")) {
 				std::string filename;
@@ -487,7 +500,8 @@ void FeatherGUI::BuildMenu() {
 					}
 					else 
 					{
-						*this->CurrentImage = this->Images->front();
+						workStation.selectFrontImage();
+						this->centerImage();
 					}
 				}
 			}
@@ -714,13 +728,13 @@ void FeatherGUI::BuildInfo() {
 	//TODO
 	{
 		//Check first if the mouse is over the Image Window
-		if (this->MouseImagePositionX > 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
-			this->MouseImagePositionY > 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
-			ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX, this->MouseImagePositionY);
+		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
+			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
+			ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX+1, this->MouseImagePositionY+1);
 			
 			//Read from the texture of opengl and Get the color of the pixel
 			ImGui::SameLine();
-			int index = ((this->MouseImagePositionY-1) * this->CurrentImage->width + (this->MouseImagePositionX-1)) * this->CurrentImage->channels;
+			int index = (this->MouseImagePositionY * this->CurrentImage->width + this->MouseImagePositionX) * this->CurrentImage->channels;
 			if (this->CurrentImage->channels == 4) {
 				ImGui::Text(" |  Color: (%d, %d, %d, %d)", this->CurrentImage->data[index], this->CurrentImage->data[index + 1], this->CurrentImage->data[index + 2], this->CurrentImage->data[index + 3]);
 			}
@@ -847,8 +861,8 @@ void FeatherGUI::InputFunctions() {
 
 	//MOUSE
 	//If the mouse is over the image
-	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX <= this->CurrentImage->width &&
-		this->MouseImagePositionY >= 0 && this->MouseImagePositionY <= this->CurrentImage->height) {
+	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
+		this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
 		//If mouse click or holded
 		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
 			if (this->CurrentTool != -1) {
@@ -859,55 +873,77 @@ void FeatherGUI::InputFunctions() {
 	}
 
 	//Position of the mouse inside the Image Window compensating the image shift and zoom
-	this->MouseImagePositionX = (int)ceil(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
-	this->MouseImagePositionY = (int)ceil(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
+	this->MouseImagePositionY = (int)floor(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
 }
 
 //######################### MENU FUNCTIONS #########################
 
 void FeatherGUI::newImage() {
-	//Create a Image object
-	ImageStr blank;
-	//Set the image as blank
-	blank.channels = 3;
-	blank.width = 100;
-	blank.height = 100;
-	blank.data = new unsigned char[blank.width * blank.height * blank.channels];
-	//For every pixel set it white
-	for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
-		blank.data[i] = 255;
+	//Create a new window to ask for the new image size and the new image name
+	ImGui::Begin("New Image", &this->newImagePopUp, ImGuiWindowFlags_NoCollapse);
+	ImGui::InputText("Image Name", this->newImageName, 100);
+	ImGui::InputInt("Image Width", &this->newImageWidth);
+	ImGui::InputInt("Image Height", &this->newImageHeigh);
+	ImGui::Checkbox("Transparency", &this->newImageTransparency);
+	
+	//If the user press the OK button
+	if (ImGui::Button("OK")) {
+		ImageStr blank;
+		//Create a new image with the given parameters
+		blank.name = this->newImageName;
+		blank.width = this->newImageWidth;
+		blank.height = this->newImageHeigh;
+		
+		if (this->newImageTransparency) 
+		{
+			blank.channels = 4;
+		}
+		else 
+		{
+			blank.channels = 3;
+		}
+		
+		blank.data = new unsigned char[blank.width * blank.height * blank.channels];
+		//For every pixel set it white
+		for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
+			blank.data[i] = 255;
+		}
+
+		//Enable transparency
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Create a OpenGL texture identifier and binding
+		glGenTextures(1, &blank.texture);
+		glBindTexture(GL_TEXTURE_2D, blank.texture);
+
+		// Setup filtering parameters for display
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// Upload pixels into texture
+	#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	#endif
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
+		
+		//Add the new image to the image list
+		this->Images->push_back(blank);
+		//Set the new image as the current image
+		workStation.selectFrontImage();
+		this->centerImage();
+		
+		*this->newImageName = {};
+		//Close the window
+		this->newImagePopUp = false;
 	}
-	//Set the image as loaded
-	blank.loaded = true;
-	//Set the image as the current image adding newImages index
-	blank.name = "New Image " + std::to_string(newImages);
-	this->newImages++;
-	//Enable transparency
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Create a OpenGL texture identifier and binding
-	glGenTextures(1, &blank.texture);
-	glBindTexture(GL_TEXTURE_2D, blank.texture);
-
-	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
-
-	this->Images->push_back(blank);
-	workStation.selectImage(static_cast<int>(this->Images->size() - 1));
-
-	//center Image
-	this->centerImage();
+	
+	//Cancel Button TODO
+	
+	ImGui::End();
 }
-
 //######################### PROPERTIES FUNCTIONS #########################
 
 void FeatherGUI::BuildToolProperties() {
@@ -917,7 +953,7 @@ void FeatherGUI::BuildToolProperties() {
 	{
 		case 0:
 			//Create a ColorEdit3
-			ImGui::ColorEdit4("Color", temp_color);
+			ImGui::ColorEdit3("Color", temp_color);
 			temp_color_RGB.r = temp_color[0];
 			temp_color_RGB.g = temp_color[1];
 			temp_color_RGB.b = temp_color[2];

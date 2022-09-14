@@ -26,11 +26,12 @@ class FeatherGUI
 		
 		//MAIN WINDOW VARS
 		bool isOpen;
-		bool debugConsole;
-		bool placementConfig;
-		bool disableOptionsRounding;
 		int windowWidth; //Pixels
 		int windowHeight; //Pixels
+		bool disableOptionsRounding;
+		bool placementConfig;
+		bool debugConsole;
+		bool newImagePopUp;
 		
 		//FONTS AND TEXT VARS
 		float iconSize; //Pixels
@@ -42,7 +43,10 @@ class FeatherGUI
 		float minZoom; //Absolut ezoom level
 		int imageShiftX; //Pixels
 		int imageShiftY; //Pixels
-		int newImages; //How many new images has been created
+		int newImageWidth;
+		int newImageHeigh;
+		char newImageName[100] = {};
+		bool newImageTransparency;
 		
 		//GENERAL UI PLACEMENT VARS
 		int toolsPanelPixels; //Pixels

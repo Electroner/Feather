@@ -31,7 +31,7 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 }
 
 void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {	
-	int index = ((_MouseImagePositionY - 1) * this->CurrentImage.width * this->CurrentImage.channels) + ((_MouseImagePositionX - 1) * this->CurrentImage.channels);
+	int index = (_MouseImagePositionY * this->CurrentImage.width * this->CurrentImage.channels) + (_MouseImagePositionX * this->CurrentImage.channels);
 	CurrentImage.data[index] = static_cast<int>(this->toolcolor.r*255);
 	CurrentImage.data[index + 1] = static_cast<int>(this->toolcolor.g*255);
 	CurrentImage.data[index + 2] = static_cast<int>(this->toolcolor.b*255);
