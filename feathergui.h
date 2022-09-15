@@ -44,8 +44,8 @@ class FeatherGUI
 		int imageShiftX; //Pixels
 		int imageShiftY; //Pixels
 		int newImageWidth;
-		int newImageHeigh;
-		char newImageName[100] = {};
+		int newImageHeight;
+		char newImageName[100] = "New Image";
 		bool newImageTransparency;
 		
 		//GENERAL UI PLACEMENT VARS

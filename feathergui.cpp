@@ -4,6 +4,7 @@
 
 //TODO
 /*
+	-> Fix painting while dragging windows
 	-> Add all the options to the menu
 	-> Add the ability to change the icon size
 	-> Add a import export configuration
@@ -20,14 +21,23 @@
 void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
-	/*if (this->Images->empty()) {
-		if (!loadImage("./resoruces/exampleimages/test.png")) {
+	if (this->Images->empty()) {
+		if (!loadImage("./resoruces/exampleimages/naranja.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
-
+		if (!loadImage("./resoruces/exampleimages/Cosmic.png")) {
+			std::cout << "Error Loading the Image test.png" << std::endl;
+		}
+		if (!loadImage("./resoruces/exampleimages/Ocean.png")) {
+			std::cout << "Error Loading the Image test.png" << std::endl;
+		}
+		if (!loadImage("./resoruces/exampleimages/Skeleton.png")) {
+			std::cout << "Error Loading the Image test.png" << std::endl;
+		}
+		
 		*this->CurrentImage = this->Images->front();
 		this->centerImage();
-	}*/
+	}
 	
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
@@ -36,7 +46,6 @@ void FeatherGUI::BuildGUI() {
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedWindow); // Background of the windows
 	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedWindow); //Tabs in layer and options and selected tool
 	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Window
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, this->colorWindowBar);
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -61,7 +70,6 @@ void FeatherGUI::BuildGUI() {
 			}
 		}
 	}
-	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
@@ -100,6 +108,10 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->debugConsole = true;
 	this->newImagePopUp = false;
 
+	//Image Default New Values
+	this->newImageWidth = 800;
+	this->newImageHeight = 600;
+	
 	//Fonts and Text
 	this->iconSize = 12.0;
 
@@ -132,7 +144,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	ImGui_ImplGlfw_InitForOpenGL(_windowContext, true);
 	ImGui_ImplOpenGL3_Init(_glsl_version);
 	
-	this->windowRounding = 10.0F;
+	this->windowRounding = 0.0F;
 	
 	//OPTION VARS
 	this->Vsync = true;
@@ -442,6 +454,7 @@ void FeatherGUI::calculateZoom() {
 	//Set the increment in the 1% of the diference between min and max
 	this->zoomIncrement = (this->maxZoom - this->minZoom) / 100.0F;
 
+	std::cout << "Adjusting zoom of " << this->CurrentImage->name << std::endl;
 	std::cout << "Adjusted Zoom to: " << this->zoom << std::endl;
 	std::cout << "Adjusted Max Zoom: " << this->maxZoom << std::endl;
 	std::cout << "Adjusted Min Zoom: " << this->minZoom << std::endl;
@@ -460,6 +473,9 @@ void FeatherGUI::centerImage() {
 }
 
 void FeatherGUI::UpdateImage() {
+	//Select current texture and bind it
+	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
+	
 	//Update the texture with glTexSubImage2D
 	if (this->CurrentImage->channels == 4) {
 		//Create a pixel array to store a pixel RGB
@@ -689,18 +705,31 @@ void FeatherGUI::BuildLayers() {
 	ImGui::Begin("Layers Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	if (ImGui::BeginTabBar("Layers", ImGuiTabBarFlags_None)) {
 		if (ImGui::BeginTabItem("Layers")) {
+			ImGuiStyle& style = ImGui::GetStyle();			
+			
+			ImVec2 windowPosition = ImGui::GetWindowPos();
+			ImVec2 cursorPosition = ImGui::GetCursorPos();
+
+			// this is not a pixel perfect position
+			// you can try to make it more accurate by adding some offset
+			ImVec2 itemPosition(
+				windowPosition.x + cursorPosition.x,
+				windowPosition.y + cursorPosition.y - style.ItemSpacing.y
+			);
+			
 			for (int i = 0; i < this->Images->size(); i++) {
 				ImGui::Image((void*)(intptr_t)this->Images->at(i).texture, ImVec2(100 * temp_percentage, 100 * temp_percentage));
 				ImGui::SameLine();
 				ImGui::Selectable(this->Images->at(i).name.c_str());
-				if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
+
+				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
 				{
-					int n_next = i + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
+					int n_next = floorf((ImGui::GetMousePos().y - itemPosition.y) / 25); //25 is the height of the item
+
 					if (n_next >= 0 && n_next < this->Images->size())
 					{
 						std::swap(this->Images->at(i), this->Images->at(n_next));
-						ImGui::ResetMouseDragDelta();
-						*this->CurrentImage = this->Images->front();
+						workStation.selectFrontImage();
 						centerImage();
 					}
 				}
@@ -841,6 +870,7 @@ void FeatherGUI::InputFunctions() {
 
 	//Double click set zoom to 1.0F and the image shift to the center of the Image Window
 	if (ImGui::IsMouseDoubleClicked(1)) {
+		std::cout << "Current Image: " << this->CurrentImage->name << std::endl;
 		this->centerImage();
 	}
 
@@ -880,69 +910,117 @@ void FeatherGUI::InputFunctions() {
 //######################### MENU FUNCTIONS #########################
 
 void FeatherGUI::newImage() {
+	
+	//make buttons, sliders, radiobuttons white
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25F, 0.25F, 0.25F, 1.20F));
+	//Make overbutton selection white
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75F, 0.75F, 0.75F, 1.20F));
+	//Make textbox gray
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.25F, 0.25F, 0.25F, 1.20F));
+
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	
 	//Create a new window to ask for the new image size and the new image name
-	ImGui::Begin("New Image", &this->newImagePopUp, ImGuiWindowFlags_NoCollapse);
-	ImGui::InputText("Image Name", this->newImageName, 100);
-	ImGui::InputInt("Image Width", &this->newImageWidth);
-	ImGui::InputInt("Image Height", &this->newImageHeigh);
-	ImGui::Checkbox("Transparency", &this->newImageTransparency);
+	if (ImGui::Begin(ICON_FA_IMAGE " New Image", &this->newImagePopUp, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::InputText("Image Name", this->newImageName, 100);
+		ImGui::InputInt("Image Width", &this->newImageWidth);
+		ImGui::InputInt("Image Height", &this->newImageHeight);
+		ImGui::Checkbox("Transparency", &this->newImageTransparency);
 	
-	//If the user press the OK button
-	if (ImGui::Button("OK")) {
-		ImageStr blank;
-		//Create a new image with the given parameters
-		blank.name = this->newImageName;
-		blank.width = this->newImageWidth;
-		blank.height = this->newImageHeigh;
+		//If the user press the OK button
+		if (ImGui::Button("Create Image")) {
+			//check if the image size is bigger than 0
+			if (this->newImageWidth > 0 && this->newImageHeight > 0 && this->newImageName[0] != '\0') {
+				ImageStr blank;
+				//Create a new image with the given parameters
+				blank.name = this->newImageName;
+				blank.width = this->newImageWidth;
+				blank.height = this->newImageHeight;
 		
-		if (this->newImageTransparency) 
-		{
-			blank.channels = 4;
-		}
-		else 
-		{
-			blank.channels = 3;
-		}
+				if (this->newImageTransparency) 
+				{
+					blank.channels = 4;
+				}
+				else 
+				{
+					blank.channels = 3;
+				}
 		
-		blank.data = new unsigned char[blank.width * blank.height * blank.channels];
-		//For every pixel set it white
-		for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
-			blank.data[i] = 255;
-		}
+				blank.data = new unsigned char[blank.width * blank.height * blank.channels];
+				//For every pixel set it white
+				for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
+					blank.data[i] = 255;
+				}
 
-		//Enable transparency
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				//Enable transparency
+				glDisable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// Create a OpenGL texture identifier and binding
-		glGenTextures(1, &blank.texture);
-		glBindTexture(GL_TEXTURE_2D, blank.texture);
+				// Create a OpenGL texture identifier and binding
+				glGenTextures(1, &blank.texture);
+				glBindTexture(GL_TEXTURE_2D, blank.texture);
 
-		// Setup filtering parameters for display
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// Upload pixels into texture
-	#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-	#endif
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
+				// Setup filtering parameters for display
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				// Upload pixels into texture
+			#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+				glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+			#endif
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
 		
-		//Add the new image to the image list
-		this->Images->push_back(blank);
-		//Set the new image as the current image
-		workStation.selectFrontImage();
-		this->centerImage();
+				//Add the new image to the image list
+				this->Images->push_back(blank);
+				//Set the new image as the current image
+				workStation.selectFrontImage();
+				this->centerImage();
 		
-		*this->newImageName = {};
-		//Close the window
-		this->newImagePopUp = false;
+				*this->newImageName = {};
+				//Close the window
+				this->newImagePopUp = false;
+			}
+			else 
+			{
+				//TODO FIX popup
+				ImGui::OpenPopup("Error Creating Image");
+				// Always center this window when appearing
+				ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+				ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+				//Show a BeginPopupModal dialog with error message "The size of the Image must be greater than 0. Also it need to have a name!\n\n"				
+				if (ImGui::BeginPopupModal("Error Creating Image", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+				{
+					ImGui::SetItemDefaultFocus();
+					ImGui::Text("The size of the Image must be greater than 0. Also it need to have a name!\n\n");
+					ImGui::Separator();
+
+					if (ImGui::Button("OK")) {
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+			}
+		}
+		//Show Buttons on the same line
+		ImGui::SameLine();
+		
+		//Cancel Button TODO
+		if (ImGui::Button("Cancel")) {
+			*this->newImageName = {};
+			this->newImagePopUp = false;
+		}
+	
+		ImGui::End();
 	}
-	
-	//Cancel Button TODO
-	
-	ImGui::End();
+
+	//Pop style
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
 }
 //######################### PROPERTIES FUNCTIONS #########################
 
