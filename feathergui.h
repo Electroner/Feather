@@ -32,6 +32,9 @@ class FeatherGUI
 		bool placementConfig;
 		bool debugConsole;
 		bool newImagePopUp;
+
+		//ERROR WINDOW VARS
+		bool errorWindowCreateImage;
 		
 		//FONTS AND TEXT VARS
 		float iconSize; //Pixels
@@ -115,6 +118,9 @@ class FeatherGUI
 		void BuildProperties();
 		void BuildLayers();
 		void BuildInfo();
+
+		//ERROR WINDOWS
+		void ErrorWindowCreateImage(); // Error creating a Image (Associated to errorWindowCreateImage bool )
 
 		//OPTIONS RELATED FUNCTIONS
 		void BuildToolProperties();

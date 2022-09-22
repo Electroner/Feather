@@ -21,7 +21,7 @@
 void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
-	if (this->Images->empty()) {
+	/*if (this->Images->empty()) {
 		if (!loadImage("./resoruces/exampleimages/naranja.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
@@ -37,7 +37,7 @@ void FeatherGUI::BuildGUI() {
 		
 		*this->CurrentImage = this->Images->front();
 		this->centerImage();
-	}
+	}*/
 	
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
@@ -99,14 +99,16 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 
 	this->MouseImagePositionX = 0;
 	this->MouseImagePositionY = 0;
-
-
+	
 	//Windows
 	this->isOpen = true;
 	this->disableOptionsRounding = true;
 	this->placementConfig = false;
 	this->debugConsole = true;
 	this->newImagePopUp = false;
+
+	//Error Windows
+	errorWindowCreateImage = false;
 
 	//Image Default New Values
 	this->newImageWidth = 800;
@@ -985,24 +987,7 @@ void FeatherGUI::newImage() {
 			}
 			else 
 			{
-				//TODO FIX popup
-				ImGui::OpenPopup("Error Creating Image");
-				// Always center this window when appearing
-				ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-				ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-				//Show a BeginPopupModal dialog with error message "The size of the Image must be greater than 0. Also it need to have a name!\n\n"				
-				if (ImGui::BeginPopupModal("Error Creating Image", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-				{
-					ImGui::SetItemDefaultFocus();
-					ImGui::Text("The size of the Image must be greater than 0. Also it need to have a name!\n\n");
-					ImGui::Separator();
-
-					if (ImGui::Button("OK")) {
-						ImGui::CloseCurrentPopup();
-					}
-					ImGui::EndPopup();
-				}
+				this->errorWindowCreateImage = true;
 			}
 		}
 		//Show Buttons on the same line
@@ -1017,6 +1002,9 @@ void FeatherGUI::newImage() {
 		ImGui::End();
 	}
 
+	//Show Error Windows in case of error
+	this->ErrorWindowCreateImage();
+	
 	//Pop style
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
@@ -1042,3 +1030,30 @@ void FeatherGUI::BuildToolProperties() {
 			break;
 	}
 }
+
+//######################### ERROR WINDOWS #########################
+
+void FeatherGUI::ErrorWindowCreateImage() {
+	if (this->errorWindowCreateImage) {
+		//TODO FIX popup
+		ImGui::OpenPopup("Error Creating Image");
+		// Always center this window when appearing
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+		//Show a BeginPopupModal dialog with error message "The size of the Image must be greater than 0. Also it need to have a name!\n\n"				
+		if (ImGui::BeginPopupModal("Error Creating Image", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::SetItemDefaultFocus();
+			ImGui::Text("Some of the following things were wrong: \n\n-> The size of the Image must be greater than 0.\n-> It need to have a name.\n\n");
+			//ImGui::Separator();
+			
+			if (ImGui::Button("OK")) {
+				this->errorWindowCreateImage = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+}
+
