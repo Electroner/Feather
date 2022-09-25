@@ -6,6 +6,8 @@
 
 #ifdef WINDOWS_SO
 #include <windows.h>
+#include <shlobj_core.h>
+#include <commdlg.h>
 #endif 
 
 #ifdef LINUX
@@ -25,7 +27,8 @@ std::string getCurrentPath();
 std::string getNormalizedPath();
 
 #ifdef WINDOWS_SO
-std::string browse(HWND hwnd);
+std::string browseFile(HWND hwnd);
+std::string browseFolder(HWND hwnd);
 #endif
 
 #ifdef LINUX_SO

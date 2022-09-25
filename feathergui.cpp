@@ -393,6 +393,19 @@ bool FeatherGUI::loadIcon(std::string _path) {
 	return true;
 }
 
+bool FeatherGUI::saveImage(std::string _path) {
+	if(_path.size() == 0) 
+	{
+		std::cout << "Error saving image: No path specified" << std::endl;
+		return false;
+	}
+	std::string location;
+	location = _path + "/" + this->CurrentImage->name + "." + this->CurrentImage->extension;
+	std::cout << "Image saved at: " << location << std::endl;
+	stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
+	return true;
+}
+
 void FeatherGUI::SetSync(bool _sync) {
 	if(_sync) {
 		this->Vsync = true;
@@ -504,7 +517,7 @@ void FeatherGUI::BuildMenu() {
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE " Open", "|Ctrl+O")) {
 				std::string filename;
-				filename = browse(0);
+				filename = browseFile(0);
 				//If the filename doesnt have ":" error			
 				if (filename.find(':') == std::string::npos) {
 					std::cout << "No file selected" << std::endl;
@@ -524,7 +537,21 @@ void FeatherGUI::BuildMenu() {
 				}
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save", "|Ctrl+S")) {
-				stbi_write_png(this->CurrentImage->name.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
+				std::string folderName;
+				folderName = browseFolder(0);
+				//If the foldername doesnt have ":" error
+				if (folderName.find(':') == std::string::npos) {
+					std::cout << "No folder selected" << std::endl;
+				}
+				else
+				{
+					if (!saveImage(folderName)) {
+						std::cout << "Error saving image" << std::endl;
+					}
+					else {
+						std::cout << "Image saved" << std::endl;
+					}
+				}
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save As", "|Ctrl+Shift+S")) {
 
@@ -940,6 +967,7 @@ void FeatherGUI::newImage() {
 				blank.name = this->newImageName;
 				blank.width = this->newImageWidth;
 				blank.height = this->newImageHeight;
+				blank.extension = "png";
 		
 				if (this->newImageTransparency) 
 				{
@@ -993,7 +1021,6 @@ void FeatherGUI::newImage() {
 		//Show Buttons on the same line
 		ImGui::SameLine();
 		
-		//Cancel Button TODO
 		if (ImGui::Button("Cancel")) {
 			*this->newImageName = {};
 			this->newImagePopUp = false;
@@ -1035,7 +1062,6 @@ void FeatherGUI::BuildToolProperties() {
 
 void FeatherGUI::ErrorWindowCreateImage() {
 	if (this->errorWindowCreateImage) {
-		//TODO FIX popup
 		ImGui::OpenPopup("Error Creating Image");
 		// Always center this window when appearing
 		ImVec2 center = ImGui::GetMainViewport()->GetCenter();

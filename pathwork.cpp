@@ -22,7 +22,7 @@ std::string getNormalizedPath()
 }
 
 #ifdef WINDOWS_SO
-std::string browse(HWND hwnd)
+std::string browseFile(HWND hwnd)
 {
 	std::string path(MAX_PATH, '\0');
 	OPENFILENAME ofn = { sizeof(OPENFILENAME) };
@@ -39,7 +39,41 @@ std::string browse(HWND hwnd)
 	}
 	std::replace(path.begin(), path.end(), '\\', '/');
 	return path;
+	
 }
+
+std::string browseFolder(HWND hwnd){
+	//use GetSaveFileNameA 
+	OPENFILENAME ofn;
+	char szFile[MAX_PATH] = "";
+	
+	ZeroMemory(&ofn, sizeof(ofn));
+	
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	
+	if (GetSaveFileName(&ofn)) {
+		std::string path = ofn.lpstrFile;
+		std::replace(path.begin(), path.end(), '\\', '/');
+		return path;
+	}
+	else 
+	{
+		return "";
+	}
+}
+
+std::string saveFileExplorerWindow(HWND hwnd) {
+	return NULL;
+}
+
 #endif
 
 #ifdef LINUX_SO

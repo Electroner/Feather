@@ -98,6 +98,7 @@ class FeatherGUI
 		
 		bool loadImage(std::string _path);	
 		bool loadIcon(std::string _path);
+		bool saveImage(std::string _path);
 
 		//---------------------------OPENGL---------------------------
 		void SetSync(bool _sync);
