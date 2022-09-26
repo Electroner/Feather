@@ -28,7 +28,7 @@ std::string getNormalizedPath();
 
 #ifdef WINDOWS_SO
 std::string browseFile(HWND hwnd);
-std::string browseFolder(HWND hwnd);
+std::string browseFolder(HWND hwnd, int _option);
 #endif
 
 #ifdef LINUX_SO

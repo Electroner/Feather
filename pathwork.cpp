@@ -42,10 +42,11 @@ std::string browseFile(HWND hwnd)
 	
 }
 
-std::string browseFolder(HWND hwnd){
+std::string browseFolder(HWND hwnd, int _option){
 	//use GetSaveFileNameA 
 	OPENFILENAME ofn;
-	char szFile[MAX_PATH] = "";
+
+	char szFile[MAX_PATH] = "New Image";
 	
 	ZeroMemory(&ofn, sizeof(ofn));
 	
@@ -53,11 +54,13 @@ std::string browseFolder(HWND hwnd){
 	ofn.hwndOwner = hwnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.lpstrFilter = "All\0*.*\0Images\0*.JPG\0*.PNG\0";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = NULL;
+	//Set the name of the dialog
+	ofn.lpstrTitle = "Save Image";
 	
 	if (GetSaveFileName(&ofn)) {
 		std::string path = ofn.lpstrFile;
@@ -68,10 +71,6 @@ std::string browseFolder(HWND hwnd){
 	{
 		return "";
 	}
-}
-
-std::string saveFileExplorerWindow(HWND hwnd) {
-	return NULL;
 }
 
 #endif

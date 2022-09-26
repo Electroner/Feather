@@ -400,7 +400,8 @@ bool FeatherGUI::saveImage(std::string _path) {
 		return false;
 	}
 	std::string location;
-	location = _path + "/" + this->CurrentImage->name + "." + this->CurrentImage->extension;
+	//_path includes the name of the image
+	location = _path + "." + this->CurrentImage->extension;
 	std::cout << "Image saved at: " << location << std::endl;
 	stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
 	return true;
@@ -538,7 +539,7 @@ void FeatherGUI::BuildMenu() {
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save", "|Ctrl+S")) {
 				std::string folderName;
-				folderName = browseFolder(0);
+				folderName = browseFolder(0, 0);
 				//If the foldername doesnt have ":" error
 				if (folderName.find(':') == std::string::npos) {
 					std::cout << "No folder selected" << std::endl;
@@ -554,7 +555,21 @@ void FeatherGUI::BuildMenu() {
 				}
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save As", "|Ctrl+Shift+S")) {
-
+				std::string folderName;
+				folderName = browseFolder(0, 1);
+				//If the foldername doesnt have ":" error
+				if (folderName.find(':') == std::string::npos) {
+					std::cout << "No folder selected" << std::endl;
+				}
+				else
+				{
+					if (!saveImage(folderName)) {
+						std::cout << "Error saving image" << std::endl;
+					}
+					else {
+						std::cout << "Image saved" << std::endl;
+					}
+				}
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_WINDOW_CLOSE " Close", "|Alt+F4")) {
