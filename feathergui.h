@@ -28,13 +28,15 @@ class FeatherGUI
 		bool isOpen;
 		int windowWidth; //Pixels
 		int windowHeight; //Pixels
-		bool disableOptionsRounding;
-		bool placementConfig;
-		bool debugConsole;
-		bool newImagePopUp;
+		bool placementConfig; //Extern Window
+		bool debugConsole; //Debug console | Extern Window
+		bool newImagePopUp; //Extern Window
 
+		//MAIN WINDOWS CONFIRGURATION VARS
+		bool disableOptionsRounding; //Option for rounding
+		
 		//ERROR WINDOW VARS
-		bool errorWindowCreateImage;
+		bool errorWindowCreateImage; //Extern Window
 		
 		//FONTS AND TEXT VARS
 		float iconSize; //Pixels

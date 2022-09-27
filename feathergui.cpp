@@ -689,7 +689,7 @@ void FeatherGUI::BuildTools() {
 	ImGui::Separator();
 }
 
-void FeatherGUI::BuildImageDisplayer() {
+void FeatherGUI::BuildImageDisplayer() {	
 	//IMAGE WINDOW
 	ImGui::SetNextWindowPos(ImVec2((float)(static_cast<float>(this->toolsPanelPixels) / static_cast<float>(this->windowWidth)) * (float)io->DisplaySize.x, (float)this->MenuSizePixels), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels), ImGuiCond_Always);
@@ -703,6 +703,13 @@ void FeatherGUI::BuildImageDisplayer() {
 			ImGui::Image((void*)(intptr_t)this->CurrentImage->texture, ImVec2(this->CurrentImage->width * this->zoom, this->CurrentImage->height * this->zoom));
 		}
 	}
+
+	//Check if this windows is in the top and nothing else is over it
+	if (ImGui::IsItemActive()) {
+		//TODO CREATE A VAR
+		std::cout << "Working" << std::endl;
+	}
+
 	//TODOEND
 	ImGui::End();
 
@@ -895,9 +902,9 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	//	char timeMark[80];
 	//	time(&rawtime);
 	//	localtime_s(&now, &rawtime);
-	//	strftime(timeMark, 80, "%H:%M:%S", &now);			
-	//	//Print the time mark
+	//	strftime(timeMark, 80, "%H:%M:%S", &now);	
 	//}
+
 
 	ImGui::Text("%s", ss.str().c_str());
 	ImGui::End();
@@ -933,15 +940,27 @@ void FeatherGUI::InputFunctions() {
 		}
 	}
 
+	//ESC
+	if (io->KeysDown[GLFW_KEY_ESCAPE]) {
+		//Close the overlayer windows
+		this->placementConfig = false;
+		this->debugConsole = false;
+		this->newImagePopUp = false;
+	}
+
 	//MOUSE
-	//If the mouse is over the image
-	if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
-		this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
-		//If mouse click or holded
-		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
-			if (this->CurrentTool != -1) {
-				workStation.useTool(this->CurrentTool,this->MouseImagePositionX,this->MouseImagePositionY);
-				this->UpdateImage();
+	// Check if mouse is hovering a window with IsItemHovered
+	if (true)
+	{
+		//If the mouse is over the image
+		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
+			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
+			//If mouse click or holded
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
+				if (this->CurrentTool != -1) {
+					workStation.useTool(this->CurrentTool, this->MouseImagePositionX, this->MouseImagePositionY);
+					this->UpdateImage();
+				}
 			}
 		}
 	}
