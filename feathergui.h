@@ -42,6 +42,9 @@ class FeatherGUI
 		float iconSize; //Pixels
 
 		//IMAGE VARS
+		std::vector<ImageStr>* Images;
+		ImageStr* CurrentImage;
+		bool MouseOverImageWindow;
 		float zoomIncrement; //Percentage of zoom per click
 		float zoom; // Percentage
 		float maxZoom; //Absolut ezoom level
@@ -61,8 +64,6 @@ class FeatherGUI
 		//IMGUI VARS
 		ImageWork workStation;
 		RGB BackGroundRGB;
-		std::vector<ImageStr>* Images;
-		ImageStr* CurrentImage;
 		ImFont* CurrentFont;
 
 		//ICON IMAGES

@@ -111,8 +111,8 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	errorWindowCreateImage = false;
 
 	//Image Default New Values
-	this->newImageWidth = 800;
-	this->newImageHeight = 600;
+	this->newImageWidth = 100;
+	this->newImageHeight = 100;
 	
 	//Fonts and Text
 	this->iconSize = 12.0;
@@ -172,6 +172,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 		Images->at(i).loaded = false;
 	}
 
+	this->MouseOverImageWindow = false;
 	this->zoom = 1;
 	this->zoomIncrement = 0.1F;
 	this->maxZoom = 10.0F;
@@ -695,6 +696,15 @@ void FeatherGUI::BuildImageDisplayer() {
 	ImGui::SetNextWindowSize(ImVec2((1.0F - (float)(static_cast<float>(this->toolsPanelPixels + this->propertiesPanelPixels) / static_cast<float>(this->windowWidth))) * io->DisplaySize.x, io->DisplaySize.y - this->MenuSizePixels - this->infoPanelPixels), ImGuiCond_Always);
 	ImGui::Begin("Image Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollWithMouse);
 
+	//Check if this windows is in the top and nothing else is over it
+	if (ImGui::IsItemActive() && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows)) {
+		this->MouseOverImageWindow = true;
+	}
+	else
+	{
+		this->MouseOverImageWindow = false;
+	}
+	
 	//Move the image
 	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 	//Draw Image
@@ -704,13 +714,6 @@ void FeatherGUI::BuildImageDisplayer() {
 		}
 	}
 
-	//Check if this windows is in the top and nothing else is over it
-	if (ImGui::IsItemActive()) {
-		//TODO CREATE A VAR
-		std::cout << "Working" << std::endl;
-	}
-
-	//TODOEND
 	ImGui::End();
 
 	//MAIN SEPARATOR
@@ -949,8 +952,8 @@ void FeatherGUI::InputFunctions() {
 	}
 
 	//MOUSE
-	// Check if mouse is hovering a window with IsItemHovered
-	if (true)
+	// Check if mouse is over the image window
+	if (this->MouseOverImageWindow)
 	{
 		//If the mouse is over the image
 		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
