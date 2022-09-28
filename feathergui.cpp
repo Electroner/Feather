@@ -92,6 +92,8 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//io->Fonts->AddFontDefault();
 	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resoruces/fonts/consolas.ttf", 16);
 	ImGui::StyleColorsDark();
+
+	this->io->IniFilename = NULL;
 	
 	//Link the buffer
 	this->coutbuff = std::cout.rdbuf();
@@ -104,7 +106,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->isOpen = true;
 	this->disableOptionsRounding = true;
 	this->placementConfig = false;
-	this->debugConsole = true;
+	this->debugConsole = false;
 	this->newImagePopUp = false;
 
 	//Error Windows
@@ -685,9 +687,6 @@ void FeatherGUI::BuildTools() {
 	//TODOEND
 	ImGui::End();
 	ImGui::PopStyleColor();
-
-	//MAIN SEPARATOR
-	ImGui::Separator();
 }
 
 void FeatherGUI::BuildImageDisplayer() {	
@@ -715,9 +714,6 @@ void FeatherGUI::BuildImageDisplayer() {
 	}
 
 	ImGui::End();
-
-	//MAIN SEPARATOR
-	ImGui::Separator();
 }
 
 void FeatherGUI::BuildProperties() {
@@ -744,9 +740,6 @@ void FeatherGUI::BuildProperties() {
 		this->BuildToolProperties();
 	}
 	ImGui::End();
-
-	//MAIN SEPARATOR
-	ImGui::Separator();
 }
 
 void FeatherGUI::BuildLayers() {
@@ -754,7 +747,6 @@ void FeatherGUI::BuildLayers() {
 	float temp_percentage = ((float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
 	ImGui::SetNextWindowPos(ImVec2((1.0F - temp_percentage) * this->io->DisplaySize.x, (this->io->DisplaySize.y + this->MenuSizePixels) / 2), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels) / 2 - this->infoPanelPixels), ImGuiCond_Always);
-	ImGui::Separator();
 	//TODO
 	ImGui::Begin("Layers Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus);
 	if (ImGui::BeginTabBar("Layers", ImGuiTabBarFlags_None)) {
@@ -778,7 +770,7 @@ void FeatherGUI::BuildLayers() {
 
 				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
 				{
-					int n_next = floorf((ImGui::GetMousePos().y - itemPosition.y) / 25); //25 is the height of the item
+					int n_next = static_cast<int>(floorf((ImGui::GetMousePos().y - itemPosition.y) / 25)); //25 is the height of the item
 
 					if (n_next >= 0 && n_next < this->Images->size())
 					{
@@ -796,9 +788,6 @@ void FeatherGUI::BuildLayers() {
 	//TODOEND
 	ImGui::End();
 	ImGui::PopStyleColor();
-
-	//MAIN SEPARATOR
-	ImGui::Separator();
 }
 
 void FeatherGUI::BuildInfo() {
@@ -843,7 +832,7 @@ void FeatherGUI::BuildInfo() {
 
 void FeatherGUI::BuildConfigMenu() {
 	//PLACEMENT CONFIG WINDOW
-	ImGui::Begin("Placement Config", &this->placementConfig);
+	ImGui::Begin("Placement Config", &this->placementConfig, ImGuiWindowFlags_AlwaysAutoResize);
 	//Create a slider for the toolsPanelPercentage
 	ImGui::SliderInt("Tools Panel Pixels", &this->toolsPanelPixels, 32, 128);
 	//Create a slider for the propertiesPanelPercentage
@@ -880,7 +869,9 @@ void FeatherGUI::BuildConfigMenu() {
 
 void FeatherGUI::BuildConsoleDebugMenu() {
 	//DEBUG CONSOLE WINDOW
-	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse);
+	//Set max size of the window to 1/4 of the screen
+	ImGui::SetNextWindowSize(ImVec2(this->io->DisplaySize.x / 4, this->io->DisplaySize.y / 2), ImGuiCond_Always);
+	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 	//FPS
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	//Print the mouse
