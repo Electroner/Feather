@@ -106,7 +106,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->isOpen = true;
 	this->disableOptionsRounding = true;
 	this->placementConfig = false;
-	this->debugConsole = false;
+	this->debugConsole = true;
 	this->newImagePopUp = false;
 
 	//Error Windows
@@ -495,20 +495,56 @@ void FeatherGUI::UpdateImage() {
 	//Select current texture and bind it
 	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
 	
-	//Update the texture with glTexSubImage2D
-	if (this->CurrentImage->channels == 4) {
-		//Create a pixel array to store a pixel RGB
-		unsigned char pixel[4] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255), 
-									static_cast<unsigned char>(workStation.getToolColor().g * 255), 
-									static_cast<unsigned char>(workStation.getToolColor().b * 255) , 255};
-		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-	}else{
-		//Create a pixel array to store a pixel RGB
-		unsigned char pixel[3] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255),
-									static_cast<unsigned char>(workStation.getToolColor().g * 255),
-									static_cast<unsigned char>(workStation.getToolColor().b * 255) };
-		glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-	}
+	//Update the texture pixel with glTexSubImage2D
+	//if (this->CurrentImage->channels == 4) {
+	//	//Create a pixel array to store a pixel RGB
+	//	unsigned char pixel[4] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255), 
+	//								static_cast<unsigned char>(workStation.getToolColor().g * 255), 
+	//								static_cast<unsigned char>(workStation.getToolColor().b * 255) , 255};
+	//	glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+	//}else{
+	//	//Create a pixel array to store a pixel RGB
+	//	unsigned char pixel[3] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255),
+	//								static_cast<unsigned char>(workStation.getToolColor().g * 255),
+	//								static_cast<unsigned char>(workStation.getToolColor().b * 255) };
+	//	glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+	//}
+
+	//Update the entire image
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	
+	//Update the rectangle of the image that has been modified during the interpolation
+	//std::pair<int, int> localmin = this->workStation.getInterpolationMin();
+	//std::pair<int, int> localmax = this->workStation.getInterpolationMax();
+
+	//unsigned char* localdata;
+	////go over the image and get the data of the rectangle
+	//if (this->CurrentImage->channels == 4) 
+	//{
+	//	localdata = new unsigned char[(localmax.first - localmin.first) * (localmax.second - localmin.second) * 4];
+	//	for (int i = localmin.first; i < localmax.first; i++) {
+	//		for (int j = localmin.second; j < localmax.second; j++) {
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4];
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 1] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 1];
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 2] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 2];
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 3] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 3];
+	//		}
+	//	}
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, localmax.first - localmin.first, localmax.second - localmin.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, localdata);
+	//}
+	//else 
+	//{
+	//	localdata = new unsigned char[(localmax.first - localmin.first) * (localmax.second - localmin.second) * 3];
+	//	for (int i = localmin.first; i < localmax.first; i++) {
+	//		for (int j = localmin.second; j < localmax.second; j++) {
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3];
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3 + 1] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3 + 1];
+	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3 + 2] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3 + 2];
+	//		}
+	//	}
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, localmax.first - localmin.first, localmax.second - localmin.second, 0, GL_RGB, GL_UNSIGNED_BYTE, localdata);
+	//}
+	//delete[] localdata;
 }
 
 void FeatherGUI::BuildMenu() {
@@ -949,8 +985,10 @@ void FeatherGUI::InputFunctions() {
 		//If the mouse is over the image
 		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
 			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
+			//TODO FIX
+			std::cout << "Mouse Clicked" << std::endl;
 			//If mouse click or holded
-			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0)) {
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
 				if (this->CurrentTool != -1) {
 					workStation.useTool(this->CurrentTool, this->MouseImagePositionX, this->MouseImagePositionY);
 					this->UpdateImage();
@@ -958,6 +996,11 @@ void FeatherGUI::InputFunctions() {
 			}
 		}
 	}
+	if (ImGui::IsMouseReleased(0)) {
+		//Clear the vector of the tool
+		workStation.emptyMousePoints();
+	}
+	
 
 	//Position of the mouse inside the Image Window compensating the image shift and zoom
 	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
