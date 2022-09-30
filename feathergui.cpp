@@ -495,7 +495,7 @@ void FeatherGUI::UpdateImage() {
 	//Select current texture and bind it
 	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
 	
-	//Update the texture pixel with glTexSubImage2D
+	//Method 1: Update the texture pixel with glTexSubImage2D
 	//if (this->CurrentImage->channels == 4) {
 	//	//Create a pixel array to store a pixel RGB
 	//	unsigned char pixel[4] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255), 
@@ -510,41 +510,40 @@ void FeatherGUI::UpdateImage() {
 	//	glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
 	//}
 
-	//Update the entire image
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	//Method 2: Update the entire image
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
 	
-	//Update the rectangle of the image that has been modified during the interpolation
-	//std::pair<int, int> localmin = this->workStation.getInterpolationMin();
-	//std::pair<int, int> localmax = this->workStation.getInterpolationMax();
+	//Method 3: Update the rectangle of the image that has been modified during the interpolation
+	//workStation.getInterpolationMin are the Min X and Y of the rectangle
+	//workStation.getInterpolationMax are the Max X and Y of the rectangle
+	//using glTexSubImage2D and the data of the image from currentImage and the rectangle of the image that has been modified during the interpolation
+	//Update the texture rectangle of the image
 
-	//unsigned char* localdata;
-	////go over the image and get the data of the rectangle
-	//if (this->CurrentImage->channels == 4) 
-	//{
-	//	localdata = new unsigned char[(localmax.first - localmin.first) * (localmax.second - localmin.second) * 4];
-	//	for (int i = localmin.first; i < localmax.first; i++) {
-	//		for (int j = localmin.second; j < localmax.second; j++) {
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4];
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 1] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 1];
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 2] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 2];
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 4 + (j - localmin.second) * 4 + 3] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 4 + 3];
-	//		}
-	//	}
-	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, localmax.first - localmin.first, localmax.second - localmin.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, localdata);
-	//}
-	//else 
-	//{
-	//	localdata = new unsigned char[(localmax.first - localmin.first) * (localmax.second - localmin.second) * 3];
-	//	for (int i = localmin.first; i < localmax.first; i++) {
-	//		for (int j = localmin.second; j < localmax.second; j++) {
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3];
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3 + 1] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3 + 1];
-	//			localdata[(i - localmin.first) * (localmax.second - localmin.second) * 3 + (j - localmin.second) * 3 + 2] = this->CurrentImage->data[(i * this->CurrentImage->width + j) * 3 + 2];
-	//		}
-	//	}
-	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, localmax.first - localmin.first, localmax.second - localmin.second, 0, GL_RGB, GL_UNSIGNED_BYTE, localdata);
-	//}
-	//delete[] localdata;
+	//Calculate the width and height of the rectangl0e
+	int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
+	int height = workStation.getInterpolationMax().second - workStation.getInterpolationMin().second + 1;
+
+	//Create and reserve a pixel array to store the rectangle of the image
+	unsigned char* pixel = new unsigned char[width * height * this->CurrentImage->channels];
+	//Store the image data in the pixel array
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			for (int k = 0; k < this->CurrentImage->channels; k++) {
+				pixel[(i * width + j) * this->CurrentImage->channels + k] = this->CurrentImage->data[((i + workStation.getInterpolationMin().second) * this->CurrentImage->width + j + workStation.getInterpolationMin().first) * this->CurrentImage->channels + k];
+			}
+		}
+	}
+	
+	if (this->CurrentImage->channels == 4) 
+	{
+		glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+	}
+	else 
+	{
+		glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+	}
+	//Delete the pixel array
+	delete[] pixel;
 }
 
 void FeatherGUI::BuildMenu() {
@@ -985,8 +984,6 @@ void FeatherGUI::InputFunctions() {
 		//If the mouse is over the image
 		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
 			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
-			//TODO FIX
-			std::cout << "Mouse Clicked" << std::endl;
 			//If mouse click or holded
 			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
 				if (this->CurrentTool != -1) {
@@ -998,7 +995,15 @@ void FeatherGUI::InputFunctions() {
 	}
 	if (ImGui::IsMouseReleased(0)) {
 		//Clear the vector of the tool
-		workStation.emptyMousePoints();
+		workStation.clearMousePoints();
+		
+#ifdef DEBUG
+		std::cout << "Min x: " << workStation.getInterpolationMin().first << "Min Y:" << workStation.getInterpolationMin().second << std::endl;
+		std::cout << "Max x: " << workStation.getInterpolationMax().first << "Max Y:" << workStation.getInterpolationMax().second << std::endl;
+#endif // DEBUG
+
+		//Clear Pairs
+		workStation.clearMousePairs();
 	}
 	
 

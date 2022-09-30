@@ -1,9 +1,5 @@
 #include "ImageWork.h"
 
-ImageWork::ImageWork() {}
-
-ImageWork::~ImageWork() {}
-
 void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) {
 	*_Images = &this->Images;
 	*_CurrentImage = &this->CurrentImage;
@@ -21,8 +17,13 @@ std::pair<int, int> ImageWork::getInterpolationMax() {
 	return this->interpolationMax;
 }
 
-void ImageWork::emptyMousePoints() {
+void ImageWork::clearMousePoints() {
 	this->mousePoints.clear();
+}
+
+void ImageWork::clearMousePairs() {
+	this->interpolationMin = std::pair<int, int>(this->CurrentImage.width, this->CurrentImage.height);
+	this->interpolationMax = std::pair<int, int>(0, 0);
 }
 
 bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY) {
@@ -47,9 +48,6 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 }
 
 void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {
-	
-	std::cout << _MouseImagePositionX << " " << _MouseImagePositionY << std::endl;
-
 	//Add point to mousePoints
 	mousePoints.push_back(std::make_pair(_MouseImagePositionX, _MouseImagePositionY));
 	
@@ -68,13 +66,15 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {
 	}
 
 	//If there is only one point, set the pixel
-	int index = (_MouseImagePositionY * this->CurrentImage.width * this->CurrentImage.channels) + (_MouseImagePositionX * this->CurrentImage.channels);
-	CurrentImage.data[index] = static_cast<char>(this->toolcolor.r * 255);
-	CurrentImage.data[index + 1] = static_cast<char>(this->toolcolor.g * 255);
-	CurrentImage.data[index + 2] = static_cast<char>(this->toolcolor.b * 255);
-	if (CurrentImage.channels == 4) {
+	if (!mousePoints.empty()) {
+		int index = (_MouseImagePositionY * this->CurrentImage.width * this->CurrentImage.channels) + (_MouseImagePositionX * this->CurrentImage.channels);
+		CurrentImage.data[index] = static_cast<char>(this->toolcolor.r * 255);
+		CurrentImage.data[index + 1] = static_cast<char>(this->toolcolor.g * 255);
+		CurrentImage.data[index + 2] = static_cast<char>(this->toolcolor.b * 255);
+		if (CurrentImage.channels == 4) {
 
-		CurrentImage.data[index + 3] = 255;
+			CurrentImage.data[index + 3] = 255;
+		}
 	}
 
 	//If there are more than 2 points, interpolate
@@ -104,6 +104,13 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {
 			if (e2 > -dy) { err -= dy; x1 += sx; }
 			if (e2 < dx) { err += dx; y1 += sy; }
 		}
+	}
+	//TODO IMPROVE THIS
+	
+	//If the size is 10 or more clear the vector and let the last point be the first point
+	if (mousePoints.size() >= 10) {
+		mousePoints.clear();
+		mousePoints.push_back(std::make_pair(_MouseImagePositionX, _MouseImagePositionY));
 	}
 }
 

@@ -19,7 +19,7 @@ struct RGB {
 	float delta;
 };
 
-struct ImageStr {
+const struct ImageStr {
 	std::string imagePath;
 	std::string extension;
 	std::string name;
@@ -52,14 +52,13 @@ class ImageWork {
 		
 	public:
 		
-		ImageWork();
-		~ImageWork();
 		void init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage);
 
 		std::pair<int, int> getInterpolationMin();
 		std::pair<int, int> getInterpolationMax();
 		
-		void emptyMousePoints();
+		void clearMousePoints();
+		void clearMousePairs();
 
 		void selectFrontImage();
 		void selectImage(int _index);
