@@ -7,6 +7,7 @@ void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) 
 	this->interpolationMin = std::pair<int,int>(this->CurrentImage.width, this->CurrentImage.height);
 	this->interpolationMax = std::pair<int, int>(0, 0);
 	
+	temp = 0;
 }
 
 std::pair<int, int> ImageWork::getInterpolationMin() {
@@ -105,12 +106,32 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY) {
 			if (e2 < dx) { err += dx; y1 += sy; }
 		}
 	}
-	//TODO IMPROVE THIS
 	
-	//If the size is 10 or more clear the vector and let the last point be the first point
+	//If the size is 10 or more clear the vector and let the last two points be the first points for optimization
 	if (mousePoints.size() >= 10) {
+		std::pair<int, int> lastPoint = mousePoints[mousePoints.size() - 1];
+		std::pair<int, int> secondLastPoint = mousePoints[mousePoints.size() - 2];
 		mousePoints.clear();
-		mousePoints.push_back(std::make_pair(_MouseImagePositionX, _MouseImagePositionY));
+		mousePoints.push_back(secondLastPoint);
+		mousePoints.push_back(lastPoint);
+		
+		//Calculate the new interpolation min and max values with the last two points
+		if (lastPoint.first < secondLastPoint.first) {
+			this->interpolationMin.first = lastPoint.first;
+			this->interpolationMax.first = secondLastPoint.first;
+		}
+		else {
+			this->interpolationMin.first = secondLastPoint.first;
+			this->interpolationMax.first = lastPoint.first;
+		}
+		if (lastPoint.second < secondLastPoint.second) {
+			this->interpolationMin.second = lastPoint.second;
+			this->interpolationMax.second = secondLastPoint.second;
+		}
+		else {
+			this->interpolationMin.second = secondLastPoint.second;
+			this->interpolationMax.second = lastPoint.second;
+		}
 	}
 }
 

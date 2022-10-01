@@ -34,6 +34,7 @@ const struct ImageStr {
 class ImageWork {
 
 	private:
+		int temp;
 
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;

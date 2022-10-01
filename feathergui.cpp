@@ -494,31 +494,11 @@ void FeatherGUI::centerImage() {
 void FeatherGUI::UpdateImage() {
 	//Select current texture and bind it
 	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
-	
-	//Method 1: Update the texture pixel with glTexSubImage2D
-	//if (this->CurrentImage->channels == 4) {
-	//	//Create a pixel array to store a pixel RGB
-	//	unsigned char pixel[4] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255), 
-	//								static_cast<unsigned char>(workStation.getToolColor().g * 255), 
-	//								static_cast<unsigned char>(workStation.getToolColor().b * 255) , 255};
-	//	glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-	//}else{
-	//	//Create a pixel array to store a pixel RGB
-	//	unsigned char pixel[3] = {	static_cast<unsigned char>(workStation.getToolColor().r * 255),
-	//								static_cast<unsigned char>(workStation.getToolColor().g * 255),
-	//								static_cast<unsigned char>(workStation.getToolColor().b * 255) };
-	//	glTexSubImage2D(GL_TEXTURE_2D, 0, this->MouseImagePositionX, this->MouseImagePositionY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-	//}
 
-	//Method 2: Update the entire image
+	//Method 1: Update the entire image
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
 	
-	//Method 3: Update the rectangle of the image that has been modified during the interpolation
-	//workStation.getInterpolationMin are the Min X and Y of the rectangle
-	//workStation.getInterpolationMax are the Max X and Y of the rectangle
-	//using glTexSubImage2D and the data of the image from currentImage and the rectangle of the image that has been modified during the interpolation
-	//Update the texture rectangle of the image
-
+	//Method 2: Update the rectangle of the image that has been modified during the interpolation
 	//Calculate the width and height of the rectangl0e
 	int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
 	int height = workStation.getInterpolationMax().second - workStation.getInterpolationMin().second + 1;
