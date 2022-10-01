@@ -84,32 +84,32 @@ void FeatherGUI::UpdateImage() {
 	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
 
 	//Method 1: Update the entire image
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	
+	////Method 2: Update the rectangle of the image that has been modified during the interpolation
+	////Calculate the width and height of the rectangl0e
+	//int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
+	//int height = workStation.getInterpolationMax().second - workStation.getInterpolationMin().second + 1;
 
-	//Method 2: Update the rectangle of the image that has been modified during the interpolation
-	//Calculate the width and height of the rectangl0e
-	int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
-	int height = workStation.getInterpolationMax().second - workStation.getInterpolationMin().second + 1;
+	////Create and reserve a pixel array to store the rectangle of the image
+	//unsigned char* pixel = new unsigned char[width * height * this->CurrentImage->channels];
+	////Store the image data in the pixel array
+	//for (int i = 0; i < height; i++) {
+	//	for (int j = 0; j < width; j++) {
+	//		for (int k = 0; k < this->CurrentImage->channels; k++) {
+	//			pixel[(i * width + j) * this->CurrentImage->channels + k] = this->CurrentImage->data[((i + workStation.getInterpolationMin().second) * this->CurrentImage->width + j + workStation.getInterpolationMin().first) * this->CurrentImage->channels + k];
+	//		}
+	//	}
+	//}
 
-	//Create and reserve a pixel array to store the rectangle of the image
-	unsigned char* pixel = new unsigned char[width * height * this->CurrentImage->channels];
-	//Store the image data in the pixel array
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			for (int k = 0; k < this->CurrentImage->channels; k++) {
-				pixel[(i * width + j) * this->CurrentImage->channels + k] = this->CurrentImage->data[((i + workStation.getInterpolationMin().second) * this->CurrentImage->width + j + workStation.getInterpolationMin().first) * this->CurrentImage->channels + k];
-			}
-		}
-	}
-
-	if (this->CurrentImage->channels == 4)
-	{
-		glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-	}
-	else
-	{
-		glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-	}
-	//Delete the pixel array
-	delete[] pixel;
+	//if (this->CurrentImage->channels == 4)
+	//{
+	//	glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+	//}
+	//else
+	//{
+	//	glTexSubImage2D(GL_TEXTURE_2D, 0, workStation.getInterpolationMin().first, workStation.getInterpolationMin().second, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+	//}
+	////Delete the pixel array
+	//delete[] pixel;
 }

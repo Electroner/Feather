@@ -38,6 +38,7 @@ class ImageWork {
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
 		RGB toolcolor;
+		int toolradius;
 
 		//Mouse points for interpolation (x,y)
 		std::vector<std::pair<int, int>> mousePoints;
@@ -46,9 +47,9 @@ class ImageWork {
 		std::pair<int, int> interpolationMin;
 		std::pair<int, int> interpolationMax;
 
-		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY);
-		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY);
-		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		
 	public:
 		
@@ -66,5 +67,9 @@ class ImageWork {
 		
 		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
 		void setToolColor(RGB _color);
+		void setToolRadius(int _radius);
 		RGB getToolColor();
+		int getToolRadius();
+			
+		void setPixel(int _x, int _y, RGB _color);
 };

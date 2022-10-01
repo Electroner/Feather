@@ -156,6 +156,9 @@
     <ClCompile Include="GUI\MainGUI\Tools.cpp" />
     <ClCompile Include="ImageIO\stb.cpp" />
     <ClCompile Include="ImageWork.cpp" />
+    <ClCompile Include="ImageWork\Tools\Brush.cpp" />
+    <ClCompile Include="ImageWork\Tools\Eraser.cpp" />
+    <ClCompile Include="ImageWork\Tools\Pencil.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
