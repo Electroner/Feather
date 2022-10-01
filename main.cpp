@@ -1,9 +1,4 @@
-#include "pathwork.h"
-#include "feathergui.h"
-
-#define ICONPATH "/Images/Feather.png"
-
-//#define DEBUG
+#include "./GUI/feathergui.h"
 
 static void glfw_error_callback(int error, const char* description)
 {

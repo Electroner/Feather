@@ -126,6 +126,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\carlo\Documents\LibC\glfw-3.3.7.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +140,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="feathergui.cpp" />
+    <ClCompile Include="Directories\pathwork.cpp" />
+    <ClCompile Include="GUI\ExternGUI\ConfigMenu.cpp" />
+    <ClCompile Include="GUI\ExternGUI\DebugConsole.cpp" />
+    <ClCompile Include="GUI\ExternGUI\ErrorWindows.cpp" />
+    <ClCompile Include="GUI\ExternGUI\ImageSaveLoad.cpp" />
+    <ClCompile Include="GUI\ExternGUI\newImage.cpp" />
+    <ClCompile Include="GUI\feathergui.cpp" />
+    <ClCompile Include="GUI\MainGUI\ImageDisplayers.cpp" />
+    <ClCompile Include="GUI\MainGUI\Info.cpp" />
+    <ClCompile Include="GUI\MainGUI\Layers.cpp" />
+    <ClCompile Include="GUI\MainGUI\Menu.cpp" />
+    <ClCompile Include="GUI\MainGUI\Properties.cpp" />
+    <ClCompile Include="GUI\MainGUI\ToolProperties.cpp" />
+    <ClCompile Include="GUI\MainGUI\Tools.cpp" />
+    <ClCompile Include="ImageIO\stb.cpp" />
     <ClCompile Include="ImageWork.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -149,17 +164,16 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="pathwork.cpp" />
-    <ClCompile Include="stb.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="feathergui.h" />
+    <ClInclude Include="Directories\pathwork.h" />
+    <ClInclude Include="GUI\feathergui.h" />
+    <ClInclude Include="GUI\IconsFontAwesome.h" />
     <ClInclude Include="IconsFontAwesome.h" />
-    <ClInclude Include="ImageWork.h" />
-    <ClInclude Include="pathwork.h" />
     <ClInclude Include="ImageIO\stb_image.h" />
     <ClInclude Include="ImageIO\stb_image_resize.h" />
     <ClInclude Include="ImageIO\stb_image_write.h" />
+    <ClInclude Include="ImageWork\ImageWork.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

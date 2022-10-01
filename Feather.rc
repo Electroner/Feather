@@ -52,7 +52,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-FEATHER_ICON            ICON                    "Images\\Feather.ico"
+FEATHER_ICON            ICON                    "resources\\Images\\Feather.ico"
 
 #endif    // Español (España, alfabetización internacional) resources
 /////////////////////////////////////////////////////////////////////////////

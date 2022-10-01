@@ -1,4 +1,4 @@
-#include "./ImageWork/ImageWork.h"
+#include "ImageWork.h"
 
 void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) {
 	*_Images = &this->Images;

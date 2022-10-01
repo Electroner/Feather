@@ -19,23 +19,35 @@
     <Filter Include="Archivos de origen\Imgui">
       <UniqueIdentifier>{963cb797-1d92-4463-99cc-12deca6daaaf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Archivos de encabezado\ImageIO">
-      <UniqueIdentifier>{075a36a7-932d-48d1-9ae3-d14737ba6156}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de origen\ImageIO">
-      <UniqueIdentifier>{afbdcc1e-6263-4c18-96c0-1af75522bf41}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de encabezado\Directories">
-      <UniqueIdentifier>{b50a1d50-8bc0-4025-be08-36dc2f6bd438}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de origen\Directories">
-      <UniqueIdentifier>{266a3c1a-74f8-452d-927d-0bfffedd6297}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Archivos de encabezado\ImageWork">
-      <UniqueIdentifier>{bd86191c-be4a-4508-8021-984ae8879f03}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Archivos de origen\ImageWork">
       <UniqueIdentifier>{278c0ad6-5a61-41d2-995f-752fe44f6ddb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\GUI">
+      <UniqueIdentifier>{bf78892e-33aa-4186-be87-9185908c982c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\GUI">
+      <UniqueIdentifier>{e9cfdd78-d384-48f4-ab19-308976b53c99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\Directories">
+      <UniqueIdentifier>{dbf196c5-adc3-40d7-a0b9-0fbbc5dcaf7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\Directories">
+      <UniqueIdentifier>{81ae82e3-0c7f-42d9-9382-f6ea79ee1559}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\ImageIO">
+      <UniqueIdentifier>{ba448c00-060f-49f4-b3da-e4af87c17b33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\ImageIO">
+      <UniqueIdentifier>{be8968ff-d790-4055-80b0-79f385e53a7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\ImageWork">
+      <UniqueIdentifier>{8a8014b5-d0aa-4430-a660-f8c91aa353ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\GUI\MainGUI">
+      <UniqueIdentifier>{b5e6329c-40b4-4635-8cd5-9ae888ca72f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de origen\GUI\ExternGUI">
+      <UniqueIdentifier>{ea7dd477-c572-4ddc-9883-6901cbe7ce0c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,17 +75,53 @@
     <ClCompile Include="main.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="stb.cpp">
-      <Filter>Archivos de origen\ImageIO</Filter>
-    </ClCompile>
-    <ClCompile Include="pathwork.cpp">
-      <Filter>Archivos de origen\Directories</Filter>
-    </ClCompile>
-    <ClCompile Include="feathergui.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
     <ClCompile Include="ImageWork.cpp">
       <Filter>Archivos de origen\ImageWork</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\feathergui.cpp">
+      <Filter>Archivos de origen\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Directories\pathwork.cpp">
+      <Filter>Archivos de origen\Directories</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageIO\stb.cpp">
+      <Filter>Archivos de origen\ImageIO</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\ImageDisplayers.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\Info.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\Layers.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\Menu.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\Properties.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\Tools.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\ConfigMenu.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\DebugConsole.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\newImage.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainGUI\ToolProperties.cpp">
+      <Filter>Archivos de origen\GUI\MainGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\ErrorWindows.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\ImageSaveLoad.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,28 +152,31 @@
     <ClInclude Include="imgui\imgui_impl_opengl3_loader.h">
       <Filter>Archivos de encabezado\Imgui</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome.h">
+      <Filter>Archivos de encabezado\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\feathergui.h">
+      <Filter>Archivos de encabezado\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\IconsFontAwesome.h">
+      <Filter>Archivos de encabezado\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Directories\pathwork.h">
+      <Filter>Archivos de encabezado\Directories</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageIO\stb_image.h">
+      <Filter>Archivos de encabezado\ImageIO</Filter>
+    </ClInclude>
     <ClInclude Include="ImageIO\stb_image_resize.h">
       <Filter>Archivos de encabezado\ImageIO</Filter>
     </ClInclude>
     <ClInclude Include="ImageIO\stb_image_write.h">
       <Filter>Archivos de encabezado\ImageIO</Filter>
     </ClInclude>
-    <ClInclude Include="ImageIO\stb_image.h">
-      <Filter>Archivos de encabezado\ImageIO</Filter>
-    </ClInclude>
-    <ClInclude Include="pathwork.h">
-      <Filter>Archivos de encabezado\Directories</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="feathergui.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="IconsFontAwesome.h">
-      <Filter>Archivos de encabezado\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageWork.h">
+    <ClInclude Include="ImageWork\ImageWork.h">
       <Filter>Archivos de encabezado\ImageWork</Filter>
     </ClInclude>
   </ItemGroup>

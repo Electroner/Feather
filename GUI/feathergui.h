@@ -1,6 +1,10 @@
 #ifndef FEATHERGUI
 #define FEATHERGUI
 
+#define ICONPATH "/resources/Images/Feather.png"
+
+//#define DEBUG
+
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -10,16 +14,33 @@
 #include <vector>
 #include <utility>
 
+#define WINDOWS_SO
+//#define LINUX_SO
+
+#ifdef WINDOWS_SO
+#include <windows.h>
+#include <shlobj_core.h>
+#include <commdlg.h>
+#endif 
+
+#ifdef LINUX
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_glfw.h"
+#include "../imgui/imgui_impl_opengl3.h"
 
-#include "ImageIO/stb_image.h"
-#include "ImageIO/stb_image_write.h"
+#include "../ImageIO/stb_image.h"
+#include "../ImageIO/stb_image_write.h"
 
-#include "ImageWork.h"
+#include "../ImageWork/ImageWork.h"
+
+#include "../Directories/pathwork.h"
+#include "IconsFontAwesome.h"
 
 class FeatherGUI
 {
@@ -159,4 +180,3 @@ class FeatherGUI
 };
 
 #endif // !FEATHERGUI
-

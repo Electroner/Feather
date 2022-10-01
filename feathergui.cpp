@@ -1,6 +1,6 @@
-#include "feathergui.h"
-#include "pathwork.h"
-#include "IconsFontAwesome.h"
+#include "./GUI/feathergui.h"
+#include "./Directories/pathwork.h"
+#include "./GUI/IconsFontAwesome.h"
 
 //TODO
 /*
@@ -22,16 +22,16 @@ void FeatherGUI::BuildGUI() {
 	
 	//LOADING IMAGES
 	/*if (this->Images->empty()) {
-		if (!loadImage("./resoruces/exampleimages/naranja.png")) {
+		if (!loadImage("./resources/exampleimages/naranja.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
-		if (!loadImage("./resoruces/exampleimages/Cosmic.png")) {
+		if (!loadImage("./resources/exampleimages/Cosmic.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
-		if (!loadImage("./resoruces/exampleimages/Ocean.png")) {
+		if (!loadImage("./resources/exampleimages/Ocean.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
-		if (!loadImage("./resoruces/exampleimages/Skeleton.png")) {
+		if (!loadImage("./resources/exampleimages/Skeleton.png")) {
 			std::cout << "Error Loading the Image test.png" << std::endl;
 		}
 		
@@ -90,7 +90,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->io = &ImGui::GetIO();
 	(void)io;
 	//io->Fonts->AddFontDefault();
-	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resoruces/fonts/consolas.ttf", 16);
+	this->CurrentFont = io->Fonts->AddFontFromFileTTF("./resources/fonts/consolas.ttf", 16);
 	ImGui::StyleColorsDark();
 
 	this->io->IniFilename = NULL;
@@ -122,25 +122,25 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//Adding Icons
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	io->Fonts->AddFontFromFileTTF("./resoruces/fonts/icon_regular.ttf", this->getIconSize(), &icons_config, icons_ranges);
+	io->Fonts->AddFontFromFileTTF("./resources/fonts/icon_regular.ttf", this->getIconSize(), &icons_config, icons_ranges);
 	//Loading Icons
-	if (!loadIcon("./resoruces/icons/Pencil.png")) {
+	if (!loadIcon("./resources/icons/Pencil.png")) {
 		std::cout << "Error Loading the Image Pencil.png" << std::endl;
 	}
-	if (!loadIcon("./resoruces/icons/Brush.png")) {
+	if (!loadIcon("./resources/icons/Brush.png")) {
 		std::cout << "Error Loading the Image Brush.png" << std::endl;
 	}
-	if (!loadIcon("./resoruces/icons/Rubber.png")) {
+	if (!loadIcon("./resources/icons/Rubber.png")) {
 		std::cout << "Error Loading the Image Rubber.jpg" << std::endl;
 	}
 	//Load the Black Icons
-	if (!loadIcon("./resoruces/icons/Black_Pencil.png")) {
+	if (!loadIcon("./resources/icons/Black_Pencil.png")) {
 		std::cout << "Error Loading the Image Black Pencil.png" << std::endl;
 	}
-	if (!loadIcon("./resoruces/icons/Black_Brush.png")) {
+	if (!loadIcon("./resources/icons/Black_Brush.png")) {
 		std::cout << "Error Loading the Image Black Brush.png" << std::endl;
 	}
-	if (!loadIcon("./resoruces/icons/Black_Rubber.png")) {
+	if (!loadIcon("./resources/icons/Black_Rubber.png")) {
 		std::cout << "Error Loading the Image Black Rubber.jpg" << std::endl;
 	}
 
