@@ -8,9 +8,9 @@ At all times you want to maintain speed when opening it and not compromise optim
 
 ## Alpha 0.1
 
-![TECLADO](https://github.com/Electroner/Feather/Github_Images/Feather.png)
+![Imagen](https://github.com/Electroner/Feather/blob/master/Github_Images/Feather.png)
 
-![TECLADO](https://github.com/Electroner/Feather/Github_Images/Feather2.png)
+![Imagen](https://github.com/Electroner/Feather/blob/master/Github_Images/Feather2.png)
 
 ## Resources
 
