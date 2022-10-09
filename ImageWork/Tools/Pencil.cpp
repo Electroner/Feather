@@ -28,20 +28,20 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 
 		//Calculate the new interpolation min and max values with the last two points
 		if (lastPoint.first < secondLastPoint.first) {
-			this->interpolationMin.first = lastPoint.first - _radius;
-			this->interpolationMax.first = secondLastPoint.first + _radius;
+			this->interpolationMin.first = lastPoint.first - (_radius * 2);
+			this->interpolationMax.first = secondLastPoint.first + (_radius * 2);
 		}
 		else {
-			this->interpolationMin.first = secondLastPoint.first - _radius;
-			this->interpolationMax.first = lastPoint.first + _radius;
+			this->interpolationMin.first = secondLastPoint.first - (_radius * 2);
+			this->interpolationMax.first = lastPoint.first + (_radius * 2);
 		}
 		if (lastPoint.second < secondLastPoint.second) {
-			this->interpolationMin.second = lastPoint.second - _radius;
-			this->interpolationMax.second = secondLastPoint.second + _radius;
+			this->interpolationMin.second = lastPoint.second - (_radius * 2);
+			this->interpolationMax.second = secondLastPoint.second + (_radius * 2);
 		}
 		else {
-			this->interpolationMin.second = secondLastPoint.second - _radius;
-			this->interpolationMax.second = lastPoint.second + _radius;
+			this->interpolationMin.second = secondLastPoint.second - (_radius * 2);
+			this->interpolationMax.second = lastPoint.second + (_radius * 2);
 		}
 	}
 

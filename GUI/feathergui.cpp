@@ -50,8 +50,8 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	errorWindowCreateImage = false;
 
 	//Image Default New Values
-	this->newImageWidth = 100;
-	this->newImageHeight = 100;
+	this->newImageWidth = 1000;
+	this->newImageHeight = 1000;
 	
 	//Fonts and Text
 	this->iconSize = 12.0;
@@ -70,6 +70,9 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resources/icons/Rubber.png")) {
 		std::cout << "Error Loading the Image Rubber.jpg" << std::endl;
 	}
+	if (!loadIcon("./resources/icons/Selection.png")) {
+		std::cout << "Error Loading the Image Selection.png" << std::endl;
+	}
 	//Load the Black Icons
 	if (!loadIcon("./resources/icons/Black_Pencil.png")) {
 		std::cout << "Error Loading the Image Black Pencil.png" << std::endl;
@@ -79,6 +82,9 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	}
 	if (!loadIcon("./resources/icons/Black_Rubber.png")) {
 		std::cout << "Error Loading the Image Black Rubber.jpg" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Black_Selection.png")) {
+		std::cout << "Error Loading the Image Black Selection.png" << std::endl;
 	}
 
 	// Setup Platform/Renderer backends

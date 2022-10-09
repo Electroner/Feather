@@ -11,7 +11,7 @@ void FeatherGUI::BuildTools() {
 	ImVec4 colorActualButton;
 	//For every icon in the folder
 	int temp_i;
-	for (int i = 0; i < this->toolsIcons.size() / 2; i++) {
+	for (int i = 0; i < static_cast<int>(this->toolsIcons.size() / 2); i++) {
 		temp_i = i;
 		if (this->whiteIcons) {
 			temp_i = i;

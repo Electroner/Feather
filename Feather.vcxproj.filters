@@ -78,9 +78,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="ImageWork.cpp">
-      <Filter>Archivos de origen\ImageWork</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\feathergui.cpp">
       <Filter>Archivos de origen\GUI</Filter>
     </ClCompile>
@@ -133,6 +130,12 @@
       <Filter>Archivos de origen\ImageWork\Tools</Filter>
     </ClCompile>
     <ClCompile Include="ImageWork\Tools\Eraser.cpp">
+      <Filter>Archivos de origen\ImageWork\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork\ImageWork.cpp">
+      <Filter>Archivos de origen\ImageWork</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork\Tools\Selection.cpp">
       <Filter>Archivos de origen\ImageWork\Tools</Filter>
     </ClCompile>
   </ItemGroup>

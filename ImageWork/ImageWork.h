@@ -43,6 +43,13 @@ class ImageWork {
 		//Mouse points for interpolation (x,y)
 		std::vector<std::pair<int, int>> mousePoints;
 
+		//Min and Max of the selection rectangle
+		std::pair<int, int> selectionMin;
+		std::pair<int, int> selectionMax;
+
+		//Selection enable
+		bool selectionEnable;
+
 		//Min and Max values for updating the image during interpolation
 		std::pair<int, int> interpolationMin;
 		std::pair<int, int> interpolationMax;
@@ -50,6 +57,7 @@ class ImageWork {
 		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
 		
 	public:
 		
@@ -57,6 +65,9 @@ class ImageWork {
 
 		std::pair<int, int> getInterpolationMin();
 		std::pair<int, int> getInterpolationMax();
+
+		std::pair<int, int> getSelectionMin();
+		std::pair<int, int> getSelectionMax();
 		
 		void clearMousePoints();
 		void clearMousePairs();
@@ -68,8 +79,11 @@ class ImageWork {
 		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
 		void setToolColor(RGB _color);
 		void setToolRadius(int _radius);
+		void setSelectionEnable(bool _enable);
 		RGB getToolColor();
 		int getToolRadius();
+		bool getSelectionEnabled();
+		
 			
 		void setPixel(int _x, int _y, RGB _color);
 };
