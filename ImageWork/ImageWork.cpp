@@ -12,6 +12,9 @@ void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) 
 
 	this->toolradius = 1;
 	this->selectionEnable = false;
+
+	//First point of the selection to -1
+	this->firstPoint = std::pair<int, int>(-1, -1);
 }
 
 std::pair<int, int> ImageWork::getInterpolationMin() {
@@ -37,6 +40,10 @@ void ImageWork::clearMousePoints() {
 void ImageWork::clearMousePairs() {
 	this->interpolationMin = std::pair<int, int>(this->CurrentImage.width, this->CurrentImage.height);
 	this->interpolationMax = std::pair<int, int>(0, 0);
+}
+
+void ImageWork::clearFirstPointSelection() {
+	this->firstPoint = std::pair<int, int>(-1, -1);
 }
 
 void ImageWork::selectFrontImage() {
@@ -110,7 +117,7 @@ void ImageWork::setPixel(int _x, int _y, RGB _color) {
 		CurrentImage.data[index + 1] = static_cast<char>(toolcolor.g * 255);
 		CurrentImage.data[index + 2] = static_cast<char>(toolcolor.b * 255);
 		if (CurrentImage.channels == 4) {
-			CurrentImage.data[_x + _y * CurrentImage.width + 3] = _color.delta;
+			CurrentImage.data[_x + _y * CurrentImage.width + 3] = static_cast<char>(_color.delta);
 		}
 	}
 }

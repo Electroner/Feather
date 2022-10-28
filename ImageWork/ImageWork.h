@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <set>
 
 #include <GLFW/glfw3.h>
 
@@ -44,6 +45,7 @@ class ImageWork {
 		std::vector<std::pair<int, int>> mousePoints;
 
 		//Min and Max of the selection rectangle
+		std::pair<int, int> firstPoint;
 		std::pair<int, int> selectionMin;
 		std::pair<int, int> selectionMax;
 
@@ -71,6 +73,7 @@ class ImageWork {
 		
 		void clearMousePoints();
 		void clearMousePairs();
+		void clearFirstPointSelection();
 
 		void selectFrontImage();
 		void selectImage(int _index);
@@ -83,7 +86,6 @@ class ImageWork {
 		RGB getToolColor();
 		int getToolRadius();
 		bool getSelectionEnabled();
-		
-			
+				
 		void setPixel(int _x, int _y, RGB _color);
 };

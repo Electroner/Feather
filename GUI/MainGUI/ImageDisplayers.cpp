@@ -44,8 +44,8 @@ void FeatherGUI::BuildImageDisplayer() {
 		int locab = ((static_cast<int>(this->BackGroundRGB.b * 255 + 128) % 255));
 		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 		ImGui::GetWindowDrawList()->AddRect(
-			ImVec2(this->imageShiftX + this->toolsPanelPixels,
-				this->imageShiftY + this->MenuSizePixels),
+			ImVec2(static_cast<float>(this->imageShiftX + this->toolsPanelPixels),
+				static_cast<float>(this->imageShiftY + this->MenuSizePixels)),
 			ImVec2(this->CurrentImage->width * this->zoom + this->imageShiftX + this->toolsPanelPixels,
 				this->CurrentImage->height * this->zoom + this->imageShiftY + this->MenuSizePixels),
 			IM_COL32(locar, locag, locab, 255), 0.0F, 0, 2.0F);
@@ -57,7 +57,7 @@ void FeatherGUI::BuildImageDisplayer() {
 		ImGui::GetWindowDrawList()->AddRect(
 			ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMin().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMin().second * this->zoom),
 			ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMax().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMax().second * this->zoom),
-			IM_COL32(255, 255, 255, 255), 0.0F, 0, 2.0F);
+			IM_COL32(128, 128, 128, 255), 0.0F, 0, 2.0F);
 	}
 	
 	ImGui::End();

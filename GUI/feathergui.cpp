@@ -338,6 +338,9 @@ void FeatherGUI::InputFunctions() {
 
 		//Clear Pairs
 		workStation.clearMousePairs();
+
+		//Set the firstPoint of Selection to -1
+		workStation.clearFirstPointSelection();
 	}
 	
 
