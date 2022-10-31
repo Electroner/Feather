@@ -3,8 +3,30 @@
 void FeatherGUI::BuildConsoleDebugMenu() {
 	//DEBUG CONSOLE WINDOW
 	//Set max size of the window to 1/4 of the screen
-	ImGui::SetNextWindowSize(ImVec2(this->io->DisplaySize.x / 4, this->io->DisplaySize.y / 2), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(static_cast<float>(this->io->DisplaySize.x / 4), static_cast<float>(this->io->DisplaySize.y / 1.5)), ImGuiCond_Always);
 	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+	//IMGUI TEXT
+	ImGui::Text("System Status");
+	ImGui::Separator();
+	//Windows VARS
+	MEMORYSTATUSEX status;
+	status.dwLength = sizeof(status);
+	GlobalMemoryStatusEx(&status);
+	//Show avaliable ullTotalPhys memory / 1024
+	ImGui::Text("Avaliable Memory: %d MB", status.ullTotalPhys / 1024);
+	//Show used ullAvailPhys memory / 1024
+	ImGui::Text("Used Memory: %d MB", (status.ullTotalPhys - status.ullAvailPhys) / 1024);
+	//Show Difference (Memory free)
+	ImGui::Text("Memory Free: %d MB", status.ullAvailPhys / 1024);
+	//Show dwMemoryLoad
+	ImGui::Text("Memory Load: %d%%", status.dwMemoryLoad);
+	//Show Free memory %
+	ImGui::Text("Free Memory: %d%%", (status.ullAvailPhys * 100) / status.ullTotalPhys);
+
+	
+	//IMGUI TEXT
+	ImGui::Text("\nFeather Status");
+	ImGui::Separator();
 	//FPS
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	//Print the mouse
@@ -19,7 +41,6 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	//Print the minimun zoom
 	ImGui::Text("Min Zoom: %.2f", this->minZoom);
 
-
 	ImGui::Separator();
 
 	//if (ss.str().c_str() != NULL) {
@@ -32,7 +53,15 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	//	strftime(timeMark, 80, "%H:%M:%S", &now);	
 	//}
 
-
+	//Create a box of text with the log
+	//Begin
+	ImGui::BeginChild("Scrolling");
+	//Print the log
 	ImGui::Text("%s", ss.str().c_str());
+	//AutoScrool to the end of this text
+	ImGui::SetScrollHereY(1.0f);
+	//End the child
+	ImGui::EndChild();
+	
 	ImGui::End();
 }

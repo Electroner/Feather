@@ -12,6 +12,9 @@
 	-> Sort and make the configuration menu more user friendly
 	-> Make more tools
 	-> Fix drawing lines with less than 1 of zoom 
+	-> Search for memory available in the system for creating image
+	-> Change and organize the options
+	-> Make selection White and black
 	
 	# Search if there is any option to set the images into the executable
 */
