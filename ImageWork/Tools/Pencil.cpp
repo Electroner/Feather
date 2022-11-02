@@ -6,16 +6,16 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 
 	//Update interpolation min and max
 	if (this->interpolationMin.first > _MouseImagePositionX) {
-		this->interpolationMin.first = _MouseImagePositionX - _radius;
+		this->interpolationMin.first = _MouseImagePositionX - _radius * 2;
 	}
 	if (this->interpolationMin.second > _MouseImagePositionY) {
-		this->interpolationMin.second = _MouseImagePositionY - _radius;
+		this->interpolationMin.second = _MouseImagePositionY - _radius * 2;
 	}
 	if (this->interpolationMax.first < _MouseImagePositionX) {
-		this->interpolationMax.first = _MouseImagePositionX + _radius;
+		this->interpolationMax.first = _MouseImagePositionX + _radius * 2;
 	}
 	if (this->interpolationMax.second < _MouseImagePositionY) {
-		this->interpolationMax.second = _MouseImagePositionY + _radius;
+		this->interpolationMax.second = _MouseImagePositionY + _radius * 2;
 	}
 
 	//If the size is 11 or more clear the vector and let the last two points be the first points for optimization
@@ -28,24 +28,24 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 
 		//Calculate the new interpolation min and max values with the last two points
 		if (lastPoint.first < secondLastPoint.first) {
-			this->interpolationMin.first = lastPoint.first - (_radius * 2);
-			this->interpolationMax.first = secondLastPoint.first + (_radius * 2);
+			this->interpolationMin.first = lastPoint.first - (_radius *2);
+			this->interpolationMax.first = secondLastPoint.first + (_radius *2);
 		}
 		else {
-			this->interpolationMin.first = secondLastPoint.first - (_radius * 2);
-			this->interpolationMax.first = lastPoint.first + (_radius * 2);
+			this->interpolationMin.first = secondLastPoint.first - (_radius *2);
+			this->interpolationMax.first = lastPoint.first + (_radius *2);
 		}
 		if (lastPoint.second < secondLastPoint.second) {
-			this->interpolationMin.second = lastPoint.second - (_radius * 2);
-			this->interpolationMax.second = secondLastPoint.second + (_radius * 2);
+			this->interpolationMin.second = lastPoint.second - (_radius *2);
+			this->interpolationMax.second = secondLastPoint.second + (_radius *2);
 		}
 		else {
-			this->interpolationMin.second = secondLastPoint.second - (_radius * 2);
-			this->interpolationMax.second = lastPoint.second + (_radius * 2);
+			this->interpolationMin.second = secondLastPoint.second - (_radius *2);
+			this->interpolationMax.second = lastPoint.second + (_radius *2);
 		}
 	}
 
-	//If there is only one point in the vector, draw a circle in the image
+	// If there is only one point in the vector, draw a circle in the image
 	if (mousePoints.size() == 1) {
 		for (int x = -_radius; x <= _radius; x++) {
 			for (int y = -_radius; y <= _radius; y++) {
@@ -54,6 +54,23 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 				}
 			}
 		}
+	}
+
+	//If min is less than 0 set to 0
+	if (this->interpolationMin.first < 0) {
+		this->interpolationMin.first = 0;
+	}
+	//If min is less than 0 set to 0
+	if (this->interpolationMin.second < 0) {
+		this->interpolationMin.second = 0;
+	}
+	//If max is greater than the image width set to the image width
+	if (this->interpolationMax.first >= this->CurrentImage.width) {
+		this->interpolationMax.first = this->CurrentImage.width - 1;
+	}
+	//If max is greater than the image height set to the image height
+	if (this->interpolationMax.second >= this->CurrentImage.height) {
+		this->interpolationMax.second = this->CurrentImage.height - 1;
 	}
 
 	//If there are more than 2 points, interpolate

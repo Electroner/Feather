@@ -55,6 +55,23 @@ void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, in
 			}
 		}
 	}
+	
+	//If min is less than 0 set to 0
+	if (this->interpolationMin.first < 0) {
+		this->interpolationMin.first = 0;
+	}
+	//If min is less than 0 set to 0
+	if (this->interpolationMin.second < 0) {
+		this->interpolationMin.second = 0;
+	}
+	//If max is greater than the image width set to the image width
+	if (this->interpolationMax.first > this->CurrentImage.width) {
+		this->interpolationMax.first = this->CurrentImage.width;
+	}
+	//If max is greater than the image height set to the image height
+	if (this->interpolationMax.second > this->CurrentImage.height) {
+		this->interpolationMax.second = this->CurrentImage.height;
+	}
 
 	//If there are more than 2 points, interpolate
 	if (mousePoints.size() > 1) {

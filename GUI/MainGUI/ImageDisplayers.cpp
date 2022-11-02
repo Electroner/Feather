@@ -24,6 +24,7 @@ void FeatherGUI::BuildImageDisplayer() {
 		}
 	}
 
+#define DEBUG
 #ifdef DEBUG
 
 	//Draw the update area interpolated
@@ -60,6 +61,7 @@ void FeatherGUI::BuildImageDisplayer() {
 			IM_COL32(128, 128, 128, 255), 0.0F, 0, 2.0F);
 	}
 	
+
 	ImGui::End();
 }
 
@@ -133,10 +135,13 @@ void FeatherGUI::UpdateImage() {
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			for (int k = 0; k < this->CurrentImage->channels; k++) {
-				pixel[(i * width + j) * this->CurrentImage->channels + k] = this->CurrentImage->data[((i + workStation.getInterpolationMin().second) * this->CurrentImage->width + j + workStation.getInterpolationMin().first) * this->CurrentImage->channels + k];
+				pixel[(i * width + j) * this->CurrentImage->channels + k] = 
+					this->CurrentImage->data[((i + workStation.getInterpolationMin().second) * 
+						this->CurrentImage->width + j + workStation.getInterpolationMin().first) * 
+							this->CurrentImage->channels + k];
 			}
 		}
-	}
+	} 
 
 	if (this->CurrentImage->channels == 4)
 	{

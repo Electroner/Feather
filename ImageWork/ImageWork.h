@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <utility>
 #include <set>
+#include <assert.h>
 
 #include <GLFW/glfw3.h>
 

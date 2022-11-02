@@ -6,7 +6,7 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	ImGui::SetNextWindowSize(ImVec2(static_cast<float>(this->io->DisplaySize.x / 4), static_cast<float>(this->io->DisplaySize.y / 1.5)), ImGuiCond_Always);
 	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 	//IMGUI TEXT
-	ImGui::Text("System Status");
+	ImGui::Text("SYSTEM STATUS");
 	ImGui::Separator();
 	//Windows VARS
 	MEMORYSTATUSEX status;
@@ -25,7 +25,7 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 
 	
 	//IMGUI TEXT
-	ImGui::Text("\nFeather Status");
+	ImGui::Text("\nFEATHER STATUS");
 	ImGui::Separator();
 	//FPS
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -40,7 +40,8 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	ImGui::Text("Max Zoom: %.2f", this->maxZoom);
 	//Print the minimun zoom
 	ImGui::Text("Min Zoom: %.2f", this->minZoom);
-
+	
+	ImGui::Text("\nCONSOLE");
 	ImGui::Separator();
 
 	//if (ss.str().c_str() != NULL) {

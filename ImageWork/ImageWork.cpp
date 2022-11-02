@@ -10,7 +10,7 @@ void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) 
 	this->selectionMin = std::pair<int, int>(0, 0);
 	this->selectionMax = std::pair<int, int>(0, 0);
 
-	this->toolradius = 1;
+	this->toolradius = 5;
 	this->selectionEnable = false;
 
 	//First point of the selection to -1
