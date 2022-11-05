@@ -1,6 +1,6 @@
 #include "../ImageWork.h"
 
-void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius) {
+void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius) {
 	//Add point to mousePoints
 	mousePoints.push_back(std::make_pair(_MouseImagePositionX, _MouseImagePositionY));
 

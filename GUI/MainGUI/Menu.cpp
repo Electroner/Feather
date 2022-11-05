@@ -4,11 +4,11 @@ void FeatherGUI::BuildMenu() {
 	//Create a main menu
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu(ICON_FA_FILE_ALT " File")) {
-			if (ImGui::MenuItem(ICON_FA_FILE_IMAGE " New", "|Ctrl+N")) {
+			if (ImGui::MenuItem(ICON_FA_FILE " New", "|Ctrl+N")) {
 				this->newImagePopUp = true;
 				std::cout << "Opened New Image window Pop Up" << std::endl;
 			}
-			if (ImGui::MenuItem(ICON_FA_FILE " Open", "|Ctrl+O")) {
+			if (ImGui::MenuItem(ICON_FA_FILE_IMAGE " Open", "|Ctrl+O")) {
 				std::string filename;
 				filename = browseFile(0);
 				//If the filename doesnt have ":" error			

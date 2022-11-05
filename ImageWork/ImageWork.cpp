@@ -13,6 +13,10 @@ void ImageWork::init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage) 
 	this->toolradius = 5;
 	this->selectionEnable = false;
 
+	//Colors
+	this->toolColor = RGB(0, 0, 0, 1);
+	this->secondaryColor = RGB(1, 1, 1, 1);
+
 	//First point of the selection to -1
 	this->firstPoint = std::pair<int, int>(-1, -1);
 }
@@ -89,6 +93,10 @@ void ImageWork::setToolColor(RGB _color) {
 	this->toolColor = _color;
 }
 
+void ImageWork::setSecondaryColor(RGB _color) {
+	this->secondaryColor = _color;
+}
+
 void ImageWork::setToolRadius(int _radius) {
 	this->toolradius = _radius;
 }
@@ -99,6 +107,10 @@ void ImageWork::setSelectionEnable(bool _enable) {
 
 RGB ImageWork::getToolColor() {
 	return this->toolColor;
+}
+
+RGB ImageWork::getSecondaryColor() {
+	return this->secondaryColor;
 }
 
 int ImageWork::getToolRadius() {
@@ -113,9 +125,9 @@ void ImageWork::setPixel(int _x, int _y, RGB _color) {
 	//Check if the pixel is in the image
 	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
 		int index = (_y * this->CurrentImage.width + _x) * this->CurrentImage.channels;
-		CurrentImage.data[index] = static_cast<char>(toolColor.r * 255);
-		CurrentImage.data[index + 1] = static_cast<char>(toolColor.g * 255);
-		CurrentImage.data[index + 2] = static_cast<char>(toolColor.b * 255);
+		CurrentImage.data[index] = static_cast<char>(_color.r * 255);
+		CurrentImage.data[index + 1] = static_cast<char>(_color.g * 255);
+		CurrentImage.data[index + 2] = static_cast<char>(_color.b * 255);
 		if (CurrentImage.channels == 4) {
 			CurrentImage.data[index + 3] = static_cast<char>(_color.delta*255);
 		}

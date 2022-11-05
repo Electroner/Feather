@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(1);	// Enable vsync
+	glfwSwapInterval(0);	// Enable vsync
 
 	//Icon Path and Load image 
 	std::string icon_path = getNormalizedPath() + ICONPATH;

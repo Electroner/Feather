@@ -83,9 +83,11 @@ class ImageWork {
 		
 		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
 		void setToolColor(RGB _color);
+		void setSecondaryColor(RGB _color);
 		void setToolRadius(int _radius);
 		void setSelectionEnable(bool _enable);
 		RGB getToolColor();
+		RGB getSecondaryColor();
 		int getToolRadius();
 		bool getSelectionEnabled();
 				

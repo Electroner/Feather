@@ -23,8 +23,7 @@ void FeatherGUI::BuildImageDisplayer() {
 			ImGui::Image((void*)(intptr_t)this->CurrentImage->texture, ImVec2(this->CurrentImage->width * this->zoom, this->CurrentImage->height * this->zoom));
 		}
 	}
-
-#define DEBUG
+	
 #ifdef DEBUG
 
 	//Draw the update area interpolated

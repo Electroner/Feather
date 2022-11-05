@@ -97,7 +97,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->windowRounding = 0.0F;
 	
 	//OPTION VARS
-	this->Vsync = true;
+	this->Vsync = false;
 	
 	this->BackGroundRGB.r = 0.25;
 	this->BackGroundRGB.g = 0.25;
