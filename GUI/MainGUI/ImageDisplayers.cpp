@@ -121,9 +121,15 @@ void FeatherGUI::UpdateImage() {
 	//Select current texture and bind it
 	glBindTexture(GL_TEXTURE_2D, this->CurrentImage->texture);
 
-	//Method 1: Update the entire image
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
-	
+	////Method 1: Update the entire image
+	//if (this->CurrentImage->channels == 4) {
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	//}
+	//else 
+	//{
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->CurrentImage->width, this->CurrentImage->height, 0, GL_RGB, GL_UNSIGNED_BYTE, this->CurrentImage->data);
+	//}
+
 	//Method 2: Update the rectangle of the image that has been modified during the interpolation
 	//Calculate the width and height of the rectangle
 	int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
@@ -153,4 +159,29 @@ void FeatherGUI::UpdateImage() {
 	}
 	//Delete the pixel array
 	delete[] pixel;
+
+	////Method 3: Update the pixel that has been modified during the interpolation with glMapBuffer
+	//int width = workStation.getInterpolationMax().first - workStation.getInterpolationMin().first + 1;
+	//int height = workStation.getInterpolationMax().second - workStation.getInterpolationMin().second + 1;
+	//
+	//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, *this->CurrentImage->data);
+	//unsigned char* pixel = (unsigned char*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+	//if (pixel) {
+	//	for (int i = 0; i < height; i++) {
+	//		for (int j = 0; j < width; j++) {
+	//			for (int k = 0; k < this->CurrentImage->channels; k++) {
+	//				pixel[(i * width + j) * this->CurrentImage->channels + k] =
+	//					this->CurrentImage->data[((i + workStation.getInterpolationMin().second) *
+	//						this->CurrentImage->width + j + workStation.getInterpolationMin().first) *
+	//					this->CurrentImage->channels + k];
+	//			}
+	//		}
+	//	}
+	//	glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+	//}
+	//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	//
+	////Unbind the texture
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	
 }

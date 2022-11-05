@@ -135,6 +135,89 @@ bool FeatherGUI::loadIcon(std::string _path) {
 	return true;
 }
 
+bool FeatherGUI::loadFromClipBoard() {
+	std::cout << "Loading from clipboard" << std::endl;
+	//Show content of clipboard with windows api
+	//Open clipboard
+	if (!OpenClipboard(NULL)) {
+		std::cout << "Error opening clipboard" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Get clipboard data as image format CBitmap 
+	HBITMAP hBitmap = (HBITMAP)GetClipboardData(CF_BITMAP);
+	if (hBitmap == NULL) {
+		std::cout << "Error getting clipboard data" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Close clipboard
+	CloseClipboard();
+	
+	//Get bitmap info
+	BITMAP bitmap;
+	GetObject(hBitmap, sizeof(BITMAP), &bitmap);
+	
+	int channels = 4;
+	
+	//Get bitmap data
+	GLubyte* data = new GLubyte[bitmap.bmWidth * bitmap.bmHeight * channels];
+	GetBitmapBits(hBitmap, bitmap.bmWidth * bitmap.bmHeight * channels, data);
+
+	//Incherchange the red and blue channels (BGRA)
+	for (int i = 0; i < bitmap.bmWidth * bitmap.bmHeight * channels; i += channels) {
+		GLubyte temp = data[i];
+		data[i] = data[i + 2];
+		data[i + 2] = temp;
+	}
+
+	//Create image
+	ImageStr unloadedImage;
+	unloadedImage.data = data;
+	unloadedImage.width = bitmap.bmWidth;
+	unloadedImage.height = bitmap.bmHeight;
+	unloadedImage.channels = channels;
+	unloadedImage.name = "Clipboard";
+	unloadedImage.extension = "png";
+	unloadedImage.imagePath = ".";
+	unloadedImage.loaded = true;
+	//Create texture
+	glGenTextures(1, &unloadedImage.texture);
+	glBindTexture(GL_TEXTURE_2D, unloadedImage.texture);
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	if (channels == 4) 
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	else
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	//Add image to Images vector
+	this->Images->push_back(unloadedImage);
+
+	//free bitmap
+	DeleteObject(hBitmap);
+	
+	//Set the image as selected
+	this->workStation.selectFrontImage();
+	//Set the zooom
+	this->calculateZoom();
+	this->centerImage();
+
+	//Update the image
+	this->UpdateImage();
+
+	return true;
+}
+
 bool FeatherGUI::saveImage(std::string _path) {
 	if (_path.size() == 0)
 	{

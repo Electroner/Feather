@@ -86,7 +86,7 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 }
 
 void ImageWork::setToolColor(RGB _color) {
-	this->toolcolor = _color;
+	this->toolColor = _color;
 }
 
 void ImageWork::setToolRadius(int _radius) {
@@ -98,7 +98,7 @@ void ImageWork::setSelectionEnable(bool _enable) {
 }
 
 RGB ImageWork::getToolColor() {
-	return this->toolcolor;
+	return this->toolColor;
 }
 
 int ImageWork::getToolRadius() {
@@ -113,11 +113,11 @@ void ImageWork::setPixel(int _x, int _y, RGB _color) {
 	//Check if the pixel is in the image
 	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
 		int index = (_y * this->CurrentImage.width + _x) * this->CurrentImage.channels;
-		CurrentImage.data[index] = static_cast<char>(toolcolor.r * 255);
-		CurrentImage.data[index + 1] = static_cast<char>(toolcolor.g * 255);
-		CurrentImage.data[index + 2] = static_cast<char>(toolcolor.b * 255);
+		CurrentImage.data[index] = static_cast<char>(toolColor.r * 255);
+		CurrentImage.data[index + 1] = static_cast<char>(toolColor.g * 255);
+		CurrentImage.data[index + 2] = static_cast<char>(toolColor.b * 255);
 		if (CurrentImage.channels == 4) {
-			CurrentImage.data[_x + _y * CurrentImage.width + 3] = static_cast<char>(_color.delta);
+			CurrentImage.data[index + 3] = static_cast<char>(_color.delta*255);
 		}
 	}
 }

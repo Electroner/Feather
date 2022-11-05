@@ -314,6 +314,14 @@ void FeatherGUI::InputFunctions() {
 		this->newImagePopUp = false;
 	}
 
+	//CTRL + V
+	if (io->KeysDown[GLFW_KEY_V] && io->KeyCtrl) {
+		if (this->Images->size() < 1) {
+			//Paste the image in the clipboard
+			this->loadFromClipBoard();
+		}
+	}
+
 	//MOUSE
 	// Check if mouse is over the image window
 	if (this->MouseOverImageWindow)

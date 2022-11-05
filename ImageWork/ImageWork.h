@@ -39,7 +39,8 @@ class ImageWork {
 
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
-		RGB toolcolor;
+		RGB toolColor;
+		RGB secondaryColor;
 		int toolradius;
 
 		//Mouse points for interpolation (x,y)
