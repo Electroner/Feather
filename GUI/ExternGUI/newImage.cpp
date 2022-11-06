@@ -22,62 +22,72 @@ void FeatherGUI::newImage() {
 
 		//If the user press the OK button
 		if (ImGui::Button("Create Image")) {
-			//check if the image size is bigger than 0
-			if (this->newImageWidth > 0 && this->newImageHeight > 0 && this->newImageName[0] != '\0') {
-				ImageStr blank;
-				//Create a new image with the given parameters
-				blank.name = this->newImageName;
-				blank.width = this->newImageWidth;
-				blank.height = this->newImageHeight;
-				blank.extension = "png";
+			MEMORYSTATUSEX status;
+			status.dwLength = sizeof(status);
+			GlobalMemoryStatusEx(&status);
+			//Check if the user has enough memory to create the new image
+			if (status.ullAvailPhys > (this->newImageWidth * this->newImageHeight * 4 * 8)) {
+				//check if the image size is bigger than 0
+				if (this->newImageWidth > 0 && this->newImageHeight > 0 && this->newImageName[0] != '\0') {
+					ImageStr blank;
+					//Create a new image with the given parameters
+					blank.name = this->newImageName;
+					blank.width = this->newImageWidth;
+					blank.height = this->newImageHeight;
+					blank.extension = "png";
 
-				if (this->newImageTransparency)
-				{
-					blank.channels = 4;
+					if (this->newImageTransparency)
+					{
+						blank.channels = 4;
+					}
+					else
+					{
+						blank.channels = 3;
+					}
+
+					blank.data = new unsigned char[blank.width * blank.height * blank.channels];
+					//For every pixel set it white
+					for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
+						blank.data[i] = 255;
+					}
+
+					//Enable transparency
+					glDisable(GL_DEPTH_TEST);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+					// Create a OpenGL texture identifier and binding
+					glGenTextures(1, &blank.texture);
+					glBindTexture(GL_TEXTURE_2D, blank.texture);
+
+					// Setup filtering parameters for display
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+					glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+					glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
+
+					//Add the new image to the image list
+					this->Images->push_back(blank);
+					//Set the new image as the current image
+					workStation.selectFrontImage();
+					this->centerImage();
+
+					*this->newImageName = {};
+					//Close the window
+					this->newImagePopUp = false;
 				}
 				else
 				{
-					blank.channels = 3;
+					this->errorWindowCode = 2; //No name or dimensions error
 				}
-
-				blank.data = new unsigned char[blank.width * blank.height * blank.channels];
-				//For every pixel set it white
-				for (int i = 0; i < blank.width * blank.height * blank.channels; i++) {
-					blank.data[i] = 255;
-				}
-
-				//Enable transparency
-				glDisable(GL_DEPTH_TEST);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-				// Create a OpenGL texture identifier and binding
-				glGenTextures(1, &blank.texture);
-				glBindTexture(GL_TEXTURE_2D, blank.texture);
-
-				// Setup filtering parameters for display
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				// Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-				glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
-
-				//Add the new image to the image list
-				this->Images->push_back(blank);
-				//Set the new image as the current image
-				workStation.selectFrontImage();
-				this->centerImage();
-
-				*this->newImageName = {};
-				//Close the window
-				this->newImagePopUp = false;
 			}
-			else
+			else 
 			{
-				this->errorWindowCreateImage = true;
+				this->errorWindowCode = 1; //No memory to create the new image error
 			}
 		}
 		//Show Buttons on the same line
@@ -92,7 +102,7 @@ void FeatherGUI::newImage() {
 	}
 
 	//Show Error Windows in case of error
-	this->ErrorWindowCreateImage();
+	this->ErrorWindow();
 
 	//Pop style
 	ImGui::PopStyleColor();

@@ -58,7 +58,7 @@ class FeatherGUI
 		bool disableOptionsRounding; //Option for rounding
 		
 		//ERROR WINDOW VARS
-		bool errorWindowCreateImage; //Extern Window
+		int errorWindowCode; //Extern Window
 		
 		//FONTS AND TEXT VARS
 		float iconSize; //Pixels
@@ -147,7 +147,7 @@ class FeatherGUI
 		void BuildInfo();
 
 		//ERROR WINDOWS
-		void ErrorWindowCreateImage(); // Error creating a Image (Associated to errorWindowCreateImage bool )
+		void ErrorWindow(); // Error creating a Image (Associated to errorWindowCreateImage bool )
 
 		//OPTIONS RELATED FUNCTIONS
 		void BuildToolProperties();

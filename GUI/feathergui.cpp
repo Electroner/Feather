@@ -6,12 +6,10 @@
 	-> Add the ability to change the icon size
 	-> Add a import export configuration
 	-> Add a configuration file
-	-> Fix the zoom
 	-> Add a configuration option to enable/disable the default zoom
 	-> Make the default zoom configurable
 	-> Sort and make the configuration menu more user friendly
-	-> Make more tools
-	-> Fix drawing lines with less than 1 of zoom 
+	-> Make more tools 
 	-> Search for memory available in the system for creating image
 	-> Change and organize the options
 	-> Make selection White and black
@@ -50,7 +48,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->newImagePopUp = false;
 
 	//Error Windows
-	errorWindowCreateImage = false;
+	errorWindowCode = false;
 
 	//Image Default New Values
 	this->newImageWidth = 1000;
@@ -291,18 +289,24 @@ void FeatherGUI::InputFunctions() {
 		this->centerImage();
 	}
 
-	//UP
+	//UP MOUSE WHEEL
 	if (io->MouseWheel > 0) {
 		//increase lineal zoom by 0.1 if this one is less than 3
 		if (this->zoom < this->maxZoom) {
 			this->zoom += this->zoomIncrement;
+			//Shift the image to zoom in the position of the mouse in the image using MouseImagePositionX and MouseImagePositionY
+			this->imageShiftX -= static_cast<int>(this->MouseImagePositionX * this->zoomIncrement);
+			this->imageShiftY -= static_cast<int>(this->MouseImagePositionY * this->zoomIncrement);
 		}
 	}
-	//DOWN
+	//DOWN MOUSE WHEEL
 	if (io->MouseWheel < 0) {
 		//decrease lineal zoom by 0.1 if this one is greater than 0.1
-		if (this->zoom > this->minZoom) {
+		if (this->zoom > (this->minZoom + this->zoomIncrement)) {
 			this->zoom -= this->zoomIncrement;
+			//Shift the image to zoom out the position of the mouse in the image using MouseImagePositionX and MouseImagePositionY
+			this->imageShiftX += static_cast<int>(this->MouseImagePositionX * this->zoomIncrement);
+			this->imageShiftY += static_cast<int>(this->MouseImagePositionY * this->zoomIncrement);
 		}
 	}
 
