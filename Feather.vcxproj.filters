@@ -138,6 +138,9 @@
     <ClCompile Include="ImageWork\Tools\Selection.cpp">
       <Filter>Archivos de origen\ImageWork\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\toolDisplays.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

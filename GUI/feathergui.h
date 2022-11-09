@@ -151,6 +151,7 @@ class FeatherGUI
 
 		//OPTIONS RELATED FUNCTIONS
 		void BuildToolProperties();
+		void toolDisplays();
 
 		//DYNAMIC MENUS
 		void BuildConfigMenu();

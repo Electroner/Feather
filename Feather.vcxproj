@@ -146,6 +146,7 @@
     <ClCompile Include="GUI\ExternGUI\ErrorWindows.cpp" />
     <ClCompile Include="GUI\ExternGUI\ImageSaveLoad.cpp" />
     <ClCompile Include="GUI\ExternGUI\newImage.cpp" />
+    <ClCompile Include="GUI\ExternGUI\toolDisplays.cpp" />
     <ClCompile Include="GUI\feathergui.cpp" />
     <ClCompile Include="GUI\MainGUI\ImageDisplayers.cpp" />
     <ClCompile Include="GUI\MainGUI\Info.cpp" />

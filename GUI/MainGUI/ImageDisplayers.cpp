@@ -51,15 +51,8 @@ void FeatherGUI::BuildImageDisplayer() {
 			IM_COL32(locar, locag, locab, 255), 0.0F, 0, 2.0F);
 	}
 
-	//if selection is enable draw the selection
-	if (this->workStation.getSelectionEnabled()) {
-		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-		ImGui::GetWindowDrawList()->AddRect(
-			ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMin().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMin().second * this->zoom),
-			ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMax().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMax().second * this->zoom),
-			IM_COL32(128, 128, 128, 255), 0.0F, 0, 2.0F);
-	}
-	
+	//We call the function that will draw the things of tools if corresponds
+	toolDisplays();
 
 	ImGui::End();
 }
