@@ -231,3 +231,120 @@ bool FeatherGUI::saveImage(std::string _path) {
 	stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
 	return true;
 }
+
+bool FeatherGUI::copySelectionToClipboard() {
+	//Get the selection
+	std::pair<int,int> selectionMin = this->workStation.getSelectionMin();
+	std::pair<int,int> selectionMax = this->workStation.getSelectionMax();
+	GLubyte* data = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * 4];
+
+	//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
+	for (int i = 0; i < (selectionMax.first - selectionMin.first); i++) {
+		for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
+			//Assume 4 channels
+			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
+			if (this->CurrentImage->channels == 4) {
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 2];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 1];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 3];
+			}
+			else 
+			{
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3 + 2];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3 + 1];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = 255;
+			}
+		}
+	}
+	
+	//Create bitmap
+	HBITMAP hBitmap = CreateBitmap(selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, 1, 32, data);
+	if (hBitmap == NULL) {
+		std::cout << "Error creating bitmap" << std::endl;
+		return false;
+	}
+	
+	//Open clipboard
+	if (!OpenClipboard(NULL)) {
+		std::cout << "Error opening clipboard" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Empty clipboard
+	EmptyClipboard();
+	//Set clipboard data
+	if (!SetClipboardData(CF_BITMAP, hBitmap)) {
+		std::cout << "Error setting clipboard data" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Close clipboard
+	CloseClipboard();
+	
+	//Free bitmap
+	DeleteObject(hBitmap);
+
+	//free data
+	delete[] data;
+	
+	return true;
+}
+
+bool FeatherGUI::copyImageToClipboard() {
+	//Copy the image to the data array interchanging the red and blue channels (BGRA)
+	GLubyte* data = new GLubyte[this->CurrentImage->width * this->CurrentImage->height * 4];
+	
+	for (int i = 0; i < this->CurrentImage->width; i++) {
+		for (int j = 0; j < this->CurrentImage->height; j++) {
+			//Assume 4 channels
+			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
+			if (this->CurrentImage->channels == 4) {
+				data[(i + j * this->CurrentImage->width) * 4] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 2];
+				data[(i + j * this->CurrentImage->width) * 4 + 1] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 1];
+				data[(i + j * this->CurrentImage->width) * 4 + 2] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4];
+				data[(i + j * this->CurrentImage->width) * 4 + 3] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 3];
+			}
+			else
+			{
+				data[(i + j * this->CurrentImage->width) * 4] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3 + 2];
+				data[(i + j * this->CurrentImage->width) * 4 + 1] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3 + 1];
+				data[(i + j * this->CurrentImage->width) * 4 + 2] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3];
+				data[(i + j * this->CurrentImage->width) * 4 + 3] = 255;
+			}
+		}
+	}
+	
+	//Create bitmap
+	HBITMAP hBitmap = CreateBitmap(this->CurrentImage->width, this->CurrentImage->height, 1, 32, data);
+	if (hBitmap == NULL) {
+		std::cout << "Error creating bitmap" << std::endl;
+		return false;
+	}
+	
+	//Open clipboard
+	if (!OpenClipboard(NULL)) {
+		std::cout << "Error opening clipboard" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Empty clipboard
+	EmptyClipboard();
+	//Set clipboard data
+	if (!SetClipboardData(CF_BITMAP, hBitmap)) {
+		std::cout << "Error setting clipboard data" << std::endl;
+		CloseClipboard();
+		return false;
+	}
+	//Close clipboard
+	CloseClipboard();
+	
+	//Free bitmap
+	DeleteObject(hBitmap);
+	
+	//free data
+	delete[] data;
+	
+	return true;
+}

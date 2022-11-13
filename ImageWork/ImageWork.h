@@ -76,6 +76,7 @@ class ImageWork {
 		void clearMousePoints();
 		void clearMousePairs();
 		void clearFirstPointSelection();
+		void clearSelection();
 
 		void selectFrontImage();
 		void selectImage(int _index);

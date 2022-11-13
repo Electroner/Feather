@@ -316,6 +316,21 @@ void FeatherGUI::InputFunctions() {
 		this->placementConfig = false;
 		this->debugConsole = false;
 		this->newImagePopUp = false;
+		//Selection
+		this->workStation.clearSelection();
+		this->workStation.setSelectionEnable(false);
+	}
+
+	//CTRL + C
+	if (io->KeysDown[GLFW_KEY_C] && io->KeyCtrl) {
+		if (this->workStation.getSelectionEnabled()) {
+			//If selection is active copy the selection to the clipboard
+			this->copySelectionToClipboard();
+		}
+		else {
+			//Copy the image to the clipboard
+			this->copyImageToClipboard();
+		}
 	}
 
 	//CTRL + V

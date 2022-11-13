@@ -125,6 +125,8 @@ class FeatherGUI
 		bool loadIcon(std::string _path);
 		bool loadFromClipBoard();
 		bool saveImage(std::string _path);
+		bool copySelectionToClipboard();
+		bool copyImageToClipboard();
 
 		//---------------------------OPENGL---------------------------
 		void SetSync(bool _sync);

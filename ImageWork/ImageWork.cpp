@@ -50,6 +50,11 @@ void ImageWork::clearFirstPointSelection() {
 	this->firstPoint = std::pair<int, int>(-1, -1);
 }
 
+void ImageWork::clearSelection() {
+	this->selectionMin = std::pair<int, int>(0, 0);
+	this->selectionMax = std::pair<int, int>(0, 0);
+}
+
 void ImageWork::selectFrontImage() {
 	//Set the current Image
 	this->CurrentImage = this->Images.front();

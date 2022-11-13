@@ -1,7 +1,7 @@
 #include "../feathergui.h"
 
 void FeatherGUI::BuildToolProperties() {
-	float temp_radius = this->workStation.getToolRadius();
+	float temp_radius = static_cast<float>(this->workStation.getToolRadius());
 
 	RGB temp_color_RGB = this->workStation.getToolColor();
 	float temp_color[4] = { temp_color_RGB.r,temp_color_RGB.g, temp_color_RGB.b, 1.0F };
@@ -43,7 +43,7 @@ void FeatherGUI::BuildToolProperties() {
 
 	//Create a SliderFloat for the brush size
 	ImGui::SliderFloat("Size", &temp_radius, 0.0F, 100.0F);
-	this->workStation.setToolRadius(temp_radius);
+	this->workStation.setToolRadius(static_cast<int>(temp_radius));
 
 	switch (this->CurrentTool)
 	{

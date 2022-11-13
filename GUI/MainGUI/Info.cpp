@@ -29,6 +29,17 @@ void FeatherGUI::BuildInfo() {
 		{
 			ImGui::Text("Current Pixel: (-,-)");
 		}
+		//Check if selection is enabled
+		if (this->workStation.getSelectionEnabled()) {
+			std::pair<int, int> selectionMin = this->workStation.getSelectionMin();
+			std::pair<int, int> selectionMax = this->workStation.getSelectionMax();
+			ImGui::SameLine();
+			ImGui::Text(" |  Selection: (%d, %d) to (%d, %d)  |  Selection Size: (%d, %d)", 
+				selectionMin.first, selectionMin.second, 
+				selectionMax.first, selectionMax.second, 
+				(selectionMax.first - selectionMin.first),
+				(selectionMax.second - selectionMin.second));
+		}
 		//Print the zoom on the same line
 		ImGui::SameLine();
 		ImGui::Text(" |  Zoom: %.2f", this->zoom);
