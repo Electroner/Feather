@@ -5,22 +5,62 @@ bool FeatherGUI::loadImage(std::string _path) {
 	ImageStr unloadedImage;
 	unloadedImage.imagePath = _path;
 	std::cout << "Loading image: " << _path << std::endl;
-	//Get the numbers of channels in the image
+	
+	//Get the numbers of channels in the image file with stb_info
 	int channels;
-	unsigned char* image = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &channels, 0);
-	if (!image) {
-		std::cout << "Error Loading the Image: " << _path << std::endl;
-		return false;
-	}
+	int error = stbi_info(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &channels);
+
 	unloadedImage.data = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &unloadedImage.channels, channels);
+	
+	//If the image has different channels than 4 then we need to convert it to 4 channels
+	unsigned char* temp;
+	switch (unloadedImage.channels)
+	{
+		case 1:
+			unloadedImage.channels = 4;
+			temp = new unsigned char[unloadedImage.width * unloadedImage.height * unloadedImage.channels];
+			for (int i = 0; i < unloadedImage.width * unloadedImage.height; i++) {
+				temp[i * 4] = unloadedImage.data[i];
+				temp[i * 4 + 1] = unloadedImage.data[i];
+				temp[i * 4 + 2] = unloadedImage.data[i];
+				temp[i * 4 + 3] = 255;
+			}
+			stbi_image_free(unloadedImage.data);
+			unloadedImage.data = temp;
+			break;
+		case 2:
+			unloadedImage.channels = 4;
+			temp = new unsigned char[unloadedImage.width * unloadedImage.height * unloadedImage.channels];
+			for (int i = 0; i < unloadedImage.width * unloadedImage.height; i++) {
+				temp[i * 4] = unloadedImage.data[i * 2];
+				temp[i * 4 + 1] = unloadedImage.data[i * 2];
+				temp[i * 4 + 2] = unloadedImage.data[i * 2];
+				temp[i * 4 + 3] = unloadedImage.data[i * 2 + 1];
+			}
+			stbi_image_free(unloadedImage.data);
+			unloadedImage.data = temp;
+			break;
+		case 3:
+			unloadedImage.channels = 4;
+			temp = new unsigned char[unloadedImage.width * unloadedImage.height * unloadedImage.channels];
+			for (int i = 0; i < unloadedImage.width * unloadedImage.height; i++) {
+				temp[i * 4] = unloadedImage.data[i * 3];
+				temp[i * 4 + 1] = unloadedImage.data[i * 3 + 1];
+				temp[i * 4 + 2] = unloadedImage.data[i * 3 + 2];
+				temp[i * 4 + 3] = 255;
+			}
+			stbi_image_free(unloadedImage.data);
+			unloadedImage.data = temp;
+			break;
+		default:
+			break;
+	}
+	
 	if (!unloadedImage.data) {
 		fprintf(stderr, "Cannot load image '%s'\n", _path.c_str());
 		unloadedImage.loaded = true;
 		return false;
 	}
-
-	//free image
-	stbi_image_free(image);
 
 	//Set the name of the image from the path
 	unloadedImage.name = _path.substr(_path.find_last_of('/') + 1);
@@ -47,27 +87,9 @@ bool FeatherGUI::loadImage(std::string _path) {
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	if (channels == 4)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
-	else
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
-	stbi_image_free(unloadedImage.data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
-	//Reserve memory for the image
-	unloadedImage.data = new GLubyte[unloadedImage.width * unloadedImage.height * unloadedImage.channels];
-
-	if (channels == 4)
-	{
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
-	else
-	{
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
 	unloadedImage.loaded = true;
 
@@ -192,14 +214,8 @@ bool FeatherGUI::loadFromClipBoard() {
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	if (channels == 4) 
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
-	else
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+
 	//Add image to Images vector
 	this->Images->push_back(unloadedImage);
 

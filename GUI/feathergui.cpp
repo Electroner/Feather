@@ -327,7 +327,8 @@ void FeatherGUI::InputFunctions() {
 			//If selection is active copy the selection to the clipboard
 			this->copySelectionToClipboard();
 		}
-		else {
+		else 
+		{
 			//Copy the image to the clipboard
 			this->copyImageToClipboard();
 		}
@@ -340,6 +341,70 @@ void FeatherGUI::InputFunctions() {
 			this->loadFromClipBoard();
 		}
 	}
+
+	//MENU SHORTCUTS
+	//CTRL + N
+	if (io->KeysDown[GLFW_KEY_N] && io->KeyCtrl) {
+		this->newImagePopUp = true;
+	}
+	//CTRL + O
+	if (io->KeysDown[GLFW_KEY_O] && io->KeyCtrl) {
+		std::string filename;
+		filename = browseFile(0);
+		//If the filename doesnt have ":" error			
+		if (filename.find(':') == std::string::npos) {
+			std::cout << "No file selected" << std::endl;
+		}
+		else
+		{
+			//load the image
+			if (!loadImage(filename))
+			{
+				std::cout << "Error loading image" << std::endl;
+			}
+			else
+			{
+				workStation.selectFrontImage();
+				this->centerImage();
+			}
+		}
+	}
+	//CTRL + S
+	if (io->KeysDown[GLFW_KEY_S] && io->KeyCtrl) {
+		std::string folderName;
+		folderName = browseFolder(0, 0);
+		//If the foldername doesnt have ":" error
+		if (folderName.find(':') == std::string::npos) {
+			std::cout << "No folder selected" << std::endl;
+		}
+		else
+		{
+			if (!saveImage(folderName)) {
+				std::cout << "Error saving image" << std::endl;
+			}
+			else {
+				std::cout << "Image saved" << std::endl;
+			}
+		}
+	}
+	//CTRL + Shift + S
+	if (io->KeysDown[GLFW_KEY_S] && io->KeyCtrl && io->KeyShift) {
+		std::string folderName;
+		folderName = browseFolder(0, 1);
+		//If the foldername doesnt have ":" error
+		if (folderName.find(':') == std::string::npos) {
+			std::cout << "No folder selected" << std::endl;
+		}
+		else
+		{
+			if (!saveImage(folderName)) {
+				std::cout << "Error saving image" << std::endl;
+			}
+			else {
+				std::cout << "Image saved" << std::endl;
+			}
+		}
+	}	
 
 	//MOUSE
 	// Check if mouse is over the image window
