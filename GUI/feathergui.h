@@ -148,6 +148,10 @@ class FeatherGUI
 		void BuildLayers();
 		void BuildInfo();
 
+		//MENU FUNCTIONS
+		void OpenMenuFunction();
+		void SaveMenuFunction(int _type); // 0 = Save | 1 = Save As
+
 		//ERROR WINDOWS
 		void ErrorWindow(); // Error creating a Image (Associated to errorWindowCreateImage bool )
 

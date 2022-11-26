@@ -235,17 +235,54 @@ bool FeatherGUI::loadFromClipBoard() {
 }
 
 bool FeatherGUI::saveImage(std::string _path) {
-	if (_path.size() == 0)
-	{
-		std::cout << "Error saving image: No path specified" << std::endl;
-		return false;
-	}
 	std::string location;
-	//_path includes the name of the image
-	location = _path + "." + this->CurrentImage->extension;
-	std::cout << "Image saved at: " << location << std::endl;
-	stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
-	return true;
+	if (this->workStation.getSelectionEnabled()) {
+		//Save only the selected region
+		if (_path.size() == 0)
+		{
+			std::cout << "Error saving image: No path specified" << std::endl;
+			return false;
+		}
+		//Min and max coordinates of the selection
+		std::pair<int, int> selectionMin = this->workStation.getSelectionMin();
+		std::pair<int, int> selectionMax = this->workStation.getSelectionMax();
+		GLubyte* SelectedData = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * this->CurrentImage->channels];
+
+		//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
+		for (int i = 0; i < (selectionMax.first - selectionMin.first); i++) {
+			for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 1];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 2];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 3];
+			}
+		}
+
+		//_path includes the name of the image
+		location = _path + "." + this->CurrentImage->extension;
+		std::cout << "Image saved at: " << location << std::endl;
+		//Save the image
+		stbi_write_png(location.c_str(), selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, this->CurrentImage->channels, SelectedData, (selectionMax.first - selectionMin.first) * this->CurrentImage->channels);
+		
+		//Free memory
+		delete[] SelectedData;
+		return true;
+	}
+	else 
+	{
+		//Save the entire image
+		if (_path.size() == 0)
+		{
+			std::cout << "Error saving image: No path specified" << std::endl;
+			return false;
+		}
+		//_path includes the name of the image
+		location = _path + "." + this->CurrentImage->extension;
+		std::cout << "Image saved at: " << location << std::endl;
+		stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
+		return true;
+	}
+	return false;
 }
 
 bool FeatherGUI::copySelectionToClipboard() {

@@ -309,6 +309,24 @@ void FeatherGUI::InputFunctions() {
 			this->imageShiftY += static_cast<int>(this->MouseImagePositionY * this->zoomIncrement);
 		}
 	}
+	
+	//Selection for the tools
+	//If number 1 is pressed select the first tool
+	if (ImGui::IsKeyPressed(49)) {
+		this->CurrentTool = 0;
+	}
+	//2
+	if (ImGui::IsKeyPressed(50)) {
+		this->CurrentTool = 1;
+	}
+	//3
+	if (ImGui::IsKeyPressed(51)) {
+		this->CurrentTool = 2;
+	}
+	//4
+	if (ImGui::IsKeyPressed(52)) {
+		this->CurrentTool = 3;
+	}
 
 	//ESC
 	if (io->KeysDown[GLFW_KEY_ESCAPE]) {
@@ -316,6 +334,8 @@ void FeatherGUI::InputFunctions() {
 		this->placementConfig = false;
 		this->debugConsole = false;
 		this->newImagePopUp = false;
+		//Tool
+		this->CurrentTool = -1;
 		//Selection
 		this->workStation.clearSelection();
 		this->workStation.setSelectionEnable(false);
@@ -349,62 +369,16 @@ void FeatherGUI::InputFunctions() {
 	}
 	//CTRL + O
 	if (io->KeysDown[GLFW_KEY_O] && io->KeyCtrl) {
-		std::string filename;
-		filename = browseFile(0);
-		//If the filename doesnt have ":" error			
-		if (filename.find(':') == std::string::npos) {
-			std::cout << "No file selected" << std::endl;
-		}
-		else
-		{
-			//load the image
-			if (!loadImage(filename))
-			{
-				std::cout << "Error loading image" << std::endl;
-			}
-			else
-			{
-				workStation.selectFrontImage();
-				this->centerImage();
-			}
-		}
+		this->OpenMenuFunction();
 	}
 	//CTRL + S
 	if (io->KeysDown[GLFW_KEY_S] && io->KeyCtrl) {
-		std::string folderName;
-		folderName = browseFolder(0, 0);
-		//If the foldername doesnt have ":" error
-		if (folderName.find(':') == std::string::npos) {
-			std::cout << "No folder selected" << std::endl;
-		}
-		else
-		{
-			if (!saveImage(folderName)) {
-				std::cout << "Error saving image" << std::endl;
-			}
-			else {
-				std::cout << "Image saved" << std::endl;
-			}
-		}
+		this->SaveMenuFunction(0);
 	}
 	//CTRL + Shift + S
 	if (io->KeysDown[GLFW_KEY_S] && io->KeyCtrl && io->KeyShift) {
-		std::string folderName;
-		folderName = browseFolder(0, 1);
-		//If the foldername doesnt have ":" error
-		if (folderName.find(':') == std::string::npos) {
-			std::cout << "No folder selected" << std::endl;
-		}
-		else
-		{
-			if (!saveImage(folderName)) {
-				std::cout << "Error saving image" << std::endl;
-			}
-			else {
-				std::cout << "Image saved" << std::endl;
-			}
-		}
-	}	
+		this->SaveMenuFunction(1);
+	}
 
 	//MOUSE
 	// Check if mouse is over the image window
@@ -425,11 +399,6 @@ void FeatherGUI::InputFunctions() {
 	if (ImGui::IsMouseReleased(0)) {
 		//Clear the vector of the tool
 		workStation.clearMousePoints();
-		
-#ifdef DEBUG
-		std::cout << "Min x: " << workStation.getInterpolationMin().first << "Min Y:" << workStation.getInterpolationMin().second << std::endl;
-		std::cout << "Max x: " << workStation.getInterpolationMax().first << "Max Y:" << workStation.getInterpolationMax().second << std::endl;
-#endif // DEBUG
 
 		//Clear Pairs
 		workStation.clearMousePairs();
@@ -438,7 +407,6 @@ void FeatherGUI::InputFunctions() {
 		workStation.clearFirstPointSelection();
 	}
 	
-
 	//Position of the mouse inside the Image Window compensating the image shift and zoom
 	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
 	this->MouseImagePositionY = (int)floor(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);

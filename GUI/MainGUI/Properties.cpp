@@ -16,6 +16,7 @@ void FeatherGUI::BuildProperties() {
 			ImGui::Text("Identifier: %d", this->CurrentImage->texture);
 			ImGui::Text("Size = %d x %d", this->CurrentImage->width, CurrentImage->height);
 			ImGui::Text("Channels: %d", this->CurrentImage->channels);
+			ImGui::Text("Format: %s", this->CurrentImage->extension.c_str());
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

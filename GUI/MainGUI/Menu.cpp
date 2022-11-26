@@ -1,5 +1,45 @@
 #include "../feathergui.h"
 
+void FeatherGUI::OpenMenuFunction() {
+	std::string filename;
+	filename = browseFile(0);
+	//If the filename doesnt have ":" error			
+	if (filename.find(':') == std::string::npos) {
+		std::cout << "No file selected" << std::endl;
+	}
+	else
+	{
+		//load the image
+		if (!loadImage(filename))
+		{
+			std::cout << "Error loading image" << std::endl;
+		}
+		else
+		{
+			workStation.selectFrontImage();
+			this->centerImage();
+		}
+	}
+}
+
+void FeatherGUI::SaveMenuFunction(int _type) {
+	std::string folderName;
+	folderName = browseFolder(0, _type);
+	//If the foldername doesnt have ":" error
+	if (folderName.find(':') == std::string::npos) {
+		std::cout << "No folder selected" << std::endl;
+	}
+	else
+	{
+		if (!saveImage(folderName)) {
+			std::cout << "Error saving image" << std::endl;
+		}
+		else {
+			std::cout << "Image saved" << std::endl;
+		}
+	}
+}
+
 void FeatherGUI::BuildMenu() {
 	//Create a main menu
 	if (ImGui::BeginMainMenuBar()) {
@@ -9,59 +49,13 @@ void FeatherGUI::BuildMenu() {
 				std::cout << "Opened New Image window Pop Up" << std::endl;
 			}
 			if (ImGui::MenuItem(ICON_FA_FILE_IMAGE " Open", "|Ctrl+O")) {
-				std::string filename;
-				filename = browseFile(0);
-				//If the filename doesnt have ":" error			
-				if (filename.find(':') == std::string::npos) {
-					std::cout << "No file selected" << std::endl;
-				}
-				else
-				{
-					//load the image
-					if (!loadImage(filename))
-					{
-						std::cout << "Error loading image" << std::endl;
-					}
-					else
-					{
-						workStation.selectFrontImage();
-						this->centerImage();
-					}
-				}
+				this->OpenMenuFunction();
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save", "|Ctrl+S")) {
-				std::string folderName;
-				folderName = browseFolder(0, 0);
-				//If the foldername doesnt have ":" error
-				if (folderName.find(':') == std::string::npos) {
-					std::cout << "No folder selected" << std::endl;
-				}
-				else
-				{
-					if (!saveImage(folderName)) {
-						std::cout << "Error saving image" << std::endl;
-					}
-					else {
-						std::cout << "Image saved" << std::endl;
-					}
-				}
+				this->SaveMenuFunction(0);
 			}
 			if (ImGui::MenuItem(ICON_FA_SAVE " Save As", "|Ctrl+Shift+S")) {
-				std::string folderName;
-				folderName = browseFolder(0, 1);
-				//If the foldername doesnt have ":" error
-				if (folderName.find(':') == std::string::npos) {
-					std::cout << "No folder selected" << std::endl;
-				}
-				else
-				{
-					if (!saveImage(folderName)) {
-						std::cout << "Error saving image" << std::endl;
-					}
-					else {
-						std::cout << "Image saved" << std::endl;
-					}
-				}
+				this->SaveMenuFunction(1);
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_WINDOW_CLOSE " Close", "|Alt+F4")) {
