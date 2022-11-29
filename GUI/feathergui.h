@@ -64,8 +64,6 @@ class FeatherGUI
 		float iconSize; //Pixels
 
 		//IMAGE VARS
-		std::vector<ImageStr>* Images;
-		ImageStr* CurrentImage;
 		bool MouseOverImageWindow;
 		float zoomIncrement; //Percentage of zoom per click
 		float zoom; // Percentage

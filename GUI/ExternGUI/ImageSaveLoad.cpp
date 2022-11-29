@@ -94,7 +94,7 @@ bool FeatherGUI::loadImage(std::string _path) {
 	unloadedImage.loaded = true;
 
 	//Add image to Images vector
-	this->Images->push_back(unloadedImage);
+	this->workStation.PushNewImage(unloadedImage);
 
 	return true;
 }
@@ -202,6 +202,7 @@ bool FeatherGUI::loadFromClipBoard() {
 	unloadedImage.name = "Clipboard";
 	unloadedImage.extension = "png";
 	unloadedImage.imagePath = ".";
+	unloadedImage.modified = false;
 	unloadedImage.loaded = true;
 	//Create texture
 	glGenTextures(1, &unloadedImage.texture);
@@ -217,13 +218,13 @@ bool FeatherGUI::loadFromClipBoard() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
 	//Add image to Images vector
-	this->Images->push_back(unloadedImage);
+	this->workStation.PushNewImage(unloadedImage);
 
 	//free bitmap
 	DeleteObject(hBitmap);
 	
 	//Set the image as selected
-	this->workStation.selectFrontImage();
+	this->workStation.combineLayers();
 	//Set the zooom
 	this->calculateZoom();
 	this->centerImage();
@@ -246,23 +247,23 @@ bool FeatherGUI::saveImage(std::string _path) {
 		//Min and max coordinates of the selection
 		std::pair<int, int> selectionMin = this->workStation.getSelectionMin();
 		std::pair<int, int> selectionMax = this->workStation.getSelectionMax();
-		GLubyte* SelectedData = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * this->CurrentImage->channels];
+		GLubyte* SelectedData = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * this->workStation.getImageStrP()->channels];
 
 		//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
 		for (int i = 0; i < (selectionMax.first - selectionMin.first); i++) {
 			for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 1];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 2];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 3];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 1];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 2];
+				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 3];
 			}
 		}
 
 		//_path includes the name of the image
-		location = _path + "." + this->CurrentImage->extension;
+		location = _path + "." + this->workStation.getImageStrP()->extension;
 		std::cout << "Image saved at: " << location << std::endl;
 		//Save the image
-		stbi_write_png(location.c_str(), selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, this->CurrentImage->channels, SelectedData, (selectionMax.first - selectionMin.first) * this->CurrentImage->channels);
+		stbi_write_png(location.c_str(), selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, this->workStation.getImageStrP()->channels, SelectedData, (selectionMax.first - selectionMin.first) * this->workStation.getImageStrP()->channels);
 		
 		//Free memory
 		delete[] SelectedData;
@@ -277,9 +278,13 @@ bool FeatherGUI::saveImage(std::string _path) {
 			return false;
 		}
 		//_path includes the name of the image
-		location = _path + "." + this->CurrentImage->extension;
+		location = _path + "." + this->workStation.getImageStrP()->extension;
 		std::cout << "Image saved at: " << location << std::endl;
-		stbi_write_png(location.c_str(), this->CurrentImage->width, this->CurrentImage->height, this->CurrentImage->channels, this->CurrentImage->data, this->CurrentImage->width * this->CurrentImage->channels);
+		stbi_write_png(location.c_str(), this->workStation.getImageStrP()->width,
+			this->workStation.getImageStrP()->height,
+			this->workStation.getImageStrP()->channels,
+			this->workStation.getImageStrP()->data, 
+			this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->channels);
 		return true;
 	}
 	return false;
@@ -296,17 +301,17 @@ bool FeatherGUI::copySelectionToClipboard() {
 		for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
 			//Assume 4 channels
 			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
-			if (this->CurrentImage->channels == 4) {
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 2];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 1];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 4 + 3];
+			if (this->workStation.getImageStrP()->channels == 4) {
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 2];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 1];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 3];
 			}
 			else 
 			{
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3 + 2];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3 + 1];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->CurrentImage->data[(i + selectionMin.first + (j + selectionMin.second) * this->CurrentImage->width) * 3];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3 + 2];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3 + 1];
+				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3];
 				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = 255;
 			}
 		}
@@ -347,30 +352,30 @@ bool FeatherGUI::copySelectionToClipboard() {
 
 bool FeatherGUI::copyImageToClipboard() {
 	//Copy the image to the data array interchanging the red and blue channels (BGRA)
-	GLubyte* data = new GLubyte[this->CurrentImage->width * this->CurrentImage->height * 4];
+	GLubyte* data = new GLubyte[this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->height * 4];
 	
-	for (int i = 0; i < this->CurrentImage->width; i++) {
-		for (int j = 0; j < this->CurrentImage->height; j++) {
+	for (int i = 0; i < this->workStation.getImageStrP()->width; i++) {
+		for (int j = 0; j < this->workStation.getImageStrP()->height; j++) {
 			//Assume 4 channels
 			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
-			if (this->CurrentImage->channels == 4) {
-				data[(i + j * this->CurrentImage->width) * 4] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 2];
-				data[(i + j * this->CurrentImage->width) * 4 + 1] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 1];
-				data[(i + j * this->CurrentImage->width) * 4 + 2] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4];
-				data[(i + j * this->CurrentImage->width) * 4 + 3] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 4 + 3];
+			if (this->workStation.getImageStrP()->channels == 4) {
+				data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3];
 			}
 			else
 			{
-				data[(i + j * this->CurrentImage->width) * 4] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3 + 2];
-				data[(i + j * this->CurrentImage->width) * 4 + 1] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3 + 1];
-				data[(i + j * this->CurrentImage->width) * 4 + 2] = this->CurrentImage->data[(i + j * this->CurrentImage->width) * 3];
-				data[(i + j * this->CurrentImage->width) * 4 + 3] = 255;
+				data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 2];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 1];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3];
+				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = 255;
 			}
 		}
 	}
 	
 	//Create bitmap
-	HBITMAP hBitmap = CreateBitmap(this->CurrentImage->width, this->CurrentImage->height, 1, 32, data);
+	HBITMAP hBitmap = CreateBitmap(this->workStation.getImageStrP()->width, this->workStation.getImageStrP()->height, 1, 32, data);
 	if (hBitmap == NULL) {
 		std::cout << "Error creating bitmap" << std::endl;
 		return false;

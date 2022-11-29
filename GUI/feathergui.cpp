@@ -111,12 +111,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->colorNoSelectedTool = this->colorSelectedWindow;
 	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
 
-	workStation.init(&Images,&CurrentImage);
-	
-	//set to false every loaded image in the vector
-	for (int i = 0; i < this->Images->size(); i++) {
-		Images->at(i).loaded = false;
-	}
+	workStation.init();
 
 	this->MouseOverImageWindow = false;
 	this->zoom = 1;
@@ -285,7 +280,7 @@ void FeatherGUI::InputFunctions() {
 
 	//Double click set zoom to 1.0F and the image shift to the center of the Image Window
 	if (ImGui::IsMouseDoubleClicked(1)) {
-		std::cout << "Current Image: " << this->CurrentImage->name << std::endl;
+		std::cout << "Current Image: " << this->workStation.getImageStrP()->name << std::endl;
 		this->centerImage();
 	}
 
@@ -356,8 +351,8 @@ void FeatherGUI::InputFunctions() {
 
 	//CTRL + V
 	if (io->KeysDown[GLFW_KEY_V] && io->KeyCtrl) {
-		if (this->Images->size() < 1) {
-			//Paste the image in the clipboard
+		if (this->workStation.getImageStrP()->modified || this->workStation.ImagesSize() == 0) {
+			//Paste the image in the clipboard 
 			this->loadFromClipBoard();
 		}
 	}
@@ -380,13 +375,19 @@ void FeatherGUI::InputFunctions() {
 		this->SaveMenuFunction(1);
 	}
 
+	//Key T
+	if (io->KeysDown[GLFW_KEY_T]) {
+		this->workStation.resizeImage(this->workStation.getImageStrP(), 1920, 540);
+		this->workStation.reCopyImage(this->workStation.getImageStrP());
+	}
+
 	//MOUSE
 	// Check if mouse is over the image window
 	if (this->MouseOverImageWindow)
 	{
 		//If the mouse is over the image
-		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
-			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
+		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
+			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
 			//If mouse click or holded
 			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
 				if (this->CurrentTool != -1) {

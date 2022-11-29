@@ -71,9 +71,9 @@ void FeatherGUI::newImage() {
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, blank.width, blank.height, 0, GL_RGB, GL_UNSIGNED_BYTE, blank.data);
 
 					//Add the new image to the image list
-					this->Images->push_back(blank);
+					this->workStation.PushNewImage(blank);
 					//Set the new image as the current image
-					workStation.selectFrontImage();
+					workStation.combineLayers();
 					this->centerImage();
 
 					*this->newImageName = {};

@@ -13,7 +13,7 @@ void FeatherGUI::BuildToolProperties() {
 
 	//PENCIL
 	//Create a ColorEdit3 if the channels are 3
-	if (this->CurrentImage->channels == 4) {
+	if (this->workStation.getImageStrP()->channels == 4) {
 		ImGui::ColorEdit4("Tool", temp_color);
 		temp_color_RGB.r = temp_color[0];
 		temp_color_RGB.g = temp_color[1];

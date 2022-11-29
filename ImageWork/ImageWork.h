@@ -30,6 +30,7 @@ const struct ImageStr {
 	int channels;
 	GLubyte* data;
 	GLuint texture;
+	bool modified;
 	bool loaded;
 };
 
@@ -39,6 +40,9 @@ class ImageWork {
 
 		std::vector<ImageStr> Images;
 		ImageStr CurrentImage;
+		
+		std::pair<int, int> CavasSize;
+
 		RGB toolColor;
 		RGB secondaryColor;
 		int toolradius;
@@ -65,7 +69,9 @@ class ImageWork {
 		
 	public:
 		
-		void init(std::vector<ImageStr>** _Images, ImageStr** _CurrentImage);
+		void init();
+
+		void combineLayers();
 
 		std::pair<int, int> getInterpolationMin();
 		std::pair<int, int> getInterpolationMax();
@@ -77,10 +83,14 @@ class ImageWork {
 		void clearMousePairs();
 		void clearFirstPointSelection();
 		void clearSelection();
+		void clearImages();
 
-		void selectFrontImage();
-		void selectImage(int _index);
-		void swapImage(int _indexa, int _indexb);
+		void PushNewImage(ImageStr _Image);
+		int ImagesSize();
+		ImageStr* getImage(int _index);
+		
+		void swapImages(int _indexa, int _indexb);
+		ImageStr* getImageStrP();
 		
 		bool useTool(int _tool, int _MouseImagePositionX, int _MouseImagePositionY);
 		void setToolColor(RGB _color);
@@ -91,6 +101,12 @@ class ImageWork {
 		RGB getSecondaryColor();
 		int getToolRadius();
 		bool getSelectionEnabled();
-				
+
+		void reCopyImage(ImageStr* _Image);
+		void resizeImage(ImageStr* _image, int _width, int _height);
+		
+		RGB getPixel(int _x, int _y);
+		RGB getPixel(ImageStr* _image, int _x, int _y);
 		void setPixel(int _x, int _y, RGB _color);
+		void setPixel(ImageStr* _image, int _x, int _y, RGB _color);
 };

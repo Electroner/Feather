@@ -10,19 +10,19 @@ void FeatherGUI::BuildInfo() {
 	//TODO
 	{
 		//Check first if the mouse is over the Image Window
-		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->CurrentImage->width &&
-			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->CurrentImage->height) {
+		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
+			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
 			ImGui::Text("Current Pixel: (%d, %d)", this->MouseImagePositionX + 1, this->MouseImagePositionY + 1);
 
 			//Read from the texture of opengl and Get the color of the pixel
 			ImGui::SameLine();
-			int index = (this->MouseImagePositionY * this->CurrentImage->width + this->MouseImagePositionX) * this->CurrentImage->channels;
-			if (this->CurrentImage->channels == 4) {
-				ImGui::Text(" |  Color: (%d, %d, %d, %d)", this->CurrentImage->data[index], this->CurrentImage->data[index + 1], this->CurrentImage->data[index + 2], this->CurrentImage->data[index + 3]);
+			int index = (this->MouseImagePositionY * this->workStation.getImageStrP()->width + this->MouseImagePositionX) * this->workStation.getImageStrP()->channels;
+			if (this->workStation.getImageStrP()->channels == 4) {
+				ImGui::Text(" |  Color: (%d, %d, %d, %d)", this->workStation.getImageStrP()->data[index], this->workStation.getImageStrP()->data[index + 1], this->workStation.getImageStrP()->data[index + 2], this->workStation.getImageStrP()->data[index + 3]);
 			}
 			else
 			{
-				ImGui::Text(" |  Color: (%d, %d, %d)", this->CurrentImage->data[index], this->CurrentImage->data[index + 1], this->CurrentImage->data[index + 2]);
+				ImGui::Text(" |  Color: (%d, %d, %d)", this->workStation.getImageStrP()->data[index], this->workStation.getImageStrP()->data[index + 1], this->workStation.getImageStrP()->data[index + 2]);
 			}
 		}
 		else

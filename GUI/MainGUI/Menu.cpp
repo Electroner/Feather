@@ -16,7 +16,7 @@ void FeatherGUI::OpenMenuFunction() {
 		}
 		else
 		{
-			workStation.selectFrontImage();
+			workStation.combineLayers();
 			this->centerImage();
 		}
 	}
@@ -60,11 +60,11 @@ void FeatherGUI::BuildMenu() {
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_FA_WINDOW_CLOSE " Close", "|Alt+F4")) {
 				//Free every image
-				for (int i = 0; i < this->Images->size(); i++) {
+				for (int i = 0; i < this->workStation.ImagesSize(); i++) {
 					//Free the image
-					glDeleteTextures(1, &this->Images->at(i).texture);
+					glDeleteTextures(1, &this->workStation.getImage(i)->texture);
 					//delete Image data
-					delete this->Images->at(i).data;
+					this->workStation.clearImages();
 				}
 				this->isOpen = false;
 			}
