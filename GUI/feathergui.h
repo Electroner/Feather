@@ -96,6 +96,9 @@ class FeatherGUI
 		ImVec4 colorWindowBar;
 		ImVec4 colorSelectedWindow;
 		ImVec4 colorNoSelectedWindow;
+		ImVec4 SliderGrab;
+		ImVec4 SliderGrabActive;
+		ImVec4 ActuatorsBackground;
 		
 		int MouseImagePositionX; //Pixels
 		int MouseImagePositionY; //Pixels

@@ -162,6 +162,20 @@ void ImageWork::selectionNormalize() {
 	if (this->selectionMin.second > this->selectionMax.second) {
 		std::swap(this->selectionMin.second, this->selectionMax.second);
 	}
+	
+	//If the selection is out of the image, set it to the image size
+	if (this->selectionMin.first < 0) {
+		this->selectionMin.first = 0;
+	}
+	if (this->selectionMin.second < 0) {
+		this->selectionMin.second = 0;
+	}
+	if (this->selectionMax.first > this->CurrentImage.width) {
+		this->selectionMax.first = this->CurrentImage.width;
+	}
+	if (this->selectionMax.second > this->CurrentImage.height) {
+		this->selectionMax.second = this->CurrentImage.height;
+	}
 }
 
 RGB ImageWork::getToolColor() {

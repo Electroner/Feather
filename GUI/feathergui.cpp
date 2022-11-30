@@ -120,6 +120,9 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->colorNoSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.90F, this->GetBackGroundColor().g - 0.90F, this->GetBackGroundColor().b - 0.90F, 1.0f);
 	this->colorNoSelectedTool = this->colorSelectedWindow;
 	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
+	this->SliderGrab = ImVec4(0.6F, 0.6F, 0.6F, 1.0F);
+	this->SliderGrabActive = ImVec4(0.5F, 0.5F, 0.5F, 1.0F);
+	this->ActuatorsBackground = ImVec4(0.35F, 0.35F, 0.35F, 1.0F);
 
 	workStation.init();
 
@@ -212,6 +215,11 @@ void FeatherGUI::BuildGUI() {
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedWindow); // Background of the windows
 	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedWindow); //Tabs in layer and options and selected tool
 	ImGui::PushStyleColor(ImGuiCol_Button, this->colorWindowBar); // Window
+	//Make Bars and Sliders red
+	ImGui::PushStyleColor(ImGuiCol_SliderGrab, this->SliderGrab); // Slider
+	ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, this->SliderGrabActive); // Slider
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, this->ActuatorsBackground); // Slider
+	
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -222,7 +230,6 @@ void FeatherGUI::BuildGUI() {
 			this->BuildProperties();
 			this->BuildLayers();
 			this->BuildInfo();
-
 
 			//--------------------DYNAMIC WINDOWS--------------------
 			if (newImagePopUp) {
@@ -236,6 +243,9 @@ void FeatherGUI::BuildGUI() {
 			}
 		}
 	}
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
@@ -434,8 +444,6 @@ void FeatherGUI::InputFunctions() {
 	//MOUSE SELECTION
 	//If the mouse is over the corners of the selection
 	if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == 3) {
-		//Change the cursor to the resize cursor
-		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
 		//If mouse is over the left corner of the selection with the radius of half of selectionSquareSize
 		if (abs(this->MouseImagePositionX - workStation.getSelectionMin().first) < this->selectionSquareSize || topLeft || bottomLeft) {
 			//Lateral Left vertical line
@@ -484,8 +492,11 @@ void FeatherGUI::InputFunctions() {
 				}
 			}
 		}
-
-		//Turn the cursor back to the arrow
+	}
+	if (topLeft || topRight || bottomLeft || bottomRight) {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+	}
+	else {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
 	}
 	
