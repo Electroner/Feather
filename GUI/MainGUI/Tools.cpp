@@ -40,7 +40,7 @@ void FeatherGUI::BuildTools() {
 			colorActualButton = this->colorNoSelectedTool;
 		}
 		//Create a iconbutton for each tool using the images of the icons vector with transparent background
-		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[temp_i].texture, ImVec2(static_cast<float>(this->toolsPanelPixels / 2), static_cast<float>(this->toolsPanelPixels / 2)), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
+		if (ImGui::ImageButton((void*)(intptr_t)this->toolsIcons[temp_i].texture, ImVec2(static_cast<float>(this->toolsPanelPixels / 2) + (this->toolsPanelPixels / 10), static_cast<float>(this->toolsPanelPixels / 2) + (this->toolsPanelPixels / 10)), ImVec2(0, 0), ImVec2(1, 1), 0, colorActualButton)) {
 			//create a floatingtext with index
 			if (this->CurrentTool == i)
 			{

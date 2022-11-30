@@ -135,7 +135,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->imageShiftY = 8;
 
 	//GUI PLACEMENTS
-	this->toolsPanelPixels = 32;
+	this->toolsPanelPixels = 40;
 	this->propertiesPanelPixels = 256;
 	this->infoPanelPixels = 32;
 
