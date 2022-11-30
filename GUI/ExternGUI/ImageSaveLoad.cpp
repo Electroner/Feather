@@ -294,6 +294,13 @@ bool FeatherGUI::copySelectionToClipboard() {
 	//Get the selection
 	std::pair<int,int> selectionMin = this->workStation.getSelectionMin();
 	std::pair<int,int> selectionMax = this->workStation.getSelectionMax();
+	
+	//Check if the selection is valid, the selection has to be at least 1 pixel wide and 1 pixel high and the selection has to be inside the image
+	if (selectionMin.first == selectionMax.first || selectionMin.second == selectionMax.second || selectionMin.first < 0 || selectionMin.second < 0 || selectionMax.first > this->workStation.getImageStrP()->width || selectionMax.second > this->workStation.getImageStrP()->height) {
+		std::cout << "Error copying to clipboard: Invalid selection" << std::endl;
+		return false;
+	}
+
 	GLubyte* data = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * 4];
 
 	//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
@@ -351,58 +358,65 @@ bool FeatherGUI::copySelectionToClipboard() {
 }
 
 bool FeatherGUI::copyImageToClipboard() {
-	//Copy the image to the data array interchanging the red and blue channels (BGRA)
-	GLubyte* data = new GLubyte[this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->height * 4];
-	
-	for (int i = 0; i < this->workStation.getImageStrP()->width; i++) {
-		for (int j = 0; j < this->workStation.getImageStrP()->height; j++) {
-			//Assume 4 channels
-			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
-			if (this->workStation.getImageStrP()->channels == 4) {
-				data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3];
-			}
-			else
-			{
-				data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 2];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 1];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3];
-				data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = 255;
+	//Check if the image is valid
+	if (this->workStation.getImageStrP()->data == NULL) {
+		std::cout << "Error copying to clipboard: No image loaded" << std::endl;
+		return false;
+	}
+	if (this->workStation.getImageStrP()->width > 0 && this->workStation.getImageStrP()->height > 0) {
+		//Copy the image to the data array interchanging the red and blue channels (BGRA)
+		GLubyte* data = new GLubyte[this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->height * 4];
+
+		for (int i = 0; i < this->workStation.getImageStrP()->width; i++) {
+			for (int j = 0; j < this->workStation.getImageStrP()->height; j++) {
+				//Assume 4 channels
+				//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
+				if (this->workStation.getImageStrP()->channels == 4) {
+					data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3];
+				}
+				else
+				{
+					data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 2];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 1];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3];
+					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = 255;
+				}
 			}
 		}
-	}
-	
-	//Create bitmap
-	HBITMAP hBitmap = CreateBitmap(this->workStation.getImageStrP()->width, this->workStation.getImageStrP()->height, 1, 32, data);
-	if (hBitmap == NULL) {
-		std::cout << "Error creating bitmap" << std::endl;
-		return false;
-	}
-	
-	//Open clipboard
-	if (!OpenClipboard(NULL)) {
-		std::cout << "Error opening clipboard" << std::endl;
+
+		//Create bitmap
+		HBITMAP hBitmap = CreateBitmap(this->workStation.getImageStrP()->width, this->workStation.getImageStrP()->height, 1, 32, data);
+		if (hBitmap == NULL) {
+			std::cout << "Error creating bitmap" << std::endl;
+			return false;
+		}
+
+		//Open clipboard
+		if (!OpenClipboard(NULL)) {
+			std::cout << "Error opening clipboard" << std::endl;
+			CloseClipboard();
+			return false;
+		}
+		//Empty clipboard
+		EmptyClipboard();
+		//Set clipboard data
+		if (!SetClipboardData(CF_BITMAP, hBitmap)) {
+			std::cout << "Error setting clipboard data" << std::endl;
+			CloseClipboard();
+			return false;
+		}
+		//Close clipboard
 		CloseClipboard();
-		return false;
+
+		//Free bitmap
+		DeleteObject(hBitmap);
+
+		//free data
+		delete[] data;
 	}
-	//Empty clipboard
-	EmptyClipboard();
-	//Set clipboard data
-	if (!SetClipboardData(CF_BITMAP, hBitmap)) {
-		std::cout << "Error setting clipboard data" << std::endl;
-		CloseClipboard();
-		return false;
-	}
-	//Close clipboard
-	CloseClipboard();
-	
-	//Free bitmap
-	DeleteObject(hBitmap);
-	
-	//free data
-	delete[] data;
 	
 	return true;
 }

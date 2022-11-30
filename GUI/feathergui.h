@@ -110,7 +110,18 @@ class FeatherGUI
 
 		//TOOLS VARS
 		int CurrentTool;
-
+		//Selection Indexs
+		int selectionSquareSize;
+		float indexMinX; //pixel where the selection starts
+		float indexMinY; //pixel where the selection starts
+		float indexMaxX; //pixel where the selection ends
+		float indexMaxY; //pixel where the selection ends
+		//Selection FixMouse
+		bool topLeft;
+		bool topRight;
+		bool bottomLeft;
+		bool bottomRight;
+		
 		//CONSOLE
 		std::streambuf* coutbuff;
 		std::ostringstream ss;

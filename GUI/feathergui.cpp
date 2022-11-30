@@ -96,6 +96,16 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	
 	//OPTION VARS
 	this->Vsync = false;
+
+	//TOOLS VARs
+	this->CurrentTool = -1;
+	//Selection
+	this->selectionSquareSize = 6;
+	this->topLeft = false;
+	this->topRight = false;
+	this->bottomLeft = false;
+	this->bottomRight = false;
+
 	
 	this->BackGroundRGB.r = 0.25;
 	this->BackGroundRGB.g = 0.25;
@@ -126,8 +136,6 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->propertiesPanelPixels = 256;
 	this->infoPanelPixels = 32;
 
-	//TOOLS VARs
-	this->CurrentTool = -1;
 }
 
 FeatherGUI::~FeatherGUI() {
@@ -330,22 +338,25 @@ void FeatherGUI::InputFunctions() {
 		this->debugConsole = false;
 		this->newImagePopUp = false;
 		//Tool
-		this->CurrentTool = -1;
+		//this->CurrentTool = -1;
 		//Selection
 		this->workStation.clearSelection();
 		this->workStation.setSelectionEnable(false);
+		this->workStation.setSelectionDone(false);
 	}
 
-	//CTRL + C
-	if (io->KeysDown[GLFW_KEY_C] && io->KeyCtrl) {
+	//CTRL + C and no mouse button pressed
+	if (io->KeysDown[GLFW_KEY_C] && io->KeyCtrl && !ImGui::IsMouseDown(0) && !ImGui::IsMouseDown(1)) {
 		if (this->workStation.getSelectionEnabled()) {
 			//If selection is active copy the selection to the clipboard
 			this->copySelectionToClipboard();
+			std::cout << "Selection copied to clipboard" << std::endl;
 		}
 		else 
 		{
 			//Copy the image to the clipboard
 			this->copyImageToClipboard();
+			std::cout << "Image copied to clipboard" << std::endl;
 		}
 	}
 
@@ -377,8 +388,8 @@ void FeatherGUI::InputFunctions() {
 
 	//Key T
 	if (io->KeysDown[GLFW_KEY_T]) {
-		this->workStation.resizeImage(this->workStation.getImageStrP(), 1920, 540);
-		this->workStation.reCopyImage(this->workStation.getImageStrP());
+		this->workStation.resizeImage(this->workStation.getImage(0), 1920, 540);
+		//this->workStation.reCopyImage(this->workStation.getImageStrP());
 	}
 
 	//MOUSE
@@ -406,6 +417,76 @@ void FeatherGUI::InputFunctions() {
 
 		//Set the firstPoint of Selection to -1
 		workStation.clearFirstPointSelection();
+		
+		//If the selection is enabled end the selection
+		if (this->workStation.getSelectionEnabled()) {
+			this->workStation.setSelectionDone(true);
+		}
+		//Selection Pins resets
+		this->topLeft = false;
+		this->topRight = false;
+		this->bottomLeft = false;
+		this->bottomRight = false;
+		//Selection Normalize
+		this->workStation.selectionNormalize();
+	}
+
+	//MOUSE SELECTION
+	//If the mouse is over the corners of the selection
+	if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == 3) {
+		//Change the cursor to the resize cursor
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNWSE);
+		//If mouse is over the left corner of the selection with the radius of half of selectionSquareSize
+		if (abs(this->MouseImagePositionX - workStation.getSelectionMin().first) < this->selectionSquareSize || topLeft || bottomLeft) {
+			//Lateral Left vertical line
+			if (abs(this->MouseImagePositionY - workStation.getSelectionMin().second) < this->selectionSquareSize || topLeft) {
+				//Top horizontal line
+				//Top Left corner
+				//If mouse click and holded change the IndexMin to the mouse position
+				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
+					topLeft = true;
+				}
+			}
+			else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomLeft) {
+				//Bottom horizontal line
+				//Bottom Left corner
+				//If mouse click and holded change the IndexMin to the mouse position
+				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					//In this case we need to change the IndexMin and IndexMax
+					this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMin().second));
+					this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->MouseImagePositionY));
+					bottomLeft = true;
+				}
+			}
+		}
+		//If mouse is over the right corner of the selection with the radius of half of selectionSquareSize
+		else if (abs(this->MouseImagePositionX - this->workStation.getSelectionMax().first) < this->selectionSquareSize || topRight || bottomRight) {
+			//Lateral Right vertical line
+			if (abs(this->MouseImagePositionY - this->workStation.getSelectionMin().second) < this->selectionSquareSize || topRight) {
+				//Top horizontal line
+				//Top Right corner
+				//If mouse click and holded change the IndexMax to the mouse position
+				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					//In this case we need to change the IndexMin and IndexMax
+					this->workStation.setSelectionMin(std::make_pair(this->workStation.getSelectionMin().first, this->MouseImagePositionY));
+					this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMax().second));
+					topRight = true;
+				}
+			}
+			else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomRight) {
+				//Bottom horizontal line
+				//Bottom Right corner
+				//If mouse click and holded change the IndexMax to the mouse position
+				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
+					bottomRight = true;
+				}
+			}
+		}
+
+		//Turn the cursor back to the arrow
+		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
 	}
 	
 	//Position of the mouse inside the Image Window compensating the image shift and zoom

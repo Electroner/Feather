@@ -3,10 +3,10 @@
 void FeatherGUI::toolDisplays() {
 	//SELECTION
 	//if selection is enable draw the selection
-	float indexMinX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMin().first * this->zoom;
-	float indexMinY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMin().second * this->zoom;
-	float indexMaxX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMax().first * this->zoom;
-	float indexMaxY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMax().second * this->zoom;
+	this->indexMinX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMin().first * this->zoom;
+	this->indexMinY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMin().second * this->zoom;
+	this->indexMaxX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionMax().first * this->zoom;
+	this->indexMaxY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionMax().second * this->zoom;
 	
 	if (this->workStation.getSelectionEnabled()) {
 		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
@@ -17,24 +17,23 @@ void FeatherGUI::toolDisplays() {
 	}
 
 	//draw squares in the corners of the selection
-	int square_size = 8;
 	if (this->workStation.getSelectionEnabled()) {
 		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMinX - square_size / 2, indexMinY - square_size / 2),
-			ImVec2(indexMinX + square_size / 2, indexMinY + square_size / 2),
+			ImVec2(indexMinX - this->selectionSquareSize / 2, indexMinY - this->selectionSquareSize / 2),
+			ImVec2(indexMinX + this->selectionSquareSize / 2, indexMinY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMaxX - square_size / 2, indexMinY - square_size / 2),
-			ImVec2(indexMaxX + square_size / 2, indexMinY + square_size / 2),
+			ImVec2(indexMaxX - this->selectionSquareSize / 2, indexMinY - this->selectionSquareSize / 2),
+			ImVec2(indexMaxX + this->selectionSquareSize / 2, indexMinY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMinX - square_size / 2, indexMaxY - square_size / 2),
-			ImVec2(indexMinX + square_size / 2, indexMaxY + square_size / 2),
+			ImVec2(indexMinX - this->selectionSquareSize / 2, indexMaxY - this->selectionSquareSize / 2),
+			ImVec2(indexMinX + this->selectionSquareSize / 2, indexMaxY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMaxX - square_size / 2, indexMaxY - square_size / 2),
-			ImVec2(indexMaxX + square_size / 2, indexMaxY + square_size / 2),
+			ImVec2(indexMaxX - this->selectionSquareSize / 2, indexMaxY - this->selectionSquareSize / 2),
+			ImVec2(indexMaxX + this->selectionSquareSize / 2, indexMaxY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 	}
 	
@@ -44,20 +43,20 @@ void FeatherGUI::toolDisplays() {
 	if (this->workStation.getSelectionEnabled()) {
 		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMinX - square_size / 2, indexMiddleY - square_size / 2),
-			ImVec2(indexMinX + square_size / 2, indexMiddleY + square_size / 2),
+			ImVec2(indexMinX - this->selectionSquareSize / 2, indexMiddleY - this->selectionSquareSize / 2),
+			ImVec2(indexMinX + this->selectionSquareSize / 2, indexMiddleY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMaxX - square_size / 2, indexMiddleY - square_size / 2),
-			ImVec2(indexMaxX + square_size / 2, indexMiddleY + square_size / 2),
+			ImVec2(indexMaxX - this->selectionSquareSize / 2, indexMiddleY - this->selectionSquareSize / 2),
+			ImVec2(indexMaxX + this->selectionSquareSize / 2, indexMiddleY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMiddleX - square_size / 2, indexMinY - square_size / 2),
-			ImVec2(indexMiddleX + square_size / 2, indexMinY + square_size / 2),
+			ImVec2(indexMiddleX - this->selectionSquareSize / 2, indexMinY - this->selectionSquareSize / 2),
+			ImVec2(indexMiddleX + this->selectionSquareSize / 2, indexMinY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMiddleX - square_size / 2, indexMaxY - square_size / 2),
-			ImVec2(indexMiddleX + square_size / 2, indexMaxY + square_size / 2),
+			ImVec2(indexMiddleX - this->selectionSquareSize / 2, indexMaxY - this->selectionSquareSize / 2),
+			ImVec2(indexMiddleX + this->selectionSquareSize / 2, indexMaxY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 	}
 }

@@ -17,6 +17,7 @@ void ImageWork::init() {
 
 	this->toolradius = 5;
 	this->selectionEnable = false;
+	this->selectionDone = false;
 
 	//Colors
 	this->toolColor = RGB(0, 0, 0, 1);
@@ -39,12 +40,28 @@ std::pair<int, int> ImageWork::getInterpolationMax() {
 	return this->interpolationMax;
 }
 
+void ImageWork::setInterpolationMin(std::pair<int, int> _interpolationMin) {
+	this->interpolationMin = _interpolationMin;
+}
+
+void ImageWork::setInterpolationMax(std::pair<int, int> _interpolationMax) {
+	this->interpolationMax = _interpolationMax;
+}
+
 std::pair<int, int> ImageWork::getSelectionMin() {
 	return this->selectionMin;
 }
 
 std::pair<int, int> ImageWork::getSelectionMax() {
 	return this->selectionMax;
+}
+
+void ImageWork::setSelectionMin(std::pair<int, int> _selectionMin) {
+	this->selectionMin = _selectionMin;
+}
+
+void ImageWork::setSelectionMax(std::pair<int, int> _selectionMax) {
+	this->selectionMax = _selectionMax;
 }
 
 void ImageWork::clearMousePoints() {
@@ -134,6 +151,19 @@ void ImageWork::setSelectionEnable(bool _enable) {
 	this->selectionEnable = _enable;
 }
 
+void ImageWork::setSelectionDone(bool _done) {
+	this->selectionDone = _done;
+}
+
+void ImageWork::selectionNormalize() {
+	if (this->selectionMin.first > this->selectionMax.first) {
+		std::swap(this->selectionMin.first, this->selectionMax.first);
+	}
+	if (this->selectionMin.second > this->selectionMax.second) {
+		std::swap(this->selectionMin.second, this->selectionMax.second);
+	}
+}
+
 RGB ImageWork::getToolColor() {
 	return this->toolColor;
 }
@@ -148,6 +178,10 @@ int ImageWork::getToolRadius() {
 
 bool ImageWork::getSelectionEnabled() {
 	return this->selectionEnable;
+}
+
+bool ImageWork::getSelectionDone() {
+	return this->selectionDone;
 }
 
 void ImageWork::reCopyImage(ImageStr* _Image) {
@@ -221,6 +255,8 @@ void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
 				//Set the new width and height
 				_image->width = _width;
 				_image->height = _height;
+
+				this->combineLayers();
 			}
 		}
 	}

@@ -57,6 +57,7 @@ class ImageWork {
 
 		//Selection enable
 		bool selectionEnable;
+		bool selectionDone;
 
 		//Min and Max values for updating the image during interpolation
 		std::pair<int, int> interpolationMin;
@@ -76,8 +77,14 @@ class ImageWork {
 		std::pair<int, int> getInterpolationMin();
 		std::pair<int, int> getInterpolationMax();
 
+		void setInterpolationMin(std::pair<int, int> _interpolationMin);
+		void setInterpolationMax(std::pair<int, int> _interpolationMax);
+
 		std::pair<int, int> getSelectionMin();
 		std::pair<int, int> getSelectionMax();
+
+		void setSelectionMin(std::pair<int, int> _selectionMin);
+		void setSelectionMax(std::pair<int, int> _selectionMax);
 		
 		void clearMousePoints();
 		void clearMousePairs();
@@ -97,10 +104,13 @@ class ImageWork {
 		void setSecondaryColor(RGB _color);
 		void setToolRadius(int _radius);
 		void setSelectionEnable(bool _enable);
+		void setSelectionDone(bool _done);
+		void selectionNormalize();
 		RGB getToolColor();
 		RGB getSecondaryColor();
 		int getToolRadius();
 		bool getSelectionEnabled();
+		bool getSelectionDone();
 
 		void reCopyImage(ImageStr* _Image);
 		void resizeImage(ImageStr* _image, int _width, int _height);
