@@ -71,8 +71,20 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resources/icons/Rubber.png")) {
 		std::cout << "Error Loading the Image Rubber.jpg" << std::endl;
 	}
+	if (!loadIcon("./resources/icons/ColorPicker.png")) {
+		std::cout << "Error Loading the Image ColorPicker.png" << std::endl;
+	}
 	if (!loadIcon("./resources/icons/Selection.png")) {
 		std::cout << "Error Loading the Image Selection.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Scale.png")) {
+		std::cout << "Error Loading the Image Scale.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Bucket.png")) {
+		std::cout << "Error Loading the Image Bucket.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Text.png")) {
+		std::cout << "Error Loading the Image Text.png" << std::endl;
 	}
 	//Load the Black Icons
 	if (!loadIcon("./resources/icons/Black_Pencil.png")) {
@@ -84,8 +96,20 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resources/icons/Black_Rubber.png")) {
 		std::cout << "Error Loading the Image Black Rubber.jpg" << std::endl;
 	}
+	if (!loadIcon("./resources/icons/Black_ColorPicker.png")) {
+		std::cout << "Error Loading the Image Black ColorPicker.png" << std::endl;
+	}
 	if (!loadIcon("./resources/icons/Black_Selection.png")) {
 		std::cout << "Error Loading the Image Black Selection.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Black_Scale.png")) {
+		std::cout << "Error Loading the Image Black Scale.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Black_Bucket.png")) {
+		std::cout << "Error Loading the Image Black Bucket.png" << std::endl;
+	}
+	if (!loadIcon("./resources/icons/Black_Text.png")) {
+		std::cout << "Error Loading the Image Black Text.png" << std::endl;
 	}
 
 	// Setup Platform/Renderer backends
@@ -326,19 +350,35 @@ void FeatherGUI::InputFunctions() {
 	//Selection for the tools
 	//If number 1 is pressed select the first tool
 	if (ImGui::IsKeyPressed(49)) {
-		this->CurrentTool = 0;
+		this->CurrentTool = TOOL_PENCIL;
 	}
 	//2
 	if (ImGui::IsKeyPressed(50)) {
-		this->CurrentTool = 1;
+		this->CurrentTool = TOOL_BRUSH;
 	}
 	//3
 	if (ImGui::IsKeyPressed(51)) {
-		this->CurrentTool = 2;
+		this->CurrentTool = TOOL_ERASER;
 	}
 	//4
 	if (ImGui::IsKeyPressed(52)) {
-		this->CurrentTool = 3;
+		this->CurrentTool = TOOL_COLORPICKER;
+	}
+	//5
+	if (ImGui::IsKeyPressed(53)) {
+		this->CurrentTool = TOOL_SELECTION;
+	}
+	//6
+	if (ImGui::IsKeyPressed(54)) {
+		this->CurrentTool = TOOL_SCALE;
+	}
+	//7
+	if (ImGui::IsKeyPressed(55)) {
+		this->CurrentTool = TOOL_BUCKET;
+	}
+	//8
+	if (ImGui::IsKeyPressed(56)) {
+		this->CurrentTool = TOOL_TEXT;
 	}
 
 	//ESC
@@ -443,7 +483,7 @@ void FeatherGUI::InputFunctions() {
 
 	//MOUSE SELECTION
 	//If the mouse is over the corners of the selection
-	if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == 3) {
+	if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == TOOL_SELECTION) {
 		//If mouse is over the left corner of the selection with the radius of half of selectionSquareSize
 		if (abs(this->MouseImagePositionX - workStation.getSelectionMin().first) < this->selectionSquareSize || topLeft || bottomLeft) {
 			//Lateral Left vertical line

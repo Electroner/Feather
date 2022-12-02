@@ -141,6 +141,9 @@
     <ClCompile Include="GUI\ExternGUI\toolDisplays.cpp">
       <Filter>Archivos de origen\GUI\ExternGUI</Filter>
     </ClCompile>
+    <ClCompile Include="ImageWork\Tools\ColorPicker.cpp">
+      <Filter>Archivos de origen\ImageWork\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

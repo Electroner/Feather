@@ -95,7 +95,7 @@ void ImageWork::PushNewImage(ImageStr _Image) {
 }
 
 int ImageWork::ImagesSize() {
-	return this->Images.size();
+	return (int)this->Images.size();
 }
 
 ImageStr* ImageWork::getImage(int _index) {
@@ -114,17 +114,29 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 
 	switch (_tool)
 	{
-	case 0:
+	case TOOL_PENCIL:
 		toolPencil(_MouseImagePositionX, _MouseImagePositionY, this->toolradius);
 		break;
-	case 1:
+	case TOOL_BRUSH:
 		toolBrush(_MouseImagePositionX, _MouseImagePositionY, this->toolradius);
 		break;
-	case 2:
+	case TOOL_ERASER:
 		toolEraser(_MouseImagePositionX, _MouseImagePositionY, this->toolradius);
 		break;
-	case 3:
+	case TOOL_COLORPICKER:
+		toolColorPicker(_MouseImagePositionX, _MouseImagePositionY);
+		break;
+	case TOOL_SELECTION:
 		toolSelection(_MouseImagePositionX, _MouseImagePositionY);
+		break;
+	case TOOL_SCALE:
+		//toolScale(_MouseImagePositionX, _MouseImagePositionY);
+		break;
+	case TOOL_BUCKET:
+		//toolBucket(_MouseImagePositionX, _MouseImagePositionY);
+		break;
+	case TOOL_TEXT:
+		//toolText(_MouseImagePositionX, _MouseImagePositionY);
 		break;
 
 	default:

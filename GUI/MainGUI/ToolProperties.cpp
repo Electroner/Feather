@@ -26,8 +26,6 @@ void FeatherGUI::BuildToolProperties() {
 		temp_color_RGB.r = temp_color[0];
 		temp_color_RGB.g = temp_color[1];
 		temp_color_RGB.b = temp_color[2];
-
-
 	}
 	this->workStation.setToolColor(temp_color_RGB);
 	
@@ -47,19 +45,28 @@ void FeatherGUI::BuildToolProperties() {
 
 	switch (this->CurrentTool)
 	{
-	case 0:
-		//PENCIL
-		
+	case TOOL_PENCIL:		
 		break;
 
-	case 1:
+	case TOOL_BRUSH:
 		break;
 
-	case 2:
-		//ERASER
+	case TOOL_ERASER:
 		break;
 		
-	case 3:
+	case TOOL_COLORPICKER:
+		break;
+	
+	case TOOL_SELECTION:
+		break;
+
+	case TOOL_SCALE:
+		break;
+		
+	case TOOL_BUCKET:
+		break;
+
+	case TOOL_TEXT:
 		break;
 
 	default:

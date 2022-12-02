@@ -34,6 +34,18 @@ const struct ImageStr {
 	bool loaded;
 };
 
+enum Tools
+{
+	TOOL_PENCIL,
+	TOOL_BRUSH,
+	TOOL_ERASER,
+	TOOL_COLORPICKER,
+	TOOL_SELECTION,
+	TOOL_SCALE,
+	TOOL_BUCKET,
+	TOOL_TEXT
+};
+
 class ImageWork {
 
 	private:
@@ -67,6 +79,7 @@ class ImageWork {
 		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
 		
 	public:
 		

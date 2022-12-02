@@ -158,6 +158,7 @@
     <ClCompile Include="ImageIO\stb.cpp" />
     <ClCompile Include="ImageWork\ImageWork.cpp" />
     <ClCompile Include="ImageWork\Tools\Brush.cpp" />
+    <ClCompile Include="ImageWork\Tools\ColorPicker.cpp" />
     <ClCompile Include="ImageWork\Tools\Eraser.cpp" />
     <ClCompile Include="ImageWork\Tools\Pencil.cpp" />
     <ClCompile Include="ImageWork\Tools\Selection.cpp" />
