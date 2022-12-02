@@ -134,6 +134,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
+	//Create a ImTextureID
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, icon_x, icon_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, icon_pixels);
+	
+	int mouse_Size = 16;
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -146,7 +160,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ImGui::Begin("TEST");
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 		//Add a cursor using GetForegroundDrawList
-		ImGui::GetForegroundDrawList()->AddCircleFilled(ImGui::GetMousePos(), 10, IM_COL32(255, 0, 0, 255));
+		//ImGui::GetForegroundDrawList()->AddCircleFilled(ImGui::GetMousePos(), 10, IM_COL32(255, 0, 0, 255));
+		//Render the icon into the mouse cursor shifted by 10 pixels
+		ImGui::GetForegroundDrawList()->AddImage((ImTextureID)texture, 
+			ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y + mouse_Size),
+			ImVec2(ImGui::GetMousePos().x + mouse_Size, ImGui::GetMousePos().y));
 		ImGui::End();
 
 		int display_w, display_h;
