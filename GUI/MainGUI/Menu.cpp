@@ -73,6 +73,12 @@ void FeatherGUI::BuildMenu() {
 		ImGui::Separator();
 		//Edit
 		if (ImGui::BeginMenu(ICON_FA_EDIT " Edit")) {
+			//Histogram
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Histogram")) {
+				//Open a new window
+				this->histogramPopUp = true;
+				std::cout << "Opened Histogram window Pop Up" << std::endl;
+			}
 			ImGui::EndMenu();
 		}
 		//Add a separator

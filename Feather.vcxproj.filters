@@ -144,6 +144,12 @@
     <ClCompile Include="ImageWork\Tools\ColorPicker.cpp">
       <Filter>Archivos de origen\ImageWork\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="ImageWork\Tools\Bucket.cpp">
+      <Filter>Archivos de origen\ImageWork\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ExternGUI\Histogram.cpp">
+      <Filter>Archivos de origen\GUI\ExternGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

@@ -50,9 +50,12 @@ class FeatherGUI
 		bool isOpen;
 		int windowWidth; //Pixels
 		int windowHeight; //Pixels
+		bool CursorEnabled;
+		
 		bool placementConfig; //Extern Window
 		bool debugConsole; //Debug console | Extern Window
 		bool newImagePopUp; //Extern Window
+		bool histogramPopUp;
 
 		//MAIN WINDOWS CONFIRGURATION VARS
 		bool disableOptionsRounding; //Option for rounding
@@ -88,6 +91,9 @@ class FeatherGUI
 
 		//ICON IMAGES
 		std::vector<ImageStr> toolsIcons;
+		
+		//CURSORS IMAGES
+		std::vector<ImageStr> cursors;
 
 		//COLORS
 		bool whiteIcons;
@@ -113,6 +119,7 @@ class FeatherGUI
 
 		//TOOLS VARS
 		int CurrentTool;
+		bool ToolPrevisualization;
 		//Selection Indexs
 		int selectionSquareSize;
 		float indexMinX; //pixel where the selection starts
@@ -135,6 +142,7 @@ class FeatherGUI
 		
 		bool loadImage(std::string _path);	
 		bool loadIcon(std::string _path);
+		bool loadCursor(std::string _path);
 		bool loadFromClipBoard();
 		bool saveImage(std::string _path);
 		bool copySelectionToClipboard();
@@ -174,6 +182,7 @@ class FeatherGUI
 		//DYNAMIC MENUS
 		void BuildConfigMenu();
 		void BuildConsoleDebugMenu();
+		void BuildHistogram();
 
 		//INPUT FUNCTIONS
 		void InputFunctions();

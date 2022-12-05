@@ -92,6 +92,9 @@ bool FeatherGUI::loadImage(std::string _path) {
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
 	unloadedImage.loaded = true;
+	
+	//calculate the histogram
+	this->workStation.calculateHistogram(&unloadedImage);
 
 	//Add image to Images vector
 	this->workStation.PushNewImage(unloadedImage);
@@ -157,6 +160,64 @@ bool FeatherGUI::loadIcon(std::string _path) {
 	return true;
 }
 
+bool::FeatherGUI::loadCursor(std::string _path) {
+	//Load texture from file
+	ImageStr unloadedImage;
+	unloadedImage.imagePath = _path;
+	std::cout << "Loading icon: " << _path << std::endl;
+	int channels;
+	unsigned char* image = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &channels, 0);
+	if (!image) {
+		std::cout << "Error Loading the icon: " << _path << std::endl;
+		return false;
+	}
+	unloadedImage.data = stbi_load(_path.c_str(), &unloadedImage.width, &unloadedImage.height, &unloadedImage.channels, channels);
+	if (!unloadedImage.data) {
+		fprintf(stderr, "Cannot load icon '%s'\n", _path.c_str());
+		unloadedImage.loaded = true;
+		return false;
+	}
+
+	//free image
+	stbi_image_free(image);
+
+	//Set the name of the image from the path
+	unloadedImage.name = _path.substr(_path.find_last_of('/') + 1);
+	unloadedImage.extension = _path.substr(_path.find_last_of('.') + 1);
+	std::cout << "Icon extension: " << unloadedImage.extension << std::endl;
+	//Erase the extension of the name
+	unloadedImage.name = unloadedImage.name.substr(0, unloadedImage.name.find_last_of('.'));
+	std::cout << "Icon name: " << unloadedImage.name << std::endl << std::endl;
+
+	// Create a OpenGL texture identifier and binding
+	glGenTextures(1, &unloadedImage.texture);
+	glBindTexture(GL_TEXTURE_2D, unloadedImage.texture);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	if (channels == 4) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, unloadedImage.width, unloadedImage.height, 0, GL_RGB, GL_UNSIGNED_BYTE, unloadedImage.data);
+	}
+	stbi_image_free(unloadedImage.data);
+
+	unloadedImage.loaded = true;
+
+	//Add image to Images vector
+	cursors.push_back(unloadedImage);
+
+	return true;
+}
+
 bool FeatherGUI::loadFromClipBoard() {
 	std::cout << "Loading from clipboard" << std::endl;
 	//Show content of clipboard with windows api
@@ -216,6 +277,9 @@ bool FeatherGUI::loadFromClipBoard() {
 #endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
+
+	//calculate the histogram
+	this->workStation.calculateHistogram(&unloadedImage);
 
 	//Add image to Images vector
 	this->workStation.PushNewImage(unloadedImage);

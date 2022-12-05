@@ -11,6 +11,9 @@
 #include <utility>
 #include <set>
 #include <assert.h>
+#include <queue>
+#include <stack>
+#include <omp.h>
 
 #include <GLFW/glfw3.h>
 
@@ -21,15 +24,35 @@ struct RGB {
 	float delta;
 };
 
+//RGB Operator
+//==
+inline bool operator==(RGB a, RGB b) {
+	return (a.r == b.r && a.g == b.g && a.b == b.b);
+}
+//+
+inline RGB operator+(RGB a, RGB b) {
+	return { a.r + b.r, a.g + b.g, a.b + b.b };
+}
+//-
+inline RGB operator-(RGB a, RGB b) {
+	return { a.r - b.r, a.g - b.g, a.b - b.b };
+}
+
 const struct ImageStr {
 	std::string imagePath;
 	std::string extension;
 	std::string name;
+	
 	int width;
 	int height;
 	int channels;
+	
 	GLubyte* data;
 	GLuint texture;
+	float* histogramR = NULL;
+	float* histogramG = NULL;
+	float* histogramB = NULL;
+	
 	bool modified;
 	bool loaded;
 };
@@ -46,6 +69,11 @@ enum Tools
 	TOOL_TEXT
 };
 
+enum Cursors
+{
+	CURSOR_AIM
+};
+
 class ImageWork {
 
 	private:
@@ -58,6 +86,7 @@ class ImageWork {
 		RGB toolColor;
 		RGB secondaryColor;
 		int toolradius;
+		int Tolerance;
 
 		//Mouse points for interpolation (x,y)
 		std::vector<std::pair<int, int>> mousePoints;
@@ -80,6 +109,7 @@ class ImageWork {
 		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance);
 		
 	public:
 		
@@ -104,10 +134,12 @@ class ImageWork {
 		void clearFirstPointSelection();
 		void clearSelection();
 		void clearImages();
+		void selectionNormalize();
 
 		void PushNewImage(ImageStr _Image);
 		int ImagesSize();
 		ImageStr* getImage(int _index);
+		int getSizeImages();
 		
 		void swapImages(int _indexa, int _indexb);
 		ImageStr* getImageStrP();
@@ -118,12 +150,14 @@ class ImageWork {
 		void setToolRadius(int _radius);
 		void setSelectionEnable(bool _enable);
 		void setSelectionDone(bool _done);
-		void selectionNormalize();
+		void setTolerance(int _Tolerance);
+		
 		RGB getToolColor();
 		RGB getSecondaryColor();
 		int getToolRadius();
 		bool getSelectionEnabled();
 		bool getSelectionDone();
+		int getTolerance();
 
 		void reCopyImage(ImageStr* _Image);
 		void resizeImage(ImageStr* _image, int _width, int _height);
@@ -132,4 +166,10 @@ class ImageWork {
 		RGB getPixel(ImageStr* _image, int _x, int _y);
 		void setPixel(int _x, int _y, RGB _color);
 		void setPixel(ImageStr* _image, int _x, int _y, RGB _color);
+		
+		//Algorithms
+		//floodfill
+		void floodFill(int x, int y, RGB targetColor, RGB replacementColor, int tolerance);
+		//Histogram
+		void calculateHistogram(ImageStr* _Image);
 };

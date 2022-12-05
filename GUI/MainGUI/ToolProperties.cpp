@@ -9,7 +9,12 @@ void FeatherGUI::BuildToolProperties() {
 	RGB temp_secondary_color_RGB = this->workStation.getSecondaryColor();
 	float temp_secondary_color[4] = { temp_secondary_color_RGB.r,temp_secondary_color_RGB.g, temp_secondary_color_RGB.b, temp_secondary_color_RGB.delta };
 
+	int temp_tolerance = this->workStation.getTolerance();
+
 	ImGui::Text("\n");
+
+	//Tool Previsualization
+	ImGui::Checkbox("Tool Previsualization", &this->ToolPrevisualization);
 
 	//PENCIL
 	//Create a ColorEdit3 if the channels are 3
@@ -45,13 +50,64 @@ void FeatherGUI::BuildToolProperties() {
 
 	switch (this->CurrentTool)
 	{
-	case TOOL_PENCIL:		
+	case TOOL_PENCIL:
+		if (ToolPrevisualization) {
+			//If the cursor is inside the image
+			if (this->MouseImagePositionX >= 0 && this->MouseImagePositionY >= 0 &&
+				this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
+				this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
+				//Create a cross cursor with the size of the brush radius and the color of the brush
+				ImGui::GetForegroundDrawList()->AddCircleFilled(
+					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y), 
+					temp_radius*this->zoom, 
+					ImGui::ColorConvertFloat4ToU32(ImVec4(
+						temp_color_RGB.r,
+						temp_color_RGB.g,
+						temp_color_RGB.b,
+						temp_color_RGB.delta*0.5F)),
+					0);
+			}
+		}
 		break;
 
 	case TOOL_BRUSH:
+		if (ToolPrevisualization) {
+			//If the cursor is inside the image
+			if (this->MouseImagePositionX >= 0 && this->MouseImagePositionY >= 0 &&
+				this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
+				this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
+				//Create a cross cursor with the size of the brush radius and the color of the brush
+				ImGui::GetForegroundDrawList()->AddCircleFilled(
+					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y),
+					temp_radius * this->zoom,
+					ImGui::ColorConvertFloat4ToU32(ImVec4(
+						temp_color_RGB.r,
+						temp_color_RGB.g,
+						temp_color_RGB.b,
+						temp_color_RGB.delta * 0.5F)),
+					0);
+			}
+		}
 		break;
-
+		
 	case TOOL_ERASER:
+		if (ToolPrevisualization) {
+			//If the cursor is inside the image
+			if (this->MouseImagePositionX >= 0 && this->MouseImagePositionY >= 0 &&
+				this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
+				this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
+				//Create a cross cursor with the size of the brush radius and the color of the brush
+				ImGui::GetForegroundDrawList()->AddCircleFilled(
+					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y),
+					temp_radius * this->zoom,
+					ImGui::ColorConvertFloat4ToU32(ImVec4(
+						temp_secondary_color_RGB.r,
+						temp_secondary_color_RGB.g,
+						temp_secondary_color_RGB.b,
+						temp_secondary_color_RGB.delta * 0.5F)),
+					0);
+			}
+		}
 		break;
 		
 	case TOOL_COLORPICKER:
@@ -64,12 +120,28 @@ void FeatherGUI::BuildToolProperties() {
 		break;
 		
 	case TOOL_BUCKET:
+		//Tolerance selector
+		ImGui::SliderInt("Tolerance", &temp_tolerance, 0, 100);
+		this->workStation.setTolerance(temp_tolerance);
 		break;
 
 	case TOOL_TEXT:
 		break;
 
 	default:
+		this->CursorEnabled = true;
 		break;
 	}
+	
+	ImGui::Text("\n");
+	ImGui::Separator();
+	
+	/*//If there is an image loaded print the histogram
+	if (this->workStation.getSizeImages() > 0) {
+		//Histogram
+		ImGui::Text("Histogram");
+		ImGui::PlotHistogram("Red", this->workStation.getImageStrP()->histogramR, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
+		ImGui::PlotHistogram("Green", this->workStation.getImageStrP()->histogramG, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
+		ImGui::PlotHistogram("Blue", this->workStation.getImageStrP()->histogramB, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
+	}*/
 }

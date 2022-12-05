@@ -43,9 +43,12 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//Windows
 	this->isOpen = true;
 	this->disableOptionsRounding = true;
+	this->CursorEnabled = true;
+
 	this->placementConfig = false;
 	this->debugConsole = true;
 	this->newImagePopUp = false;
+	this->histogramPopUp = false;
 
 	//Error Windows
 	errorWindowCode = false;
@@ -123,6 +126,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 
 	//TOOLS VARs
 	this->CurrentTool = -1;
+	this->ToolPrevisualization = false;
 	//Selection
 	this->selectionSquareSize = 6;
 	this->topLeft = false;
@@ -244,6 +248,13 @@ void FeatherGUI::BuildGUI() {
 	ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, this->SliderGrabActive); // Slider
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, this->ActuatorsBackground); // Slider
 	
+	if (this->CursorEnabled) {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+	}
+	else {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+	}
+
 	//BUILDGUI
 	{
 		//--------------------STATIC WINDOWS--------------------
@@ -264,6 +275,9 @@ void FeatherGUI::BuildGUI() {
 			}
 			if (this->debugConsole) {
 				this->BuildConsoleDebugMenu();
+			}
+			if (this->histogramPopUp) {
+				this->BuildHistogram();
 			}
 		}
 	}

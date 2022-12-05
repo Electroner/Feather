@@ -90,6 +90,29 @@ void ImageWork::clearImages() {
 	this->Images.clear();
 }
 
+void ImageWork::selectionNormalize() {
+	if (this->selectionMin.first > this->selectionMax.first) {
+		std::swap(this->selectionMin.first, this->selectionMax.first);
+	}
+	if (this->selectionMin.second > this->selectionMax.second) {
+		std::swap(this->selectionMin.second, this->selectionMax.second);
+	}
+
+	//If the selection is out of the image, set it to the image size
+	if (this->selectionMin.first < 0) {
+		this->selectionMin.first = 0;
+	}
+	if (this->selectionMin.second < 0) {
+		this->selectionMin.second = 0;
+	}
+	if (this->selectionMax.first > this->CurrentImage.width) {
+		this->selectionMax.first = this->CurrentImage.width;
+	}
+	if (this->selectionMax.second > this->CurrentImage.height) {
+		this->selectionMax.second = this->CurrentImage.height;
+	}
+}
+
 void ImageWork::PushNewImage(ImageStr _Image) {
 	this->Images.push_back(_Image);
 }
@@ -100,6 +123,10 @@ int ImageWork::ImagesSize() {
 
 ImageStr* ImageWork::getImage(int _index) {
 	return &this->Images.at(_index);
+}
+
+int ImageWork::getSizeImages() {
+	return (int)this->Images.size();
 }
 
 void ImageWork::swapImages(int _indexa, int _indexb) {
@@ -133,7 +160,7 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 		//toolScale(_MouseImagePositionX, _MouseImagePositionY);
 		break;
 	case TOOL_BUCKET:
-		//toolBucket(_MouseImagePositionX, _MouseImagePositionY);
+		toolBucket(_MouseImagePositionX, _MouseImagePositionY, this->Tolerance);
 		break;
 	case TOOL_TEXT:
 		//toolText(_MouseImagePositionX, _MouseImagePositionY);
@@ -167,28 +194,11 @@ void ImageWork::setSelectionDone(bool _done) {
 	this->selectionDone = _done;
 }
 
-void ImageWork::selectionNormalize() {
-	if (this->selectionMin.first > this->selectionMax.first) {
-		std::swap(this->selectionMin.first, this->selectionMax.first);
-	}
-	if (this->selectionMin.second > this->selectionMax.second) {
-		std::swap(this->selectionMin.second, this->selectionMax.second);
-	}
-	
-	//If the selection is out of the image, set it to the image size
-	if (this->selectionMin.first < 0) {
-		this->selectionMin.first = 0;
-	}
-	if (this->selectionMin.second < 0) {
-		this->selectionMin.second = 0;
-	}
-	if (this->selectionMax.first > this->CurrentImage.width) {
-		this->selectionMax.first = this->CurrentImage.width;
-	}
-	if (this->selectionMax.second > this->CurrentImage.height) {
-		this->selectionMax.second = this->CurrentImage.height;
-	}
+void ImageWork::setTolerance(int _tolerance) {
+	this->Tolerance = _tolerance;
 }
+
+
 
 RGB ImageWork::getToolColor() {
 	return this->toolColor;
@@ -210,8 +220,64 @@ bool ImageWork::getSelectionDone() {
 	return this->selectionDone;
 }
 
+int ImageWork::getTolerance() {
+	return this->Tolerance;
+}
+
 void ImageWork::reCopyImage(ImageStr* _Image) {
 	this->Images.front() = *_Image;
+}
+
+RGB ImageWork::getPixel(int _x, int _y) {
+	RGB pixel = RGB(0, 0, 0, 0);
+
+	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
+		pixel.r = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 0] / 255.0f;
+		pixel.g = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 1] / 255.0f;
+		pixel.b = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 2] / 255.0f;
+		pixel.delta = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 3] / 255.0f;
+	}
+
+	return pixel;
+}
+
+RGB ImageWork::getPixel(ImageStr* _image, int _x, int _y) {
+	RGB pixel = RGB(0, 0, 0, 0);
+
+	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
+		pixel.r = _image->data[_y * _image->width * 4 + _x * 4 + 0] / 255.0f;
+		pixel.g = _image->data[_y * _image->width * 4 + _x * 4 + 1] / 255.0f;
+		pixel.b = _image->data[_y * _image->width * 4 + _x * 4 + 2] / 255.0f;
+		pixel.delta = _image->data[_y * _image->width * 4 + _x * 4 + 3] / 255.0f;
+	}
+
+	return pixel;
+}
+
+void ImageWork::setPixel(int _x, int _y, RGB _color) {
+	//Check if the pixel is in the image
+	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
+		int index = (_y * this->CurrentImage.width + _x) * this->CurrentImage.channels;
+		CurrentImage.data[index] = static_cast<char>(_color.r * 255);
+		CurrentImage.data[index + 1] = static_cast<char>(_color.g * 255);
+		CurrentImage.data[index + 2] = static_cast<char>(_color.b * 255);
+		if (CurrentImage.channels == 4) {
+			CurrentImage.data[index + 3] = static_cast<char>(_color.delta * 255);
+		}
+	}
+}
+
+void ImageWork::setPixel(ImageStr* _image, int _x, int _y, RGB _color) {
+	//Check if the pixel is in the image
+	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
+		int index = (_y * _image->width + _x) * _image->channels;
+		_image->data[index] = static_cast<char>(_color.r * 255);
+		_image->data[index + 1] = static_cast<char>(_color.g * 255);
+		_image->data[index + 2] = static_cast<char>(_color.b * 255);
+		if (_image->channels == 4) {
+			_image->data[index + 3] = static_cast<char>(_color.delta * 255);
+		}
+	}
 }
 
 void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
@@ -274,10 +340,10 @@ void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
 
 				//Delete the old data
 				delete[] _image->data;
-	
+
 				//Set the new data
 				_image->data = newData;
-	
+
 				//Set the new width and height
 				_image->width = _width;
 				_image->height = _height;
@@ -288,54 +354,35 @@ void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
 	}
 }
 
-RGB ImageWork::getPixel(int _x, int _y) {
-	RGB pixel = RGB(0, 0, 0, 0);
+void ImageWork::calculateHistogram(ImageStr* _Image) {
+	//Make sure the image is not null and the histogram is big enough
+	if (_Image != nullptr) {
+		//Make sure the image is not empty
+		if (_Image->width > 0 && _Image->height > 0) {
+			//Reserve the memory for the histogram
+			_Image->histogramR = new float[256];
+			_Image->histogramG = new float[256];
+			_Image->histogramB = new float[256];
+			
+			//Calculate the histogram
+			for (int i = 0; i < 256; i++) {
+				_Image->histogramR[i] = 0;
+				_Image->histogramG[i] = 0;
+				_Image->histogramB[i] = 0;
+			}
+			
+			for (int i = 0; i < _Image->width * _Image->height; i++) {
+				_Image->histogramR[_Image->data[i * _Image->channels + 0]]++;
+				_Image->histogramG[_Image->data[i * _Image->channels + 1]]++;
+				_Image->histogramB[_Image->data[i * _Image->channels + 2]]++;
+			}
 
-	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
-		pixel.r = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 0] / 255.0f;
-		pixel.g = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 1] / 255.0f;
-		pixel.b = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 2] / 255.0f;
-		pixel.delta = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 3] / 255.0f;
-	}
-
-	return pixel;
-}
-
-RGB ImageWork::getPixel(ImageStr* _image, int _x, int _y) {
-	RGB pixel = RGB(0, 0, 0, 0);
-
-	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
-		pixel.r = _image->data[_y * _image->width * 4 + _x * 4 + 0] / 255.0f;
-		pixel.g = _image->data[_y * _image->width * 4 + _x * 4 + 1] / 255.0f;
-		pixel.b = _image->data[_y * _image->width * 4 + _x * 4 + 2] / 255.0f;
-		pixel.delta = _image->data[_y * _image->width * 4 + _x * 4 + 3] / 255.0f;
-	}
-
-	return pixel;
-}
-
-void ImageWork::setPixel(int _x, int _y, RGB _color) {
-	//Check if the pixel is in the image
-	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
-		int index = (_y * this->CurrentImage.width + _x) * this->CurrentImage.channels;
-		CurrentImage.data[index] = static_cast<char>(_color.r * 255);
-		CurrentImage.data[index + 1] = static_cast<char>(_color.g * 255);
-		CurrentImage.data[index + 2] = static_cast<char>(_color.b * 255);
-		if (CurrentImage.channels == 4) {
-			CurrentImage.data[index + 3] = static_cast<char>(_color.delta * 255);
-		}
-	}
-}
-
-void ImageWork::setPixel(ImageStr* _image, int _x, int _y, RGB _color) {
-	//Check if the pixel is in the image
-	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
-		int index = (_y * _image->width + _x) * _image->channels;
-		_image->data[index] = static_cast<char>(_color.r * 255);
-		_image->data[index + 1] = static_cast<char>(_color.g * 255);
-		_image->data[index + 2] = static_cast<char>(_color.b * 255);
-		if (_image->channels == 4) {
-			_image->data[index + 3] = static_cast<char>(_color.delta * 255);
+			//Normalize the histogram
+			for (int i = 0; i < 256; i++) {
+				_Image->histogramR[i] /= _Image->width * _Image->height;
+				_Image->histogramG[i] /= _Image->width * _Image->height;
+				_Image->histogramB[i] /= _Image->width * _Image->height;
+			}
 		}
 	}
 }
