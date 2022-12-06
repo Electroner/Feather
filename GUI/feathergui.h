@@ -34,6 +34,8 @@
 #include "../imgui/imgui_impl_glfw.h"
 #include "../imgui/imgui_impl_opengl3.h"
 
+#include "../imgui/implot.h"
+
 #include "../ImageIO/stb_image.h"
 #include "../ImageIO/stb_image_write.h"
 

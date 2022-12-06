@@ -21,8 +21,12 @@ void FeatherGUI::BuildProperties() {
 		}
 		ImGui::EndTabBar();
 		ImGui::Separator();
+		
 		//If pencil tool is selected
-		this->BuildToolProperties();
+		this->BuildToolProperties(); 
+
+		ImGui::Text("\n");
+		ImGui::Separator();
 	}
 	ImGui::End();
 }

@@ -150,6 +150,12 @@
     <ClCompile Include="GUI\ExternGUI\Histogram.cpp">
       <Filter>Archivos de origen\GUI\ExternGUI</Filter>
     </ClCompile>
+    <ClCompile Include="imgui\implot.cpp">
+      <Filter>Archivos de origen\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\implot_items.cpp">
+      <Filter>Archivos de origen\Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="ImageWork\ImageWork.h">
       <Filter>Archivos de encabezado\ImageWork</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\implot.h">
+      <Filter>Archivos de encabezado\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\implot_internal.h">
+      <Filter>Archivos de encabezado\Imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

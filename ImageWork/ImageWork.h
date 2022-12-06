@@ -39,22 +39,25 @@ inline RGB operator-(RGB a, RGB b) {
 }
 
 const struct ImageStr {
-	std::string imagePath;
-	std::string extension;
-	std::string name;
+	std::string imagePath = "";
+	std::string extension = "";
+	std::string name = "";
 	
-	int width;
-	int height;
-	int channels;
+	int width = 0;
+	int height = 0;
+	int channels = 0;
 	
-	GLubyte* data;
-	GLuint texture;
-	float* histogramR = NULL;
-	float* histogramG = NULL;
-	float* histogramB = NULL;
+	GLubyte* data = NULL;
+	GLuint texture = 0;
+	int* histogramR = NULL;
+	int histogramRSize = 0;
+	int* histogramG = NULL;
+	int histogramGSize = 0;
+	int* histogramB = NULL;
+	int histogramBSize = 0;
 	
-	bool modified;
-	bool loaded;
+	bool modified = false;
+	bool loaded = false;
 };
 
 enum Tools

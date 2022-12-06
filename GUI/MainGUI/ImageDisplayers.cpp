@@ -7,7 +7,7 @@ void FeatherGUI::BuildImageDisplayer() {
 	ImGui::Begin("Image Window", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollWithMouse);
 
 	//Check if this windows is in the top and nothing else is over it
-	if (ImGui::IsItemActive() && ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows)) {
+	if (/*ImGui::IsItemActive() &&*/ ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows)) {
 		this->MouseOverImageWindow = true;
 	}
 	else

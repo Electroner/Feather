@@ -25,6 +25,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	// Initialize the Feather GUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	this->io = &ImGui::GetIO();
 	(void)io;
 	//io->Fonts->AddFontDefault();
@@ -172,6 +173,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 FeatherGUI::~FeatherGUI() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 
@@ -329,7 +331,7 @@ float FeatherGUI::getIconSize() {
 
 void FeatherGUI::InputFunctions() {
 	//Dragging the Image over the window
-	if (ImGui::IsMouseDown(1)) {
+	if (ImGui::IsMouseDown(1) && this->MouseOverImageWindow) {
 		this->imageShiftX += static_cast<int>(this->io->MouseDelta.x);
 		this->imageShiftY += static_cast<int>(this->io->MouseDelta.y);
 	}
@@ -341,7 +343,7 @@ void FeatherGUI::InputFunctions() {
 	}
 
 	//UP MOUSE WHEEL
-	if (io->MouseWheel > 0) {
+	if (io->MouseWheel > 0 && this->MouseOverImageWindow) {
 		//increase lineal zoom by 0.1 if this one is less than 3
 		if (this->zoom < this->maxZoom) {
 			this->zoom += this->zoomIncrement;
@@ -351,7 +353,7 @@ void FeatherGUI::InputFunctions() {
 		}
 	}
 	//DOWN MOUSE WHEEL
-	if (io->MouseWheel < 0) {
+	if (io->MouseWheel < 0 && this->MouseOverImageWindow) {
 		//decrease lineal zoom by 0.1 if this one is greater than 0.1
 		if (this->zoom > (this->minZoom + this->zoomIncrement)) {
 			this->zoom -= this->zoomIncrement;

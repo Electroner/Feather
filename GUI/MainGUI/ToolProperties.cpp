@@ -132,16 +132,4 @@ void FeatherGUI::BuildToolProperties() {
 		this->CursorEnabled = true;
 		break;
 	}
-	
-	ImGui::Text("\n");
-	ImGui::Separator();
-	
-	/*//If there is an image loaded print the histogram
-	if (this->workStation.getSizeImages() > 0) {
-		//Histogram
-		ImGui::Text("Histogram");
-		ImGui::PlotHistogram("Red", this->workStation.getImageStrP()->histogramR, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
-		ImGui::PlotHistogram("Green", this->workStation.getImageStrP()->histogramG, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
-		ImGui::PlotHistogram("Blue", this->workStation.getImageStrP()->histogramB, 256, 0, NULL, 0.0F, 255.0F, ImVec2(0, 80));
-	}*/
 }
