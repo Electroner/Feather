@@ -6,7 +6,7 @@ This is the repository for the Feather Image editor. The intention of this photo
 
 At all times you want to maintain speed when opening it and not compromise optimal performance.
 
-## Alpha 0.1
+## Alpha 0.2
 
 ![Imagen](https://github.com/Electroner/Feather/blob/master/Github_Images/Feather.png)
 
