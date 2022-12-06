@@ -1,4 +1,4 @@
-# Feather Image Editor ![Generic badge](https://img.shields.io/badge/Version-0.1.1-brightgreen.svg) ![Generic badge](https://img.shields.io/github/last-commit/Electroner/Feather)
+# Feather Image Editor ![Generic badge](https://img.shields.io/badge/Version-0.2-brightgreen.svg) ![Generic badge](https://img.shields.io/github/last-commit/Electroner/Feather)
 
 This is the repository for the Feather Image editor. The intention of this photo editor is to maintain a basic functionality similar to Paint by adding the basic functions of layers, transparency and some slightly more complex tools.
 
