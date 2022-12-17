@@ -92,9 +92,6 @@ bool FeatherGUI::loadImage(std::string _path) {
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
 	unloadedImage.loaded = true;
-	
-	//calculate the histogram
-	this->workStation.calculateHistogram(&unloadedImage);
 
 	//Add image to Images vector
 	this->workStation.PushNewImage(unloadedImage);
@@ -277,9 +274,6 @@ bool FeatherGUI::loadFromClipBoard() {
 #endif
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
-
-	//calculate the histogram
-	this->workStation.calculateHistogram(&unloadedImage);
 
 	//Add image to Images vector
 	this->workStation.PushNewImage(unloadedImage);

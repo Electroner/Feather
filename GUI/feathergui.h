@@ -206,7 +206,7 @@ class FeatherGUI
 		void BuildGUI();
 		void RenderGUI();
 
-		void SetBackGroundColor(float _r, float _g, float _b);
+		void SetBackGroundColor(unsigned char _r, unsigned char _g, unsigned char _b);
 		RGB GetBackGroundColor();
 };
 

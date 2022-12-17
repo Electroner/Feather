@@ -127,7 +127,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 
 	//TOOLS VARs
 	this->CurrentTool = -1;
-	this->ToolPrevisualization = false;
+	this->ToolPrevisualization = true;
 	//Selection
 	this->selectionSquareSize = 6;
 	this->topLeft = false;
@@ -136,19 +136,38 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->bottomRight = false;
 
 	
-	this->BackGroundRGB.r = 0.25;
-	this->BackGroundRGB.g = 0.25;
-	this->BackGroundRGB.b = 0.25;
-	this->BackGroundRGB.delta = 1.0;
+	this->BackGroundRGB.r = 64;
+	this->BackGroundRGB.g = 64;
+	this->BackGroundRGB.b = 64;
+	this->BackGroundRGB.delta = 255;
 	
 	this->whiteIcons = true;
 
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.5F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
-	this->colorSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.1F, this->GetBackGroundColor().g - 0.1F, this->GetBackGroundColor().b - 0.1F, 1.0f);
-	this->colorNoSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.90F, this->GetBackGroundColor().g - 0.90F, this->GetBackGroundColor().b - 0.90F, 1.0f);
+	this->colorWindowBar = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.5F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.05F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.05F,
+		1.0f);
+	
+	this->colorSelectedWindow = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.1F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.1F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.1F,
+		1.0f);
+	
+	this->colorNoSelectedWindow = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.90F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.90F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.90F,
+		1.0f);
+	
 	this->colorNoSelectedTool = this->colorSelectedWindow;
-	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
+	this->colorSelectedTool = ImVec4(
+		1.0F - static_cast<float>(this->GetBackGroundColor().r / 255.0F),
+		1.0F - static_cast<float>(this->GetBackGroundColor().g / 255.0F),
+		1.0F - static_cast<float>(this->GetBackGroundColor().b / 255.0F),
+		1.0F);
 	this->SliderGrab = ImVec4(0.6F, 0.6F, 0.6F, 1.0F);
 	this->SliderGrabActive = ImVec4(0.5F, 0.5F, 0.5F, 1.0F);
 	this->ActuatorsBackground = ImVec4(0.35F, 0.35F, 0.35F, 1.0F);
@@ -205,13 +224,13 @@ void FeatherGUI::FloatingText(const char* desc) {
 	}
 }
 
-void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
+void FeatherGUI::SetBackGroundColor(unsigned char r, unsigned char g, unsigned char b) {
 	this->BackGroundRGB.r = r;
 	this->BackGroundRGB.g = g;
 	this->BackGroundRGB.b = b;
 
 	//if the colors is white (rgb > 128) set whiteIcons = false
-	if (this->BackGroundRGB.r > 0.5 && this->BackGroundRGB.g > 0.5 && this->BackGroundRGB.b > 0.5) {
+	if (this->BackGroundRGB.r > 128 && this->BackGroundRGB.g > 128 && this->BackGroundRGB.b > 128) {
 		this->whiteIcons = false;
 	}
 	else {
@@ -219,11 +238,31 @@ void FeatherGUI::SetBackGroundColor(float r, float g, float b) {
 	}
 	
 	//Colors of the buttons when a tool is selected and when it is not
-	this->colorWindowBar = ImVec4(this->GetBackGroundColor().r - 0.05F, this->GetBackGroundColor().g - 0.05F, this->GetBackGroundColor().b - 0.05F, 1.0f);
-	this->colorSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.1F, this->GetBackGroundColor().g - 0.1F, this->GetBackGroundColor().b - 0.1F, 1.0f);
-	this->colorNoSelectedWindow = ImVec4(this->GetBackGroundColor().r - 0.90F, this->GetBackGroundColor().g - 0.90F, this->GetBackGroundColor().b - 0.90F, 1.0f);
+	this->colorWindowBar = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.05F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.05F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.05F,
+		1.0f);
+	
+	this->colorSelectedWindow = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.1F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.1F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.1F,
+		1.0f);
+	
+	this->colorNoSelectedWindow = ImVec4(
+		static_cast<float>(this->GetBackGroundColor().r / 255.0F) - 0.90F,
+		static_cast<float>(this->GetBackGroundColor().g / 255.0F) - 0.90F,
+		static_cast<float>(this->GetBackGroundColor().b / 255.0F) - 0.90F,
+		1.0f);
+	
 	this->colorNoSelectedTool = this->colorSelectedWindow;
-	this->colorSelectedTool = ImVec4(1.0F - this->BackGroundRGB.r, 1.0F - this->BackGroundRGB.g, 1.0F - this->BackGroundRGB.b, 1.0F);
+	
+	this->colorSelectedTool = ImVec4(
+		1.0F - static_cast<float>(this->BackGroundRGB.r / 255.0F),
+		1.0F - static_cast<float>(this->BackGroundRGB.g / 255.0F),
+		1.0F - static_cast<float>(this->BackGroundRGB.b / 255.0F),
+		1.0F);
 }
 
 RGB FeatherGUI::GetBackGroundColor() {

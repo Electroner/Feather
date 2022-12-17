@@ -8,10 +8,10 @@ void FeatherGUI::BuildConfigMenu() {
 	//Create a slider for the propertiesPanelPercentage
 	ImGui::SliderInt("Properties Panel Pixels", &this->propertiesPanelPixels, 128, 512);
 
-	float color[4] = { GetBackGroundColor().r,GetBackGroundColor().g, GetBackGroundColor().b, 1.0F };
+	float color[4] = { static_cast<float>(GetBackGroundColor().r / 255.0F),  static_cast<float>(GetBackGroundColor().g / 255.0F),  static_cast<float>(GetBackGroundColor().b / 255.0F), 1.0F };
 	//Change background color
 	ImGui::ColorEdit3("Background Color", color);
-	SetBackGroundColor(color[0], color[1], color[2]);
+	SetBackGroundColor((unsigned char)(color[0] * 255), (unsigned char)(color[1] * 255), (unsigned char)(color[2] * 255));
 
 	//Separator
 	ImGui::Separator();

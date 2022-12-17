@@ -18,24 +18,16 @@
 #include <GLFW/glfw3.h>
 
 struct RGB {
-	float r;
-	float g;
-	float b;
-	float delta;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char delta;
 };
 
 //RGB Operator
 //==
 inline bool operator==(RGB a, RGB b) {
 	return (a.r == b.r && a.g == b.g && a.b == b.b);
-}
-//+
-inline RGB operator+(RGB a, RGB b) {
-	return { a.r + b.r, a.g + b.g, a.b + b.b };
-}
-//-
-inline RGB operator-(RGB a, RGB b) {
-	return { a.r - b.r, a.g - b.g, a.b - b.b };
 }
 
 const struct ImageStr {

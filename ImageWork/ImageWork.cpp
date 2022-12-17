@@ -20,8 +20,8 @@ void ImageWork::init() {
 	this->selectionDone = false;
 
 	//Colors
-	this->toolColor = RGB(0, 0, 0, 1);
-	this->secondaryColor = RGB(1, 1, 1, 1);
+	this->toolColor = RGB(0, 0, 0, 255);
+	this->secondaryColor = RGB(255, 255, 255, 255);
 
 	//First point of the selection to -1
 	this->firstPoint = std::pair<int, int>(-1, -1);
@@ -232,10 +232,10 @@ RGB ImageWork::getPixel(int _x, int _y) {
 	RGB pixel = RGB(0, 0, 0, 0);
 
 	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
-		pixel.r = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 0] / 255.0f;
-		pixel.g = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 1] / 255.0f;
-		pixel.b = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 2] / 255.0f;
-		pixel.delta = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 3] / 255.0f;
+		pixel.r = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 0];
+		pixel.g = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 1];
+		pixel.b = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 2];
+		pixel.delta = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 3];
 	}
 
 	return pixel;
@@ -245,10 +245,12 @@ RGB ImageWork::getPixel(ImageStr* _image, int _x, int _y) {
 	RGB pixel = RGB(0, 0, 0, 0);
 
 	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
-		pixel.r = _image->data[_y * _image->width * 4 + _x * 4 + 0] / 255.0f;
-		pixel.g = _image->data[_y * _image->width * 4 + _x * 4 + 1] / 255.0f;
-		pixel.b = _image->data[_y * _image->width * 4 + _x * 4 + 2] / 255.0f;
-		pixel.delta = _image->data[_y * _image->width * 4 + _x * 4 + 3] / 255.0f;
+		pixel.r = _image->data[_y * _image->width * _image->channels + _x * _image->channels + 0];
+		pixel.g = _image->data[_y * _image->width * _image->channels + _x * _image->channels + 1];
+		pixel.b = _image->data[_y * _image->width * _image->channels + _x * _image->channels + 2];
+		if (_image->channels == 4) {
+			pixel.delta = _image->data[_y * _image->width * 4 + _x * 4 + 3];
+		}
 	}
 
 	return pixel;
@@ -258,11 +260,11 @@ void ImageWork::setPixel(int _x, int _y, RGB _color) {
 	//Check if the pixel is in the image
 	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
 		int index = (_y * this->CurrentImage.width + _x) * this->CurrentImage.channels;
-		CurrentImage.data[index] = static_cast<char>(_color.r * 255);
-		CurrentImage.data[index + 1] = static_cast<char>(_color.g * 255);
-		CurrentImage.data[index + 2] = static_cast<char>(_color.b * 255);
+		CurrentImage.data[index] =_color.r;
+		CurrentImage.data[index + 1] = _color.g;
+		CurrentImage.data[index + 2] = _color.b;
 		if (CurrentImage.channels == 4) {
-			CurrentImage.data[index + 3] = static_cast<char>(_color.delta * 255);
+			CurrentImage.data[index + 3] = _color.delta ;
 		}
 	}
 }
@@ -271,11 +273,11 @@ void ImageWork::setPixel(ImageStr* _image, int _x, int _y, RGB _color) {
 	//Check if the pixel is in the image
 	if (_x >= 0 && _x < _image->width && _y >= 0 && _y < _image->height) {
 		int index = (_y * _image->width + _x) * _image->channels;
-		_image->data[index] = static_cast<char>(_color.r * 255);
-		_image->data[index + 1] = static_cast<char>(_color.g * 255);
-		_image->data[index + 2] = static_cast<char>(_color.b * 255);
+		_image->data[index] = _color.r;
+		_image->data[index + 1] = _color.g;
+		_image->data[index + 2] = _color.b;
 		if (_image->channels == 4) {
-			_image->data[index + 3] = static_cast<char>(_color.delta * 255);
+			_image->data[index + 3] = _color.delta;
 		}
 	}
 }
@@ -312,29 +314,29 @@ void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
 
 						//Interpolate the 4 pixels
 						RGB p12;
-						p12.r = (1 - a) * p1.r + a * p2.r;
-						p12.g = (1 - a) * p1.g + a * p2.g;
-						p12.b = (1 - a) * p1.b + a * p2.b;
-						p12.delta = (1 - a) * p1.delta + a * p2.delta;
+						p12.r = (unsigned char)(((1 - a) * p1.r + a * p2.r) * 255);
+						p12.g = (unsigned char)(((1 - a) * p1.g + a * p2.g) * 255);
+						p12.b = (unsigned char)(((1 - a) * p1.b + a * p2.b) * 255);
+						p12.delta = (unsigned char)(((1 - a) * p1.delta + a * p2.delta) * 255);
 
 						RGB p34;
-						p34.r = (1 - a) * p3.r + a * p4.r;
-						p34.g = (1 - a) * p3.g + a * p4.g;
-						p34.b = (1 - a) * p3.b + a * p4.b;
-						p34.delta = (1 - a) * p3.delta + a * p4.delta;
+						p34.r = (unsigned char)(((1 - a) * p3.r + a * p4.r) * 255);
+						p34.g = (unsigned char)(((1 - a) * p3.g + a * p4.g) * 255);
+						p34.b = (unsigned char)(((1 - a) * p3.b + a * p4.b) * 255);
+						p34.delta = (unsigned char)(((1 - a) * p3.delta + a * p4.delta) * 255);
 
 						//Interpolate the 2 pixels
 						RGB p1234;
-						p1234.r = (1 - b) * p12.r + b * p34.r;
-						p1234.g = (1 - b) * p12.g + b * p34.g;
-						p1234.b = (1 - b) * p12.b + b * p34.b;
-						p1234.delta = (1 - b) * p12.delta + b * p34.delta;
+						p1234.r = (unsigned char)(((1 - b) * p12.r + b * p34.r) * 255);
+						p1234.g = (unsigned char)(((1 - b) * p12.g + b * p34.g) * 255);
+						p1234.b = (unsigned char)(((1 - b) * p12.b + b * p34.b) * 255);
+						p1234.delta = (unsigned char)(((1 - b) * p12.delta + b * p34.delta) * 255);
 
 						//Set the new pixel
-						newData[i * _width * 4 + j * 4 + 0] = (GLubyte)(p1234.r * 255);
-						newData[i * _width * 4 + j * 4 + 1] = (GLubyte)(p1234.g * 255);
-						newData[i * _width * 4 + j * 4 + 2] = (GLubyte)(p1234.b * 255);
-						newData[i * _width * 4 + j * 4 + 3] = (GLubyte)(p1234.delta * 255);
+						newData[i * _width * 4 + j * 4 + 0] = p1234.r;
+						newData[i * _width * 4 + j * 4 + 1] = p1234.g;
+						newData[i * _width * 4 + j * 4 + 2] = p1234.b;
+						newData[i * _width * 4 + j * 4 + 3] = p1234.delta;
 					}
 				}
 

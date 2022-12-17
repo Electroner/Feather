@@ -4,10 +4,18 @@ void FeatherGUI::BuildToolProperties() {
 	float temp_radius = static_cast<float>(this->workStation.getToolRadius());
 
 	RGB temp_color_RGB = this->workStation.getToolColor();
-	float temp_color[4] = { temp_color_RGB.r,temp_color_RGB.g, temp_color_RGB.b, 1.0F };
-	
+	float temp_color[4] = { 
+		static_cast<float>(temp_color_RGB.r / 255.0F),
+		static_cast<float>(temp_color_RGB.g / 255.0F),
+		static_cast<float>(temp_color_RGB.b / 255.0F),
+		1.0F };
+
 	RGB temp_secondary_color_RGB = this->workStation.getSecondaryColor();
-	float temp_secondary_color[4] = { temp_secondary_color_RGB.r,temp_secondary_color_RGB.g, temp_secondary_color_RGB.b, temp_secondary_color_RGB.delta };
+	float temp_secondary_color[4] = { 
+		static_cast<float>(temp_secondary_color_RGB.r / 255.0F),
+		static_cast<float>(temp_secondary_color_RGB.g / 255.0F),
+		static_cast<float>(temp_secondary_color_RGB.b / 255.0F),
+		static_cast<float>(temp_secondary_color_RGB.delta / 255.0F) };
 
 	int temp_tolerance = this->workStation.getTolerance();
 
@@ -18,29 +26,21 @@ void FeatherGUI::BuildToolProperties() {
 
 	//PENCIL
 	//Create a ColorEdit3 if the channels are 3
-	if (this->workStation.getImageStrP()->channels == 4) {
-		ImGui::ColorEdit4("Tool", temp_color);
-		temp_color_RGB.r = temp_color[0];
-		temp_color_RGB.g = temp_color[1];
-		temp_color_RGB.b = temp_color[2];
-		temp_color_RGB.delta = temp_color[3];
-	}
-	else
-	{
-		ImGui::ColorEdit3("Tool", temp_color);
-		temp_color_RGB.r = temp_color[0];
-		temp_color_RGB.g = temp_color[1];
-		temp_color_RGB.b = temp_color[2];
-	}
+	ImGui::ColorEdit4("Tool", temp_color);
+	temp_color_RGB.r = static_cast<unsigned char>(temp_color[0] * 255);
+	temp_color_RGB.g = static_cast<unsigned char>(temp_color[1] * 255);
+	temp_color_RGB.b = static_cast<unsigned char>(temp_color[2] * 255);
+	temp_color_RGB.delta = static_cast<unsigned char>(temp_color[3] * 255);
+
 	this->workStation.setToolColor(temp_color_RGB);
-	
+
 	//ERASER
-	
+
 	ImGui::ColorEdit4("Eraser", temp_secondary_color);
-	temp_secondary_color_RGB.r = temp_secondary_color[0];
-	temp_secondary_color_RGB.g = temp_secondary_color[1];
-	temp_secondary_color_RGB.b = temp_secondary_color[2];
-	temp_secondary_color_RGB.delta = temp_secondary_color[3];
+	temp_secondary_color_RGB.r = static_cast<unsigned char>(temp_secondary_color[0] * 255);
+	temp_secondary_color_RGB.g = static_cast<unsigned char>(temp_secondary_color[1] * 255);
+	temp_secondary_color_RGB.b = static_cast<unsigned char>(temp_secondary_color[2] * 255);
+	temp_secondary_color_RGB.delta = static_cast<unsigned char>(temp_secondary_color[3] * 255);
 
 	this->workStation.setSecondaryColor(temp_secondary_color_RGB);
 
@@ -58,13 +58,13 @@ void FeatherGUI::BuildToolProperties() {
 				this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
 				//Create a cross cursor with the size of the brush radius and the color of the brush
 				ImGui::GetForegroundDrawList()->AddCircleFilled(
-					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y), 
-					temp_radius*this->zoom, 
+					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y),
+					temp_radius * this->zoom,
 					ImGui::ColorConvertFloat4ToU32(ImVec4(
-						temp_color_RGB.r,
-						temp_color_RGB.g,
-						temp_color_RGB.b,
-						temp_color_RGB.delta*0.5F)),
+						static_cast<float>(temp_color_RGB.r / 255.0F),
+						static_cast<float>(temp_color_RGB.g / 255.0F),
+						static_cast<float>(temp_color_RGB.b / 255.0F),
+						0.5)),
 					0);
 			}
 		}
@@ -81,15 +81,15 @@ void FeatherGUI::BuildToolProperties() {
 					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y),
 					temp_radius * this->zoom,
 					ImGui::ColorConvertFloat4ToU32(ImVec4(
-						temp_color_RGB.r,
-						temp_color_RGB.g,
-						temp_color_RGB.b,
-						temp_color_RGB.delta * 0.5F)),
+						static_cast<float>(temp_color_RGB.r / 255.0F),
+						static_cast<float>(temp_color_RGB.g / 255.0F),
+						static_cast<float>(temp_color_RGB.b / 255.0F),
+						0.5)),
 					0);
 			}
 		}
 		break;
-		
+
 	case TOOL_ERASER:
 		if (ToolPrevisualization) {
 			//If the cursor is inside the image
@@ -101,24 +101,24 @@ void FeatherGUI::BuildToolProperties() {
 					ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y),
 					temp_radius * this->zoom,
 					ImGui::ColorConvertFloat4ToU32(ImVec4(
-						temp_secondary_color_RGB.r,
-						temp_secondary_color_RGB.g,
-						temp_secondary_color_RGB.b,
-						temp_secondary_color_RGB.delta * 0.5F)),
+						static_cast<float>(temp_secondary_color_RGB.r / 255.0F),
+						static_cast<float>(temp_secondary_color_RGB.g / 255.0F),
+						static_cast<float>(temp_secondary_color_RGB.b / 255.0F),
+						0.5)),
 					0);
 			}
 		}
 		break;
-		
+
 	case TOOL_COLORPICKER:
 		break;
-	
+
 	case TOOL_SELECTION:
 		break;
 
 	case TOOL_SCALE:
 		break;
-		
+
 	case TOOL_BUCKET:
 		//Tolerance selector
 		ImGui::SliderInt("Tolerance", &temp_tolerance, 0, 100);

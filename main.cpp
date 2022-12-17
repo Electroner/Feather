@@ -66,7 +66,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		int display_w, display_h;
 		glfwGetFramebufferSize(window, &display_w, &display_h);
 		glViewport(0, 0, display_w, display_h);
-		glClearColor(gui.GetBackGroundColor().r, gui.GetBackGroundColor().g, gui.GetBackGroundColor().b, gui.GetBackGroundColor().delta);
+		glClearColor(
+			(GLclampf)(gui.GetBackGroundColor().r / 255.0F),
+			(GLclampf)(gui.GetBackGroundColor().g / 255.0F),
+			(GLclampf)(gui.GetBackGroundColor().b / 255.0F),
+			(GLclampf)(gui.GetBackGroundColor().delta / 255.0F));
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		gui.RenderGUI();
