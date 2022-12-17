@@ -91,11 +91,11 @@ void FeatherGUI::calculateZoom() {
 	//Set the increment in the 1% of the diference between min and max
 	this->zoomIncrement = (this->maxZoom - this->minZoom) / 100.0F;
 
-	std::cout << "Adjusting zoom of " << this->workStation.getImageStrP()->name << std::endl;
-	std::cout << "Adjusted Zoom to: " << this->zoom << std::endl;
-	std::cout << "Adjusted Max Zoom: " << this->maxZoom << std::endl;
-	std::cout << "Adjusted Min Zoom: " << this->minZoom << std::endl;
-	std::cout << "Adjusted Zoom Increment: " << this->zoomIncrement << std::endl;
+	//std::cout << "Adjusting zoom of " << this->workStation.getImageStrP()->name << std::endl;
+	//std::cout << "Adjusted Zoom to: " << this->zoom << std::endl;
+	//std::cout << "Adjusted Max Zoom: " << this->maxZoom << std::endl;
+	//std::cout << "Adjusted Min Zoom: " << this->minZoom << std::endl;
+	//std::cout << "Adjusted Zoom Increment: " << this->zoomIncrement << std::endl;
 }
 
 void FeatherGUI::centerImage() {
@@ -105,8 +105,8 @@ void FeatherGUI::centerImage() {
 	//Center Y is the size of the screen minus the size of the image divided by 2
 	this->imageShiftY = static_cast<int>((io->DisplaySize.y - this->infoPanelPixels - this->MenuSizePixels) / 2.0F - (this->workStation.getImageStrP()->height * this->zoom / 2.0F));
 
-	std::cout << "Adjusted Image Shift X: " << this->imageShiftX << std::endl;
-	std::cout << "Adjusted Image Shift Y: " << this->imageShiftY << std::endl;
+	//std::cout << "Adjusted Image Shift X: " << this->imageShiftX << std::endl;
+	//std::cout << "Adjusted Image Shift Y: " << this->imageShiftY << std::endl;
 }
 
 void FeatherGUI::UpdateImage() {

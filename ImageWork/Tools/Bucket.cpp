@@ -1,5 +1,5 @@
 #include "../ImageWork.h"
-#include <Windows.h>
+
 bool isSimilar(RGB colorA, RGB colorB, int tolerance)
 {
 	return  (abs(colorA.r - colorB.r) <= tolerance) &&
@@ -21,7 +21,6 @@ void ImageWork::floodFill(int x, int y, RGB targetColor, RGB replacementColor, i
 	//Create a queue of pixels
 	std::queue<std::pair<int, int>> queue;
 	std::pair<int, int> pixel;
-
 	ImageStr* image = this->getImageStrP();
 
 	//Add the pixel to the queue
@@ -55,10 +54,8 @@ void ImageWork::floodFill(int x, int y, RGB targetColor, RGB replacementColor, i
 	}
 }
 
-
 void ImageWork::toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance) {
 	//Bucket tool
-	//Check if the mouse is inside the image
 	if (_MouseImagePositionX >= 0 && _MouseImagePositionX < CurrentImage.width && _MouseImagePositionY >= 0 && _MouseImagePositionY < CurrentImage.height) {
 		//Flood Fill Algoritm
 		floodFill(_MouseImagePositionX, _MouseImagePositionY, this->getPixel(_MouseImagePositionX, _MouseImagePositionY), this->toolColor, _tolerance);

@@ -231,11 +231,13 @@ void ImageWork::reCopyImage(ImageStr* _Image) {
 RGB ImageWork::getPixel(int _x, int _y) {
 	RGB pixel = RGB(0, 0, 0, 0);
 
-	if (_x >= 0 && _x < this->CurrentImage.width && _y >= 0 && _y < this->CurrentImage.height) {
-		pixel.r = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 0];
-		pixel.g = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 1];
-		pixel.b = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 2];
-		pixel.delta = this->CurrentImage.data[_y * this->CurrentImage.width * 4 + _x * 4 + 3];
+	if (_x >= 0 && _x < this->getImageStrP()->width && _y >= 0 && _y < this->getImageStrP()->height) {
+		pixel.r = this->getImageStrP()->data[_y * this->getImageStrP()->width * 4 + _x * 4 + 0];
+		pixel.g = this->getImageStrP()->data[_y * this->getImageStrP()->width * 4 + _x * 4 + 1];
+		pixel.b = this->getImageStrP()->data[_y * this->getImageStrP()->width * 4 + _x * 4 + 2];
+		if (this->getImageStrP()->channels == 4) {
+			pixel.delta = this->getImageStrP()->data[_y * this->getImageStrP()->width * 4 + _x * 4 + 3];
+		}
 	}
 
 	return pixel;
