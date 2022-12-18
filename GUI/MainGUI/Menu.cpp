@@ -77,6 +77,8 @@ void FeatherGUI::BuildMenu() {
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Histogram")) {
 				//Open a new window
 				this->histogramPopUp = true;
+				//Calculate histogram
+				this->workStation.calculateHistogram(this->workStation.getImageStrP());
 				std::cout << "Opened Histogram window Pop Up" << std::endl;
 			}
 			ImGui::EndMenu();

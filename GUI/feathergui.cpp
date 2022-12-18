@@ -130,11 +130,11 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->ToolPrevisualization = true;
 	//Selection
 	this->selectionSquareSize = 6;
+	this->selectionScaleSquareSize = 6;
 	this->topLeft = false;
 	this->topRight = false;
 	this->bottomLeft = false;
 	this->bottomRight = false;
-
 	
 	this->BackGroundRGB.r = 64;
 	this->BackGroundRGB.g = 64;
@@ -369,6 +369,10 @@ float FeatherGUI::getIconSize() {
 }
 
 void FeatherGUI::InputFunctions() {
+	//Position of the mouse inside the Image Window compensating the image shift and zoom
+	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
+	this->MouseImagePositionY = (int)floor(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+	
 	//Dragging the Image over the window
 	if (ImGui::IsMouseDown(1) && this->MouseOverImageWindow) {
 		this->imageShiftX += static_cast<int>(this->io->MouseDelta.x);
@@ -507,7 +511,7 @@ void FeatherGUI::InputFunctions() {
 			//If mouse click or holded
 			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
 				if (this->CurrentTool != -1) {
-					workStation.useTool(this->CurrentTool, this->MouseImagePositionX, this->MouseImagePositionY);
+					this->workStation.useTool(this->CurrentTool, this->MouseImagePositionX, this->MouseImagePositionY);
 					this->UpdateImage();
 				}
 			}
@@ -523,10 +527,19 @@ void FeatherGUI::InputFunctions() {
 		//Set the firstPoint of Selection to -1
 		workStation.clearFirstPointSelection();
 		
+		//Set the firstPoint of Scale to -1
+		workStation.clearFirstPointSelectionScale();
+		
 		//If the selection is enabled end the selection
 		if (this->workStation.getSelectionEnabled()) {
 			this->workStation.setSelectionDone(true);
 		}
+
+		//If the scale is enabled end the scale
+		if (this->workStation.getSelectionScaleEnabled()) {
+			this->workStation.setSelectionScaleDone(true);
+		}
+		
 		//Selection Pins resets
 		this->topLeft = false;
 		this->topRight = false;
@@ -534,6 +547,7 @@ void FeatherGUI::InputFunctions() {
 		this->bottomRight = false;
 		//Selection Normalize
 		this->workStation.selectionNormalize();
+		this->workStation.selectionScaleNormalize();
 	}
 
 	//MOUSE SELECTION
@@ -594,8 +608,7 @@ void FeatherGUI::InputFunctions() {
 	else {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
 	}
-	
-	//Position of the mouse inside the Image Window compensating the image shift and zoom
-	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
-	this->MouseImagePositionY = (int)floor(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+
+	//MOUSE SELECTION SCALE SCALING
+	//TODO
 }
