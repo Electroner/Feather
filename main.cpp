@@ -1,11 +1,10 @@
 #include "./GUI/feathergui.h"
+//#define DEBUG
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
-
-//#define DEBUG
 
 #ifndef DEBUG
 
@@ -33,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	glfwSwapInterval(0);	// Enable vsync
 
 	//Icon Path and Load image 
-	std::string icon_path = getNormalizedPath() + ICONPATH;
+	std::string icon_path = getCurrentNormalizedPath() + ICONPATH;
 	int icon_x, icon_y, icon_nrChannels;
 	unsigned char* icon_pixels = stbi_load(icon_path.c_str(), &icon_x, &icon_y, &icon_nrChannels, 4);
 	//Create GLFW Image
@@ -55,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	//Create the GUI
 	FeatherGUI gui(window, glsl_version);
-
+	
 	while (!glfwWindowShouldClose(window) && gui.IsOpened())
 	{
 		glfwPollEvents();
@@ -109,7 +108,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	glfwSwapInterval(0);	// Enable vsync
 
 	//Icon Path and Load image 
-	std::string icon_path = getNormalizedPath() + ICONPATH;
+	std::string icon_path = getCurrentNormalizedPath() + ICONPATH;
 	int icon_x, icon_y, icon_nrChannels;
 	unsigned char* icon_pixels = stbi_load(icon_path.c_str(), &icon_x, &icon_y, &icon_nrChannels, 4);
 	//Create GLFW Image

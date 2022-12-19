@@ -478,3 +478,24 @@ bool FeatherGUI::copyImageToClipboard() {
 	
 	return true;
 }
+
+void FeatherGUI::drop_callback(GLFWwindow* _windowContext, int _count, const char** _paths) {
+	for (int i = 0; i < _count; i++){
+		droppedFiles.push_back(_paths[i]);
+	}
+}
+
+bool FeatherGUI::loadDroppedImages() {
+	bool done = true;
+	
+	for(int i = 0; i < droppedFiles.size(); i++) {
+		done &= this->loadImage(getNormalizedPath(droppedFiles[i]));
+	}
+
+	droppedFiles.clear();
+
+	workStation.combineLayers();
+	this->centerImage();
+
+	return done;
+}

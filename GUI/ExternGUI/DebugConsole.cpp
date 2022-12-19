@@ -4,8 +4,8 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	//DEBUG CONSOLE WINDOW
 	//Set max size of the window to 1/4 of the screen
 	ImGui::SetNextWindowSize(ImVec2(static_cast<float>(this->io->DisplaySize.x / 4), static_cast<float>(this->io->DisplaySize.y / 1.5)), ImGuiCond_Always);
-	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
-	//ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse);
+	//ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse);
 	//IMGUI TEXT
 	ImGui::Text("SYSTEM STATUS");
 	ImGui::Separator();

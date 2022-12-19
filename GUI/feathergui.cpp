@@ -10,17 +10,20 @@
 	-> Make the default zoom configurable
 	-> Sort and make the configuration menu more user friendly
 	-> Make more tools 
-	-> Search for memory available in the system for creating image
-	-> Change and organize the options
-	-> Make selection White and black
 	
 	# Search if there is any option to set the images into the executable
 */
+
+//Initialization of static members
+std::vector<std::string> FeatherGUI::droppedFiles;
 
 FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 {
 	this->windowContext = _windowContext;
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
+
+	//Drop callback
+	glfwSetDropCallback(this->windowContext, drop_callback);
 
 	// Initialize the Feather GUI
 	IMGUI_CHECKVERSION();
@@ -294,6 +297,17 @@ void FeatherGUI::BuildGUI() {
 	}
 	else {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+	}
+
+	//DROP EVENT
+	switch (droppedFiles.size())
+	{
+	case 0:
+		break;
+		
+	default:
+		this->loadDroppedImages();
+		break;
 	}
 
 	//BUILDGUI

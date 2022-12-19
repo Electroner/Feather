@@ -97,6 +97,9 @@ class FeatherGUI
 		//CURSORS IMAGES
 		std::vector<ImageStr> cursors;
 
+		//IMAGES DROP EVENT
+		static std::vector<std::string> droppedFiles;
+
 		//COLORS
 		bool whiteIcons;
 		ImVec4 colorNoSelectedTool;
@@ -155,7 +158,7 @@ class FeatherGUI
 		void setIconSize(float _size);
 		float getIconSize();
 		
-		bool loadImage(std::string _path);	
+		bool loadImage(std::string _path);
 		bool loadIcon(std::string _path);
 		bool loadCursor(std::string _path);
 		bool loadFromClipBoard();
@@ -163,10 +166,14 @@ class FeatherGUI
 		bool copySelectionToClipboard();
 		bool copyImageToClipboard();
 
+		static void drop_callback(GLFWwindow* _windowContext, int _count, const char** _paths);
+		bool loadDroppedImages();
+
 		//---------------------------OPENGL---------------------------
 		void SetSync(bool _sync);
 		bool GetSync();
 		
+		//---------------------------IMGUI---------------------------
 		void HelpMarker(const char* desc);
 		void FloatingText(char* desc);
 		void FloatingText(const char* desc);
@@ -223,4 +230,4 @@ class FeatherGUI
 		RGB GetBackGroundColor();
 };
 
-#endif // !FEATHERGUI
+#endif // FEATHERGUI

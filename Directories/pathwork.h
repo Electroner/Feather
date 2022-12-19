@@ -5,7 +5,9 @@
 
 std::string getCurrentPath();
 
-std::string getNormalizedPath();
+std::string getCurrentNormalizedPath();
+
+std::string getNormalizedPath(std::string _path);
 
 #ifdef WINDOWS_SO
 std::string browseFile(HWND hwnd);

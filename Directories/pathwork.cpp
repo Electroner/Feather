@@ -10,7 +10,7 @@ std::string getCurrentPath()
     return _path;
 }
 
-std::string getNormalizedPath()
+std::string getCurrentNormalizedPath()
 {
     std::string _path = getCurrentPath();
     std::replace(_path.begin(), _path.end(), '\\', '/');
@@ -19,6 +19,16 @@ std::string getNormalizedPath()
     #endif // DEBUG
 		
     return _path;
+}
+
+std::string getNormalizedPath(std::string _path)
+{
+	std::replace(_path.begin(), _path.end(), '\\', '/');
+#ifdef DEBUG
+	std::cout << "Normalized Path: " << _path << std::endl;
+#endif // DEBUG
+
+	return _path;
 }
 
 #ifdef WINDOWS_SO

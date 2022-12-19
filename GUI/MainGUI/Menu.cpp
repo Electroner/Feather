@@ -9,6 +9,7 @@ void FeatherGUI::OpenMenuFunction() {
 	}
 	else
 	{
+		filename = getNormalizedPath(filename);
 		//load the image
 		if (!loadImage(filename))
 		{
