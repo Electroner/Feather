@@ -19,6 +19,7 @@ This programs uses ImGui and OpenGL/GlFw.
 -   [ImPlot](https://github.com/epezent/implot)
 -   [OpenGL](https://www.opengl.org/)
 -   [GLFW](https://www.glfw.org/)
+-   [Stb](https://github.com/nothings/stb)
 
 ## Compiling the project
 
