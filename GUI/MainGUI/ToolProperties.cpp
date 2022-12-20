@@ -8,7 +8,7 @@ void FeatherGUI::BuildToolProperties() {
 		static_cast<float>(temp_color_RGB.r / 255.0F),
 		static_cast<float>(temp_color_RGB.g / 255.0F),
 		static_cast<float>(temp_color_RGB.b / 255.0F),
-		1.0F };
+		static_cast<float>(temp_color_RGB.delta / 255.0F)};
 
 	RGB temp_secondary_color_RGB = this->workStation.getSecondaryColor();
 	float temp_secondary_color[4] = { 

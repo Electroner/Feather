@@ -168,6 +168,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ImGui::GetForegroundDrawList()->AddImage((ImTextureID)texture, 
 			ImVec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y + mouse_Size),
 			ImVec2(ImGui::GetMousePos().x + mouse_Size, ImGui::GetMousePos().y));
+		
+		//Create a button
+		if (ImGui::Button("Button"))
+		{
+			//Play sound with OpenAL
+			//Load the sound "B:/beep.wav"
+		}
 		ImGui::End();
 
 		int display_w, display_h;
