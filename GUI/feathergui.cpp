@@ -84,9 +84,6 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resources/icons/Selection.png")) {
 		std::cout << "Error Loading the Image Selection.png" << std::endl;
 	}
-	if (!loadIcon("./resources/icons/Scale.png")) {
-		std::cout << "Error Loading the Image Scale.png" << std::endl;
-	}
 	if (!loadIcon("./resources/icons/Bucket.png")) {
 		std::cout << "Error Loading the Image Bucket.png" << std::endl;
 	}
@@ -109,9 +106,6 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	if (!loadIcon("./resources/icons/Black_Selection.png")) {
 		std::cout << "Error Loading the Image Black Selection.png" << std::endl;
 	}
-	if (!loadIcon("./resources/icons/Black_Scale.png")) {
-		std::cout << "Error Loading the Image Black Scale.png" << std::endl;
-	}
 	if (!loadIcon("./resources/icons/Black_Bucket.png")) {
 		std::cout << "Error Loading the Image Black Bucket.png" << std::endl;
 	}
@@ -126,7 +120,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->windowRounding = 0.0F;
 	
 	//OPTION VARS
-	this->Vsync = false;
+	this->Vsync = true;
 
 	//TOOLS VARs
 	this->CurrentTool = -1;
@@ -442,14 +436,10 @@ void FeatherGUI::InputFunctions() {
 		this->CurrentTool = TOOL_SELECTION;
 	}
 	//6
-	if (ImGui::IsKeyPressed(54)) {
-		this->CurrentTool = TOOL_SCALE;
-	}
-	//7
 	if (ImGui::IsKeyPressed(55)) {
 		this->CurrentTool = TOOL_BUCKET;
 	}
-	//8
+	//7
 	if (ImGui::IsKeyPressed(56)) {
 		this->CurrentTool = TOOL_TEXT;
 	}
@@ -512,9 +502,37 @@ void FeatherGUI::InputFunctions() {
 	//Key T
 	if (io->KeysDown[GLFW_KEY_T]) {
 		this->workStation.resizeImage(this->workStation.getImage(0), 1920, 540);
-		//this->workStation.reCopyImage(this->workStation.getImageStrP());
 	}
 
+	//Key SUPR
+	if (io->KeysDown[GLFW_KEY_DELETE]) {
+		if (this->workStation.getSelectionEnabled()) {
+			//If selection is active delete the selection
+			this->workStation.deleteSelection();
+			std::cout << "Selection deleted" << std::endl;
+		}
+		this->UpdateImage();
+		//Remove the selection
+		this->workStation.clearSelection();
+		this->workStation.setSelectionEnable(false);
+		this->workStation.setSelectionDone(false);
+	}
+
+	//MOUSE SELECTION
+	//If Ctrl is pressed we can move the area
+	if (io->KeyCtrl) {
+		//If the mouse is over the corners of the selection
+		if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == TOOL_SELECTION) {
+			this->selectionUpdate();
+		}
+		if (topLeft || topRight || bottomLeft || bottomRight || middleLeft || middleRight || middleTop || middleBottom) {
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+		}
+		else {
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+		}
+	}
+	
 	//MOUSE
 	// Check if mouse is over the image window
 	if (this->MouseOverImageWindow)
@@ -540,89 +558,24 @@ void FeatherGUI::InputFunctions() {
 
 		//Set the firstPoint of Selection to -1
 		workStation.clearFirstPointSelection();
-		
-		//Set the firstPoint of Scale to -1
-		workStation.clearFirstPointSelectionScale();
-		
+
 		//If the selection is enabled end the selection
 		if (this->workStation.getSelectionEnabled()) {
 			this->workStation.setSelectionDone(true);
 		}
 
-		//If the scale is enabled end the scale
-		if (this->workStation.getSelectionScaleEnabled()) {
-			this->workStation.setSelectionScaleDone(true);
-		}
-		
 		//Selection Pins resets
 		this->topLeft = false;
 		this->topRight = false;
 		this->bottomLeft = false;
 		this->bottomRight = false;
+		this->middleLeft = false;
+		this->middleRight = false;
+		this->middleTop = false;
+		this->middleBottom = false;
+		this->middle = false;
+
 		//Selection Normalize
 		this->workStation.selectionNormalize();
-		this->workStation.selectionScaleNormalize();
 	}
-
-	//MOUSE SELECTION
-	//If the mouse is over the corners of the selection
-	if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == TOOL_SELECTION) {
-		//If mouse is over the left corner of the selection with the radius of half of selectionSquareSize
-		if (abs(this->MouseImagePositionX - workStation.getSelectionMin().first) < this->selectionSquareSize || topLeft || bottomLeft) {
-			//Lateral Left vertical line
-			if (abs(this->MouseImagePositionY - workStation.getSelectionMin().second) < this->selectionSquareSize || topLeft) {
-				//Top horizontal line
-				//Top Left corner
-				//If mouse click and holded change the IndexMin to the mouse position
-				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
-					this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
-					topLeft = true;
-				}
-			}
-			else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomLeft) {
-				//Bottom horizontal line
-				//Bottom Left corner
-				//If mouse click and holded change the IndexMin to the mouse position
-				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
-					//In this case we need to change the IndexMin and IndexMax
-					this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMin().second));
-					this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->MouseImagePositionY));
-					bottomLeft = true;
-				}
-			}
-		}
-		//If mouse is over the right corner of the selection with the radius of half of selectionSquareSize
-		else if (abs(this->MouseImagePositionX - this->workStation.getSelectionMax().first) < this->selectionSquareSize || topRight || bottomRight) {
-			//Lateral Right vertical line
-			if (abs(this->MouseImagePositionY - this->workStation.getSelectionMin().second) < this->selectionSquareSize || topRight) {
-				//Top horizontal line
-				//Top Right corner
-				//If mouse click and holded change the IndexMax to the mouse position
-				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
-					//In this case we need to change the IndexMin and IndexMax
-					this->workStation.setSelectionMin(std::make_pair(this->workStation.getSelectionMin().first, this->MouseImagePositionY));
-					this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMax().second));
-					topRight = true;
-				}
-			}
-			else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomRight) {
-				//Bottom horizontal line
-				//Bottom Right corner
-				//If mouse click and holded change the IndexMax to the mouse position
-				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
-					this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
-					bottomRight = true;
-				}
-			}
-		}
-	}
-	if (topLeft || topRight || bottomLeft || bottomRight) {
-		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
-	}
-	else {
-		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
-	}
-
-	//MOUSE SELECTION SCALE SCALING
-	//TODO
 }

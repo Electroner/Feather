@@ -116,9 +116,6 @@ void FeatherGUI::BuildToolProperties() {
 	case TOOL_SELECTION:
 		break;
 
-	case TOOL_SCALE:
-		break;
-
 	case TOOL_BUCKET:
 		//Tolerance selector
 		ImGui::SliderInt("Tolerance", &temp_tolerance, 0, 100);

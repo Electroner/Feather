@@ -137,6 +137,11 @@ class FeatherGUI
 		bool topRight;
 		bool bottomLeft;
 		bool bottomRight;
+		bool middleLeft;
+		bool middleRight;
+		bool middleTop;
+		bool middleBottom;
+		bool middle;
 
 		//Selection Scale
 		int selectionScaleSquareSize;
@@ -200,6 +205,7 @@ class FeatherGUI
 		//OPTIONS RELATED FUNCTIONS
 		void BuildToolProperties();
 		void toolDisplays();
+		void selectionUpdate();
 
 		//DYNAMIC MENUS
 		void BuildConfigMenu();

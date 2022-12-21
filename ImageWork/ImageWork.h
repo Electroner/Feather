@@ -59,7 +59,6 @@ enum Tools
 	TOOL_ERASER,
 	TOOL_COLORPICKER,
 	TOOL_SELECTION,
-	TOOL_SCALE,
 	TOOL_BUCKET,
 	TOOL_TEXT
 };
@@ -113,7 +112,6 @@ class ImageWork {
 		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
-		void toolScale(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance);
 		
 	public:
@@ -133,21 +131,15 @@ class ImageWork {
 
 		void setSelectionMin(std::pair<int, int> _selectionMin);
 		void setSelectionMax(std::pair<int, int> _selectionMax);
-
-		std::pair<int, int> getSelectionScaleMin();
-		std::pair<int, int> getSelectionScaleMax();
-
-		void setSelectionScaleMin(std::pair<int, int> _selectionScaleMin);
-		void setSelectionScaleMax(std::pair<int, int> _selectionScaleMax);
 		
 		void clearMousePoints();
 		void clearMousePairs();
 		void clearFirstPointSelection();
-		void clearFirstPointSelectionScale();
 		void clearSelection();
 		void clearImages();
 		void selectionNormalize();
-		void selectionScaleNormalize();
+
+		void deleteSelection();
 
 		void PushNewImage(ImageStr _Image);
 		int ImagesSize();
@@ -163,9 +155,7 @@ class ImageWork {
 		void setToolRadius(int _radius);
 		
 		void setSelectionEnable(bool _enable);
-		void setSelectionScaleEnable(bool _enable);
 		void setSelectionDone(bool _done);
-		void setSelectionScaleDone(bool _done);
 
 		void setTolerance(int _Tolerance);
 		
@@ -174,9 +164,7 @@ class ImageWork {
 		int getToolRadius();
 		
 		bool getSelectionEnabled();
-		bool getSelectionScaleEnabled();
 		bool getSelectionDone();
-		bool getSelectionScaleDone();
 		
 		int getTolerance();
 

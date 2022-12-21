@@ -163,7 +163,6 @@
     <ClCompile Include="ImageWork\Tools\ColorPicker.cpp" />
     <ClCompile Include="ImageWork\Tools\Eraser.cpp" />
     <ClCompile Include="ImageWork\Tools\Pencil.cpp" />
-    <ClCompile Include="ImageWork\Tools\Scale.cpp" />
     <ClCompile Include="ImageWork\Tools\Selection.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />

@@ -19,21 +19,12 @@ void ImageWork::init() {
 	this->selectionEnable = false;
 	this->selectionDone = false;
 	
-	this->selectionScaleMin = std::pair<int, int>(0, 0);
-	this->selectionScaleMax = std::pair<int, int>(0, 0);
-	
-	this->selectionScaleEnable = false;
-	this->selectionScaleDone = false;
-
 	//Colors
 	this->toolColor = RGB(0, 0, 0, 255);
 	this->secondaryColor = RGB(255, 255, 255, 255);
 
 	//First point of the selection to -1
 	this->firstPoint = std::pair<int, int>(-1, -1);
-	
-	//First point of the scale to -1
-	this->firstScalePoint = std::pair<int, int>(-1, -1);
 }
 
 void ImageWork::combineLayers() {
@@ -73,22 +64,6 @@ void ImageWork::setSelectionMax(std::pair<int, int> _selectionMax) {
 	this->selectionMax = _selectionMax;
 }
 
-std::pair<int, int> ImageWork::getSelectionScaleMin() {
-	return this->selectionScaleMin;
-}
-
-std::pair<int, int> ImageWork::getSelectionScaleMax() {
-	return this->selectionScaleMax;
-}
-
-void ImageWork::setSelectionScaleMin(std::pair<int, int> _selectionScaleMin) {
-	this->selectionScaleMin = _selectionScaleMin;
-}
-
-void ImageWork::setSelectionScaleMax(std::pair<int, int> _selectionScaleMax) {
-	this->selectionScaleMax = _selectionScaleMax;
-}
-
 void ImageWork::clearMousePoints() {
 	this->mousePoints.clear();
 }
@@ -100,10 +75,6 @@ void ImageWork::clearMousePairs() {
 
 void ImageWork::clearFirstPointSelection() {
 	this->firstPoint = std::pair<int, int>(-1, -1);
-}
-
-void ImageWork::clearFirstPointSelectionScale() {
-	this->firstScalePoint = std::pair<int, int>(-1, -1);
 }
 
 void ImageWork::clearSelection() {
@@ -142,26 +113,14 @@ void ImageWork::selectionNormalize() {
 	}
 }
 
-void ImageWork::selectionScaleNormalize() {
-	if (this->selectionScaleMin.first > this->selectionScaleMax.first) {
-		std::swap(this->selectionScaleMin.first, this->selectionScaleMax.first);
-	}
-	if (this->selectionScaleMin.second > this->selectionScaleMax.second) {
-		std::swap(this->selectionScaleMin.second, this->selectionScaleMax.second);
-	}
-
-	//If the selection is out of the image, set it to the image size
-	if (this->selectionScaleMin.first < 0) {
-		this->selectionScaleMin.first = 0;
-	}
-	if (this->selectionScaleMin.second < 0) {
-		this->selectionScaleMin.second = 0;
-	}
-	if (this->selectionScaleMax.first > this->CurrentImage.width) {
-		this->selectionScaleMax.first = this->CurrentImage.width;
-	}
-	if (this->selectionScaleMax.second > this->CurrentImage.height) {
-		this->selectionScaleMax.second = this->CurrentImage.height;
+void ImageWork::deleteSelection() {
+	//if the selection is done and the selection is enabled the set the selected pixels to the secondary color
+	if (this->selectionDone && this->selectionEnable) {
+		for (int i = this->selectionMin.first; i < this->selectionMax.first; i++) {
+			for (int j = this->selectionMin.second; j < this->selectionMax.second; j++) {
+				this->setPixel(i, j, this->secondaryColor);
+			}
+		}
 	}
 }
 
@@ -208,9 +167,6 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 	case TOOL_SELECTION:
 		toolSelection(_MouseImagePositionX, _MouseImagePositionY);
 		break;
-	case TOOL_SCALE:
-		toolScale(_MouseImagePositionX, _MouseImagePositionY);
-		break;
 	case TOOL_BUCKET:
 		toolBucket(_MouseImagePositionX, _MouseImagePositionY, this->Tolerance);
 		break;
@@ -220,7 +176,6 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 
 	default:
 		this->setSelectionEnable(false);
-		this->setSelectionScaleEnable(false);
 		break;
 	}
 
@@ -243,23 +198,13 @@ void ImageWork::setSelectionEnable(bool _enable) {
 	this->selectionEnable = _enable;
 }
 
-void ImageWork::setSelectionScaleEnable(bool _enable) {
-	this->selectionScaleEnable = _enable;
-}
-
 void ImageWork::setSelectionDone(bool _done) {
 	this->selectionDone = _done;
-}
-
-void ImageWork::setSelectionScaleDone(bool _done) {
-	this->selectionScaleDone = _done;
 }
 
 void ImageWork::setTolerance(int _tolerance) {
 	this->Tolerance = _tolerance;
 }
-
-
 
 RGB ImageWork::getToolColor() {
 	return this->toolColor;
@@ -277,16 +222,8 @@ bool ImageWork::getSelectionEnabled() {
 	return this->selectionEnable;
 }
 
-bool ImageWork::getSelectionScaleEnabled() {
-	return this->selectionScaleEnable;
-}
-
 bool ImageWork::getSelectionDone() {
 	return this->selectionDone;
-}
-
-bool ImageWork::getSelectionScaleDone() {
-	return this->selectionScaleDone;
 }
 
 int ImageWork::getTolerance() {

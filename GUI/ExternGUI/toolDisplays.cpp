@@ -55,61 +55,94 @@ void FeatherGUI::toolDisplays() {
 			ImVec2(indexMiddleX + this->selectionSquareSize / 2, indexMaxY + this->selectionSquareSize / 2),
 			IM_COL32(128, 128, 128, 255));
 	}
-	
-	//SELECTION SCALE
-	//if selection is enable draw the selection
-	if (this->workStation.getSelectionScaleEnabled()) {
-		this->indexScaleMinX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionScaleMin().first * this->zoom;
-		this->indexScaleMinY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionScaleMin().second * this->zoom;
-		this->indexScaleMaxX = this->imageShiftX + this->toolsPanelPixels + this->workStation.getSelectionScaleMax().first * this->zoom;
-		this->indexScaleMaxY = this->imageShiftY + this->MenuSizePixels + this->workStation.getSelectionScaleMax().second * this->zoom;
+}
 
-	
-		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-		ImGui::GetWindowDrawList()->AddRect(
-			ImVec2(indexScaleMinX, indexScaleMinY),
-			ImVec2(indexScaleMaxX, indexScaleMaxY),
-			IM_COL32(128, 128, 128, 255), 0.0F, 0, 2.0F);
-	
-		//draw squares in the corners of the selection
-		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMinX - this->selectionScaleSquareSize / 2, indexScaleMinY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMinX + this->selectionScaleSquareSize / 2, indexScaleMinY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMaxX - this->selectionScaleSquareSize / 2, indexScaleMinY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMaxX + this->selectionScaleSquareSize / 2, indexScaleMinY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMinX - this->selectionScaleSquareSize / 2, indexScaleMaxY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMinX + this->selectionScaleSquareSize / 2, indexScaleMaxY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMaxX - this->selectionScaleSquareSize / 2, indexScaleMaxY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMaxX + this->selectionScaleSquareSize / 2, indexScaleMaxY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-
-	
-		float indexMiddleScaleX = this->imageShiftX + this->toolsPanelPixels + (this->workStation.getSelectionScaleMin().first + this->workStation.getSelectionScaleMax().first) / 2 * this->zoom;
-		float indexMiddleScaleY = this->imageShiftY + this->MenuSizePixels + (this->workStation.getSelectionScaleMin().second + this->workStation.getSelectionScaleMax().second) / 2 * this->zoom;
-		//Draw squares between the corners of the selection
-		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMinX - this->selectionScaleSquareSize / 2, indexMiddleScaleY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMinX + this->selectionScaleSquareSize / 2, indexMiddleScaleY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexScaleMaxX - this->selectionScaleSquareSize / 2, indexMiddleScaleY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexScaleMaxX + this->selectionScaleSquareSize / 2, indexMiddleScaleY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMiddleScaleX - this->selectionScaleSquareSize / 2, indexScaleMinY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexMiddleScaleX + this->selectionScaleSquareSize / 2, indexScaleMinY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImVec2(indexMiddleScaleX - this->selectionScaleSquareSize / 2, indexScaleMaxY - this->selectionScaleSquareSize / 2),
-			ImVec2(indexMiddleScaleX + this->selectionScaleSquareSize / 2, indexScaleMaxY + this->selectionScaleSquareSize / 2),
-			IM_COL32(128, 128, 128, 255));
+void FeatherGUI::selectionUpdate() {
+	//If mouse is over the left corner of the selection with the radius of half of selectionSquareSize
+	if (abs(this->MouseImagePositionX - workStation.getSelectionMin().first) < this->selectionSquareSize || topLeft || bottomLeft || middleLeft) {
+		//Lateral Left vertical line
+		if (abs(this->MouseImagePositionY - workStation.getSelectionMin().second) < this->selectionSquareSize || topLeft) {
+			//Top horizontal line
+			//Top Left corner
+			//If mouse click and holded change the IndexMin to the mouse position
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+				this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
+				topLeft = true;
+			}
+		}
+		else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomLeft) {
+			//Bottom horizontal line
+			//Bottom Left corner
+			//If mouse click and holded change the IndexMin to the mouse position
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+				//In this case we need to change the IndexMin and IndexMax
+				this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMin().second));
+				this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->MouseImagePositionY));
+				bottomLeft = true;
+			}
+		}
+	}
+	//If mouse is over the right corner of the selection with the radius of half of selectionSquareSize
+	else if (abs(this->MouseImagePositionX - this->workStation.getSelectionMax().first) < this->selectionSquareSize || topRight || bottomRight) {
+		//Lateral Right vertical line
+		if (abs(this->MouseImagePositionY - this->workStation.getSelectionMin().second) < this->selectionSquareSize || topRight) {
+			//Top horizontal line
+			//Top Right corner
+			//If mouse click and holded change the IndexMax to the mouse position
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+				//In this case we need to change the IndexMin and IndexMax
+				this->workStation.setSelectionMin(std::make_pair(this->workStation.getSelectionMin().first, this->MouseImagePositionY));
+				this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMax().second));
+				topRight = true;
+			}
+		}
+		else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || bottomRight) {
+			//Bottom horizontal line
+			//Bottom Right corner
+			//If mouse click and holded change the IndexMax to the mouse position
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+				this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->MouseImagePositionY));
+				bottomRight = true;
+			}
+		}
+	}
+	//middle Top
+	if (abs(this->MouseImagePositionY - this->workStation.getSelectionMin().second) < this->selectionSquareSize || middleTop) {
+		//Top horizontal line
+		//If mouse click and holded change the IndexMin to the mouse position
+		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+			//In this case we need to change the IndexMin and IndexMax
+			this->workStation.setSelectionMin(std::make_pair(this->workStation.getSelectionMin().first, this->MouseImagePositionY));
+			this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->workStation.getSelectionMax().second));
+			middleTop = true;
+		}
+	}
+	//middle Bottom
+	else if (abs(this->MouseImagePositionY - this->workStation.getSelectionMax().second) < this->selectionSquareSize || middleBottom) {
+		//Bottom horizontal line
+		//If mouse click and holded change the IndexMax to the mouse position
+		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+			this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->MouseImagePositionY));
+			middleBottom = true;
+		}
+	}
+	//Middle horizontal left
+	else if (abs(this->MouseImagePositionX - this->workStation.getSelectionMin().first) < this->selectionSquareSize || middleLeft) {
+		//Lateral Left vertical line
+		//If mouse click and holded change the IndexMin to the mouse position
+		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+			this->workStation.setSelectionMin(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMin().second));
+			this->workStation.setSelectionMax(std::make_pair(this->workStation.getSelectionMax().first, this->workStation.getSelectionMax().second));
+			middleLeft = true;
+		}
+	}
+	//Middle horizontal right
+	else if (abs(this->MouseImagePositionX - this->workStation.getSelectionMax().first) < this->selectionSquareSize || middleRight) {
+		//Lateral Right vertical line
+		//If mouse click and holded change the IndexMax to the mouse position
+		if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+			this->workStation.setSelectionMax(std::make_pair(this->MouseImagePositionX, this->workStation.getSelectionMax().second));
+			middleRight = true;
+		}
 	}
 }

@@ -156,9 +156,6 @@
     <ClCompile Include="imgui\implot_items.cpp">
       <Filter>Archivos de origen\Imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ImageWork\Tools\Scale.cpp">
-      <Filter>Archivos de origen\ImageWork\Tools</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
