@@ -183,4 +183,8 @@ class ImageWork {
 		void calculateHistogram(ImageStr* _Image);
 		//Black and White
 		void blackAndWhite(ImageStr* _Image);
+		//Negative
+		void negative(ImageStr* _Image);
+		//Sepia
+		void sepia(ImageStr* _Image);
 };

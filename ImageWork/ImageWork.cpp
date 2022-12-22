@@ -416,3 +416,24 @@ void ImageWork::blackAndWhite(ImageStr* _Image) {
 		}
 	}
 }
+
+void ImageWork::negative(ImageStr* _Image) {
+	RGB aux;
+	for (int i = 0; i < _Image->width; i++) {
+		for (int j = 0; j < _Image->height; j++) {
+			aux = getPixel(_Image, i, j);
+			setPixel(_Image, i, j, RGB(255 - aux.r, 255 - aux.g, 255 - aux.b, aux.delta));
+		}
+	}
+}
+
+void ImageWork::sepia(ImageStr* _Image) {
+	RGB aux;
+	for (int i = 0; i < _Image->width; i++) {
+		for (int j = 0; j < _Image->height; j++) {
+			aux = getPixel(_Image, i, j);
+			unsigned char average = (aux.r + aux.g + aux.b) / 3;
+			setPixel(_Image, i, j, RGB((unsigned char)(average * 0.9), (unsigned char)(average * 0.7), (unsigned char)(average * 0.5), aux.delta));
+		}
+	}
+}

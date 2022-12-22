@@ -99,10 +99,24 @@ void FeatherGUI::BuildMenu() {
 		ImGui::Separator();
 		//Filter
 		if (ImGui::BeginMenu(ICON_FA_OBJECT_UNGROUP " Filter")) {
-			//Black and White
+			//Negative
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Negative")) {
+				//Open a new window
+				this->workStation.negative(this->workStation.getImageStrP());
+				std::cout << "Applied filter Black & white" << std::endl;
+				this->UpdateImage();
+			}
+			//Ne
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Black & White")) {
 				//Open a new window
 				this->workStation.blackAndWhite(this->workStation.getImageStrP());
+				std::cout << "Applied filter Black & white" << std::endl;
+				this->UpdateImage();
+			}
+			//Sepia
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Sepia")) {
+				//Open a new window
+				this->workStation.sepia(this->workStation.getImageStrP());
 				std::cout << "Applied filter Black & white" << std::endl;
 				this->UpdateImage();
 			}
