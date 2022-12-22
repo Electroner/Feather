@@ -436,11 +436,11 @@ void FeatherGUI::InputFunctions() {
 		this->CurrentTool = TOOL_SELECTION;
 	}
 	//6
-	if (ImGui::IsKeyPressed(55)) {
+	if (ImGui::IsKeyPressed(54)) {
 		this->CurrentTool = TOOL_BUCKET;
 	}
 	//7
-	if (ImGui::IsKeyPressed(56)) {
+	if (ImGui::IsKeyPressed(55)) {
 		this->CurrentTool = TOOL_TEXT;
 	}
 

@@ -405,3 +405,14 @@ void ImageWork::calculateHistogram(ImageStr* _Image) {
 		}
 	}
 }
+
+void ImageWork::blackAndWhite(ImageStr* _Image) {
+	RGB aux;
+	for (int i = 0; i < _Image->width; i++) {
+		for (int j = 0; j < _Image->height; j++) {
+			aux = getPixel(_Image, i, j);
+			unsigned char average = (aux.r + aux.g + aux.b) / 3;
+			setPixel(_Image, i, j, RGB(average,average,average,aux.delta));
+		}
+	}
+}
