@@ -57,7 +57,7 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 
 	//Create a box of text with the log
 	//Begin
-	ImGui::BeginChild("Scrolling");
+	ImGui::BeginChild("Scrolling");	
 	//Print the log
 	ImGui::Text("%s", ss.str().c_str());
 	//AutoScrool to the end of this text

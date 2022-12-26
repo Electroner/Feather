@@ -18,6 +18,7 @@ void ImageWork::init() {
 
 	this->selectionEnable = false;
 	this->selectionDone = false;
+	this->textEnable = false;
 	
 	//Colors
 	this->toolColor = RGB(0, 0, 0, 255);
@@ -171,7 +172,7 @@ bool ImageWork::useTool(int _tool, int _MouseImagePositionX, int _MouseImagePosi
 		toolBucket(_MouseImagePositionX, _MouseImagePositionY, this->Tolerance);
 		break;
 	case TOOL_TEXT:
-		//toolText(_MouseImagePositionX, _MouseImagePositionY);
+		toolText(_MouseImagePositionX, _MouseImagePositionY);
 		break;
 
 	default:
@@ -230,8 +231,28 @@ int ImageWork::getTolerance() {
 	return this->Tolerance;
 }
 
-void ImageWork::reCopyImage(ImageStr* _Image) {
-	this->Images.front() = *_Image;
+bool ImageWork::getTextEnabled() {
+	return this->textEnable;
+}
+
+void ImageWork::setTextEnabled(bool _enable) {
+	this->textEnable = _enable;
+}
+
+std::pair<int, int> ImageWork::getTextPosition() {
+	return this->textPosition;
+}
+
+void ImageWork::setTextPosition(std::pair<int, int> _textPosition) {
+	this->textPosition = _textPosition;
+}
+
+std::string ImageWork::getText() {
+	return this->text;
+}
+
+void ImageWork::setText(std::string _text) {
+	this->text = _text;
 }
 
 RGB ImageWork::getPixel(int _x, int _y) {
@@ -290,118 +311,6 @@ void ImageWork::setPixel(ImageStr* _image, int _x, int _y, RGB _color) {
 	}
 }
 
-void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
-	//Check if the image is not null
-	if (_image != nullptr) {
-		//Check if the image is not empty
-		if (_image->width > 0 && _image->height > 0) {
-			//Check if the image is not the same size
-			if (_image->width != _width || _image->height != _height) {
-				//Resize the image
-				GLubyte* newData = new GLubyte[_width * _height * 4];
-
-				//Bilinear interpolation for resampling the new image
-				for (int i = 0; i < _height; i++) {
-					for (int j = 0; j < _width; j++) {
-						float x = (float)j / (float)_width * (float)_image->width;
-						float y = (float)i / (float)_height * (float)_image->height;
-
-						int x1 = (int)floor(x);
-						int x2 = (int)ceil(x);
-						int y1 = (int)floor(y);
-						int y2 = (int)ceil(y);
-
-						float a = x - x1;
-						float b = y - y1;
-
-						//Get the 4 pixels
-						RGB p1 = getPixel(_image, x1, y1);
-						RGB p2 = getPixel(_image, x2, y1);
-						RGB p3 = getPixel(_image, x1, y2);
-						RGB p4 = getPixel(_image, x2, y2);
-
-						//Interpolate the 4 pixels
-						RGB p12;
-						p12.r = (unsigned char)(((1 - a) * p1.r + a * p2.r) * 255);
-						p12.g = (unsigned char)(((1 - a) * p1.g + a * p2.g) * 255);
-						p12.b = (unsigned char)(((1 - a) * p1.b + a * p2.b) * 255);
-						p12.delta = (unsigned char)(((1 - a) * p1.delta + a * p2.delta) * 255);
-
-						RGB p34;
-						p34.r = (unsigned char)(((1 - a) * p3.r + a * p4.r) * 255);
-						p34.g = (unsigned char)(((1 - a) * p3.g + a * p4.g) * 255);
-						p34.b = (unsigned char)(((1 - a) * p3.b + a * p4.b) * 255);
-						p34.delta = (unsigned char)(((1 - a) * p3.delta + a * p4.delta) * 255);
-
-						//Interpolate the 2 pixels
-						RGB p1234;
-						p1234.r = (unsigned char)(((1 - b) * p12.r + b * p34.r) * 255);
-						p1234.g = (unsigned char)(((1 - b) * p12.g + b * p34.g) * 255);
-						p1234.b = (unsigned char)(((1 - b) * p12.b + b * p34.b) * 255);
-						p1234.delta = (unsigned char)(((1 - b) * p12.delta + b * p34.delta) * 255);
-
-						//Set the new pixel
-						newData[i * _width * 4 + j * 4 + 0] = p1234.r;
-						newData[i * _width * 4 + j * 4 + 1] = p1234.g;
-						newData[i * _width * 4 + j * 4 + 2] = p1234.b;
-						newData[i * _width * 4 + j * 4 + 3] = p1234.delta;
-					}
-				}
-
-				//Delete the old data
-				delete[] _image->data;
-
-				//Set the new data
-				_image->data = newData;
-
-				//Set the new width and height
-				_image->width = _width;
-				_image->height = _height;
-
-				this->combineLayers();
-			}
-		}
-	}
-}
-
-void ImageWork::calculateHistogram(ImageStr* _Image) {
-	//Make sure the image is not null and the histogram is big enough
-	if (_Image != nullptr) {
-		//Make sure the image is not empty
-		if (_Image->width > 0 && _Image->height > 0) {
-			//Reserve the memory for the histogram
-			_Image->histogramR = new int[256];
-			_Image->histogramG = new int[256];
-			_Image->histogramB = new int[256];
-			
-			//Calculate the histogram
-			for (int i = 0; i < 256; i++) {
-				_Image->histogramR[i] = 0;
-				_Image->histogramG[i] = 0;
-				_Image->histogramB[i] = 0;
-			}
-			
-			for (int i = 0; i < _Image->width * _Image->height; i++) {
-				_Image->histogramR[_Image->data[i * _Image->channels + 0]]++;
-				_Image->histogramG[_Image->data[i * _Image->channels + 1]]++;
-				_Image->histogramB[_Image->data[i * _Image->channels + 2]]++;
-			}
-
-			//Search for the maximum value
-			for (int i = 0; i < 256; i++) {
-				//histogramRSize
-				if (_Image->histogramR[i] > _Image->histogramRSize) {
-					_Image->histogramRSize = _Image->histogramR[i];
-				}
-				//histogramGSize
-				if (_Image->histogramG[i] > _Image->histogramGSize) {
-					_Image->histogramGSize = _Image->histogramG[i];
-				}
-				//histogramBSize
-				if (_Image->histogramB[i] > _Image->histogramBSize) {
-					_Image->histogramBSize = _Image->histogramB[i];
-				}
-			}
-		}
-	}
+void ImageWork::reCopyImage(ImageStr* _Image) {
+	this->Images.front() = *_Image;
 }

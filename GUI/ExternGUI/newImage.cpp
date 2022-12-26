@@ -35,7 +35,7 @@ void FeatherGUI::newImage() {
 					blank.width = this->newImageWidth;
 					blank.height = this->newImageHeight;
 					blank.extension = "png";
-
+					blank.modified = true;
 					if (this->newImageTransparency)
 					{
 						blank.channels = 4;

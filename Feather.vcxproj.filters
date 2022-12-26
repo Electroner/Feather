@@ -52,6 +52,9 @@
     <Filter Include="Archivos de origen\ImageWork\Tools">
       <UniqueIdentifier>{43fcbf8e-8d63-4bfb-8b58-98bd8ff4c64a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de origen\ImageWork\Algorithms">
+      <UniqueIdentifier>{2181e4a8-58cb-4b6c-9f41-b9ee5767ee7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui.cpp">
@@ -147,7 +150,7 @@
     <ClCompile Include="ImageWork\Tools\Bucket.cpp">
       <Filter>Archivos de origen\ImageWork\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\ExternGUI\Histogram.cpp">
+    <ClCompile Include="GUI\ExternGUI\HistogramWindow.cpp">
       <Filter>Archivos de origen\GUI\ExternGUI</Filter>
     </ClCompile>
     <ClCompile Include="imgui\implot.cpp">
@@ -155,6 +158,15 @@
     </ClCompile>
     <ClCompile Include="imgui\implot_items.cpp">
       <Filter>Archivos de origen\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork\Tools\Text.cpp">
+      <Filter>Archivos de origen\ImageWork\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork\Algorithms\Histogram.cpp">
+      <Filter>Archivos de origen\ImageWork\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageWork\Algorithms\Resize.cpp">
+      <Filter>Archivos de origen\ImageWork\Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

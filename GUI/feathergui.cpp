@@ -50,7 +50,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->CursorEnabled = true;
 
 	this->placementConfig = false;
-	this->debugConsole = true;
+	this->debugConsole = false;
 	this->newImagePopUp = false;
 	this->histogramPopUp = false;
 
@@ -277,6 +277,9 @@ void FeatherGUI::BuildGUI() {
 	glfwGetWindowSize(this->windowContext, &this->windowWidth, &this->windowHeight);
 	//Make all menus rounds with window Rounding
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, this->windowRounding);
+	//add FrameBorder
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0F);
+	
 	//Make all menus red
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, this->colorNoSelectedWindow); // Background of the windows
 	ImGui::PushStyleColor(ImGuiCol_TabActive, this->colorSelectedWindow); //Tabs in layer and options and selected tool
@@ -286,6 +289,8 @@ void FeatherGUI::BuildGUI() {
 	ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, this->SliderGrabActive); // Slider
 	ImGui::PushStyleColor(ImGuiCol_FrameBg, this->ActuatorsBackground); // Slider
 	
+	
+
 	if (this->CursorEnabled) {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
 	}
@@ -336,6 +341,7 @@ void FeatherGUI::BuildGUI() {
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleColor();
+	ImGui::PopStyleVar();
 	ImGui::PopStyleVar();
 
 	//--------------------INPUT FUNTIONS--------------------

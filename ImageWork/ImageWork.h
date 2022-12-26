@@ -107,12 +107,17 @@ class ImageWork {
 		std::pair<int, int> interpolationMin;
 		std::pair<int, int> interpolationMax;
 
+		std::string text;
+		std::pair<int, int> textPosition;
+		bool textEnable;
+
 		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
 		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
 		void toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance);
+		void toolText(int _MouseImagePositionX, int _MouseImagePositionY);
 		
 	public:
 		
@@ -168,15 +173,23 @@ class ImageWork {
 		
 		int getTolerance();
 
-		void reCopyImage(ImageStr* _Image);
-		void resizeImage(ImageStr* _image, int _width, int _height);
+		bool getTextEnabled();
+		void setTextEnabled(bool _enable);
+		std::pair<int, int> getTextPosition();
+		void setTextPosition(std::pair<int, int> _textPosition);
+		std::string getText();
+		void setText(std::string _text);
 		
 		RGB getPixel(int _x, int _y);
 		RGB getPixel(ImageStr* _image, int _x, int _y);
 		void setPixel(int _x, int _y, RGB _color);
 		void setPixel(ImageStr* _image, int _x, int _y, RGB _color);
+
+		void reCopyImage(ImageStr* _Image);
 		
 		//Algorithms
+		//resize
+		void resizeImage(ImageStr* _image, int _width, int _height);
 		//floodfill
 		void floodFill(int x, int y, RGB targetColor, RGB replacementColor, int tolerance);
 		//Histogram

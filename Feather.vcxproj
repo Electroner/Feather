@@ -144,7 +144,7 @@
     <ClCompile Include="GUI\ExternGUI\ConfigMenu.cpp" />
     <ClCompile Include="GUI\ExternGUI\DebugConsole.cpp" />
     <ClCompile Include="GUI\ExternGUI\ErrorWindows.cpp" />
-    <ClCompile Include="GUI\ExternGUI\Histogram.cpp" />
+    <ClCompile Include="GUI\ExternGUI\HistogramWindow.cpp" />
     <ClCompile Include="GUI\ExternGUI\ImageSaveLoad.cpp" />
     <ClCompile Include="GUI\ExternGUI\newImage.cpp" />
     <ClCompile Include="GUI\ExternGUI\toolDisplays.cpp" />
@@ -157,6 +157,8 @@
     <ClCompile Include="GUI\MainGUI\ToolProperties.cpp" />
     <ClCompile Include="GUI\MainGUI\Tools.cpp" />
     <ClCompile Include="ImageIO\stb.cpp" />
+    <ClCompile Include="ImageWork\Algorithms\Histogram.cpp" />
+    <ClCompile Include="ImageWork\Algorithms\Resize.cpp" />
     <ClCompile Include="ImageWork\ImageWork.cpp" />
     <ClCompile Include="ImageWork\Tools\Brush.cpp" />
     <ClCompile Include="ImageWork\Tools\Bucket.cpp" />
@@ -164,6 +166,7 @@
     <ClCompile Include="ImageWork\Tools\Eraser.cpp" />
     <ClCompile Include="ImageWork\Tools\Pencil.cpp" />
     <ClCompile Include="ImageWork\Tools\Selection.cpp" />
+    <ClCompile Include="ImageWork\Tools\Text.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
