@@ -72,8 +72,8 @@ void FeatherGUI::BuildMenu() {
 			ImGui::EndMenu();
 		}
 		ImGui::Separator();
-		//Edit
-		if (ImGui::BeginMenu(ICON_FA_EDIT " Edit")) {
+		//Info
+		if (ImGui::BeginMenu(ICON_FA_OBJECT_UNGROUP " Data")) {
 			//Histogram
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Histogram")) {
 				//Open a new window
@@ -81,7 +81,13 @@ void FeatherGUI::BuildMenu() {
 				//Calculate histogram
 				this->workStation.calculateHistogram(this->workStation.getImageStrP());
 				std::cout << "Opened Histogram window Pop Up" << std::endl;
+				this->UpdateImage();
 			}
+			ImGui::EndMenu();
+		}
+		ImGui::Separator();
+		//Edit
+		if (ImGui::BeginMenu(ICON_FA_EDIT " Edit")) {
 			ImGui::EndMenu();
 		}
 		//Add a separator
@@ -93,6 +99,27 @@ void FeatherGUI::BuildMenu() {
 		ImGui::Separator();
 		//Filter
 		if (ImGui::BeginMenu(ICON_FA_OBJECT_UNGROUP " Filter")) {
+			//Negative
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Negative")) {
+				//Open a new window
+				this->workStation.negative(this->workStation.getImageStrP());
+				std::cout << "Applied filter Black & white" << std::endl;
+				this->UpdateImage();
+			}
+			//Ne
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Black & White")) {
+				//Open a new window
+				this->workStation.blackAndWhite(this->workStation.getImageStrP());
+				std::cout << "Applied filter Black & white" << std::endl;
+				this->UpdateImage();
+			}
+			//Sepia
+			if (ImGui::MenuItem(ICON_FA_IMAGES " Sepia")) {
+				//Open a new window
+				this->workStation.sepia(this->workStation.getImageStrP());
+				std::cout << "Applied filter Black & white" << std::endl;
+				this->UpdateImage();
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::Separator();

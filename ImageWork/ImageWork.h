@@ -194,4 +194,10 @@ class ImageWork {
 		void floodFill(int x, int y, RGB targetColor, RGB replacementColor, int tolerance);
 		//Histogram
 		void calculateHistogram(ImageStr* _Image);
+		//Black and White
+		void blackAndWhite(ImageStr* _Image);
+		//Negative
+		void negative(ImageStr* _Image);
+		//Sepia
+		void sepia(ImageStr* _Image);
 };
