@@ -8,6 +8,19 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	ImGui::Begin("Debug Console", &this->debugConsole, ImGuiWindowFlags_NoCollapse);
 	//IMGUI TEXT
 	ImGui::Text("SYSTEM STATUS");
+	
+	//On the same line add a button to test Functions
+	ImGui::SameLine();
+	//change the color of the button
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.64F, 0.64F, 0.64F, 1.0F));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4F, 0.4F, 0.4F, 1.0F));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3F, 0.3F, 0.3F, 1.0F));
+	if (ImGui::Button("Test Functions")) {
+		this->workStation.toolText(0, 0);
+	}
+	ImGui::PopStyleColor(3);
+	//Separator
+
 	ImGui::Separator();
 	//Windows VARS
 	MEMORYSTATUSEX status;

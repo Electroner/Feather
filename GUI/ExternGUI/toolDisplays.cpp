@@ -56,15 +56,15 @@ void FeatherGUI::toolDisplays() {
 			IM_COL32(128, 128, 128, 255));
 	}
 
-	//TEXT
-	//Create a text box if textEnable is true and draw the text
-	if (this->workStation.getTextEnabled()) {
-		ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-		ImGui::GetWindowDrawList()->AddText(
-			ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getTextPosition().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getTextPosition().second * this->zoom),
-			IM_COL32(0, 0, 0, 255),
-			this->workStation.getText().c_str());
-	}
+	////TEXT
+	////Create a text box if textEnable is true and draw the text
+	//if (this->workStation.getTextEnabled()) {
+	//	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
+	//	ImGui::GetWindowDrawList()->AddText(
+	//		ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getTextPosition().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getTextPosition().second * this->zoom),
+	//		IM_COL32(0, 0, 0, 255),
+	//		this->workStation.getText().c_str());
+	//}
 }
 
 void FeatherGUI::selectionUpdate() {

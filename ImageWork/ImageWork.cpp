@@ -28,9 +28,47 @@ void ImageWork::init() {
 	this->firstPoint = std::pair<int, int>(-1, -1);
 }
 
+void ImageWork::addImage(ImageStr& _image) {
+	//For the image create a Opengl texture
+	if (_image.data != NULL) {
+		//Enable transparency
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		//Create the texture
+		glGenTextures(1, &_image.texture);
+		glBindTexture(GL_TEXTURE_2D, _image.texture);
+
+		// Setup filtering parameters for display
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		if (_image.channels == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _image.width, _image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image.data);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, _image.data);
+		}
+		else if (_image.channels == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _image.width, _image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, _image.data);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, _image.data);
+		}
+		//Set the image as loaded
+		_image.loaded = true;
+
+		//Add the image to the vector
+		this->Images.push_back(_image);
+	}
+}
+
 void ImageWork::combineLayers() {
 	//Set the current image to the first image in the vector
-	this->CurrentImage = this->Images.front();
+	if (Images.size() > 0) {
+		this->CurrentImage = this->Images.front();
+	}
 }
 
 std::pair<int, int> ImageWork::getInterpolationMin() {

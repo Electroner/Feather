@@ -50,7 +50,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->CursorEnabled = true;
 
 	this->placementConfig = false;
-	this->debugConsole = false;
+	this->debugConsole = true;
 	this->newImagePopUp = false;
 	this->histogramPopUp = false;
 
