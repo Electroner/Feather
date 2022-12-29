@@ -116,6 +116,8 @@ ImageStr rasterText(const char* text, const char* fontPath, int size, int spaceS
 		word.histogramBSize = 0;
 		word.modified = false;
 		word.loaded = true;
+		word.name = text;
+		word.extension = "png";
 	
 		//clear data
 		for (int i = 0; i < word.width * word.height * word.channels; i++)
@@ -181,7 +183,7 @@ void ImageWork::toolText(int _MouseImagePositionX, int _MouseImagePositionY) {
 	this->text = "Hello World!";
 	this->textPosition.first = _MouseImagePositionX;
 	this->textPosition.second = _MouseImagePositionY;
-	int size = 100;
+	int size = 500;
 	ImageStr word = rasterText(this->text.c_str(), "B:/test.ttf", size, size/16, size/4, RGB(0, 0, 0));
 	this->addImage(word);
 	this->combineLayers();
