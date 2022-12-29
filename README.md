@@ -14,12 +14,13 @@ At all times you want to maintain speed when opening it and not compromise optim
 
 ## Resources
 
-This programs uses ImGui and OpenGL/GlFw.
+This programs uses:
 -   [ImGui](https://github.com/ocornut/imgui)
 -   [ImPlot](https://github.com/epezent/implot)
 -   [OpenGL](https://www.opengl.org/)
 -   [GLFW](https://www.glfw.org/)
 -   [Stb](https://github.com/nothings/stb)
+-   [FreeType2](https://github.com/servo/libfreetype2)
 
 ## Compiling the project
 
