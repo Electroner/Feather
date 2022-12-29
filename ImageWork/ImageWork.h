@@ -17,6 +17,9 @@
 
 #include <GLFW/glfw3.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 struct RGB {
 	unsigned char r;
 	unsigned char g;
@@ -110,18 +113,12 @@ class ImageWork {
 		std::string text;
 		std::pair<int, int> textPosition;
 		bool textEnable;
-
-		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
-		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
-		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
-		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
-		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
-		void toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance);
-		void toolText(int _MouseImagePositionX, int _MouseImagePositionY);
 		
 	public:
 		
 		void init();
+
+		void addImage(ImageStr &_image);
 
 		void combineLayers();
 
@@ -186,6 +183,15 @@ class ImageWork {
 		void setPixel(ImageStr* _image, int _x, int _y, RGB _color);
 
 		void reCopyImage(ImageStr* _Image);
+
+		//Tools
+		void toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolEraser(int _MouseImagePositionX, int _MouseImagePositionY, int _radius);
+		void toolColorPicker(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolSelection(int _MouseImagePositionX, int _MouseImagePositionY);
+		void toolBucket(int _MouseImagePositionX, int _MouseImagePositionY, int _tolerance);
+		void toolText(int _MouseImagePositionX, int _MouseImagePositionY);
 		
 		//Algorithms
 		//resize
