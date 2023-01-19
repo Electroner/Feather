@@ -179,6 +179,7 @@ ImageStr rasterText(const char* text, const char* fontPath, int size, int spaceS
 }
 
 void ImageWork::toolText(int _MouseImagePositionX, int _MouseImagePositionY) {
+	//TODO
 	this->textEnable = true;
 	this->text = "Hello World!";
 	this->textPosition.first = _MouseImagePositionX;

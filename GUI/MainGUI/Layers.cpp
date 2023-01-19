@@ -2,7 +2,6 @@
 
 void FeatherGUI::BuildLayers() {
 	//LAYER WINDOW
-	
 	float temp_percentage = ((float)(static_cast<float>(this->propertiesPanelPixels) / static_cast<float>(this->windowWidth)));
 	ImGui::SetNextWindowPos(ImVec2((1.0F - temp_percentage) * this->io->DisplaySize.x, (this->io->DisplaySize.y + this->MenuSizePixels) / 2), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(temp_percentage * this->io->DisplaySize.x, (this->io->DisplaySize.y - this->MenuSizePixels) / 2 - this->infoPanelPixels), ImGuiCond_Always);
@@ -25,8 +24,14 @@ void FeatherGUI::BuildLayers() {
 			for (int i = 0; i < this->workStation.ImagesSize(); i++) {
 				ImGui::Image((void*)(intptr_t)this->workStation.getImage(i)->texture, ImVec2(100 * temp_percentage, 100 * temp_percentage));
 				ImGui::SameLine();
-				ImGui::Selectable(this->workStation.getImage(i)->name.c_str());
-
+				//If the image is modified , add a * to the name
+				if (this->workStation.getImage(i)->modified) {
+					ImGui::Selectable((this->workStation.getImage(i)->name + "*").c_str());
+				}
+				else
+				{
+					ImGui::Selectable(this->workStation.getImage(i)->name.c_str());
+				}
 				if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
 				{
 					int n_next = static_cast<int>(floorf((ImGui::GetMousePos().y - itemPosition.y) / 25)); //25 is the height of the item

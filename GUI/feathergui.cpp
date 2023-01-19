@@ -60,6 +60,7 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	//Image Default New Values
 	this->newImageWidth = 1000;
 	this->newImageHeight = 1000;
+	this->newImageTransparency = true;
 	
 	//Fonts and Text
 	this->iconSize = 12.0;

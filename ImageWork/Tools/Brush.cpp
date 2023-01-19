@@ -3,7 +3,8 @@
 void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, int _radius) {
 	//Add point to mousePoints
 	mousePoints.push_back(std::make_pair(_MouseImagePositionX, _MouseImagePositionY));
-
+	RGB color = this->toolColor;
+	
 	//Update interpolation min and max
 	if (this->interpolationMin.first > _MouseImagePositionX) {
 		this->interpolationMin.first = _MouseImagePositionX - _radius * 2;
@@ -44,13 +45,16 @@ void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, in
 			this->interpolationMax.second = lastPoint.second + (_radius * 2);
 		}
 	}
-
+	//TODO FIX ISNT MAKING THE DEGRADE
 	// If there is only one point in the vector, draw a circle in the image
 	if (mousePoints.size() == 1) {
 		for (int x = -_radius; x <= _radius; x++) {
 			for (int y = -_radius; y <= _radius; y++) {
 				if (x * x + y * y <= _radius * _radius) {
-					this->setPixel(_MouseImagePositionX + x, _MouseImagePositionY + y, this->toolColor);
+					//set the delta of the color to the % of the distance from the center of the circle
+					float delta = (float)(x * x + y * y) / (float)(_radius * _radius);
+					color.delta = (unsigned char)delta*255;
+					this->setPixel(this->getImageStrP(), _MouseImagePositionX + x, _MouseImagePositionY + y, color);
 				}
 			}
 		}
@@ -90,7 +94,10 @@ void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, in
 			for (int x = -_radius; x <= _radius; x++) {
 				for (int y = -_radius; y <= _radius; y++) {
 					if (x * x + y * y <= _radius * _radius) {
-						this->setPixel(x1 + x, y1 + y, this->toolColor);
+						//set the delta of the color to the % of the distance from the center of the circle
+						float delta = (float)(x * x + y * y) / (float)(_radius * _radius);
+						color.delta = delta;
+						this->setPixel(this->getImageStrP(), x1 + x, y1 + y, color);
 					}
 				}
 			}

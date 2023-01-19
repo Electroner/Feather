@@ -92,6 +92,7 @@ bool FeatherGUI::loadImage(std::string _path) {
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
 	unloadedImage.loaded = true;
+	unloadedImage.modified = false;
 
 	//Add image to Images vector
 	this->workStation.PushNewImage(unloadedImage);

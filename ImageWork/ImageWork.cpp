@@ -333,6 +333,7 @@ void ImageWork::setPixel(int _x, int _y, RGB _color) {
 		if (CurrentImage.channels == 4) {
 			CurrentImage.data[index + 3] = _color.delta ;
 		}
+		this->CurrentImage.modified = true;
 	}
 }
 
@@ -346,6 +347,7 @@ void ImageWork::setPixel(ImageStr* _image, int _x, int _y, RGB _color) {
 		if (_image->channels == 4) {
 			_image->data[index + 3] = _color.delta;
 		}
+		_image->modified = true;
 	}
 }
 

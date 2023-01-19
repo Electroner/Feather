@@ -50,7 +50,7 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 		for (int x = -_radius; x <= _radius; x++) {
 			for (int y = -_radius; y <= _radius; y++) {
 				if (x * x + y * y <= _radius * _radius) {
-					this->setPixel(_MouseImagePositionX + x, _MouseImagePositionY + y, this->toolColor);
+					this->setPixel(this->getImageStrP(), _MouseImagePositionX + x, _MouseImagePositionY + y, this->toolColor);
 				}
 			}
 		}
@@ -90,7 +90,7 @@ void ImageWork::toolPencil(int _MouseImagePositionX, int _MouseImagePositionY, i
 			for (int x = -_radius; x <= _radius; x++) {
 				for (int y = -_radius; y <= _radius; y++) {
 					if (x * x + y * y <= _radius * _radius) {
-						this->setPixel(x1 + x, y1 + y, this->toolColor);
+						this->setPixel(this->getImageStrP(), x1 + x, y1 + y, this->toolColor);
 					}
 				}
 			}
