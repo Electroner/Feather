@@ -67,6 +67,7 @@ class FeatherGUI
 		
 		//FONTS AND TEXT VARS
 		float iconSize; //Pixels
+		std::string fontsPath;
 
 		//IMAGE VARS
 		bool MouseOverImageWindow;

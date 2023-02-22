@@ -134,7 +134,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)\Libs\glfw-3.3.7.bin.WIN64\lib-vc2022;$(ProjectDir)\Libs\freetype\libfreetype\releasedll\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Libs\freetype\libfreetype\releasestatic\vs2015-2022\win64;$(ProjectDir)\Libs\glfw-3.3.7.bin.WIN64\lib-vc2022;$(ProjectDir)\Libs\freetype\libfreetype\releasedll\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
