@@ -1,5 +1,9 @@
 #include "../feathergui.h"
 
+inline void testFunction() {
+	
+}
+
 void FeatherGUI::BuildConsoleDebugMenu() {
 	//DEBUG CONSOLE WINDOW
 	//Set max size of the window to 1/4 of the screen
@@ -16,6 +20,7 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.4F, 0.4F, 0.4F, 1.0F));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3F, 0.3F, 0.3F, 1.0F));
 	if (ImGui::Button("Test Functions")) {
+		testFunction();
 		this->workStation.toolText(0, 0);
 	}
 	ImGui::PopStyleColor(3);

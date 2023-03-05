@@ -64,6 +64,14 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	
 	//Fonts and Text
 	this->iconSize = 12.0;
+	char szPath[MAX_PATH];
+	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_FONTS, NULL, 0, szPath)))
+	{
+		std::string FPath(szPath);
+		std::cout << "La ruta de las fuentes es: " << FPath << std::endl;
+		this->fontsPath = FPath;
+		this->workStation.fontsPath = FPath;
+	}
 
 	//Adding Icons
 	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };

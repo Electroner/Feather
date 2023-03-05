@@ -185,7 +185,9 @@ void ImageWork::toolText(int _MouseImagePositionX, int _MouseImagePositionY) {
 	this->textPosition.first = _MouseImagePositionX;
 	this->textPosition.second = _MouseImagePositionY;
 	int size = 500;
-	ImageStr word = rasterText(this->text.c_str(), "B:/test.ttf", size, size/16, size/4, RGB(0, 0, 0));
+	std::string font = this->fontsPath + "/Arial.ttf";
+	std::replace(font.begin(), font.end(), '\\', '/');
+	ImageStr word = rasterText(this->text.c_str(), font.c_str(), size, size / 16, size / 4, RGB(0, 0, 0));
 	this->addImage(word);
 	this->combineLayers();
 }

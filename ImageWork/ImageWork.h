@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <queue>
 #include <stack>
-#include <omp.h>
 
 #include <GLFW/glfw3.h>
 
@@ -110,11 +109,15 @@ class ImageWork {
 		std::pair<int, int> interpolationMin;
 		std::pair<int, int> interpolationMax;
 
+		//TEXT
 		std::string text;
 		std::pair<int, int> textPosition;
 		bool textEnable;
 		
 	public:
+
+		//FONTS AND TEXT
+		std::string fontsPath;
 		
 		void init();
 
