@@ -96,7 +96,7 @@ void ImageWork::toolBrush(int _MouseImagePositionX, int _MouseImagePositionY, in
 					if (x * x + y * y <= _radius * _radius) {
 						//set the delta of the color to the % of the distance from the center of the circle
 						float delta = (float)(x * x + y * y) / (float)(_radius * _radius);
-						color.delta = delta;
+						color.delta = static_cast<unsigned char>(delta*255);
 						this->setPixel(this->getImageStrP(), x1 + x, y1 + y, color);
 					}
 				}
