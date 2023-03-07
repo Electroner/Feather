@@ -79,7 +79,7 @@ void FeatherGUI::BuildConsoleDebugMenu() {
 	//Print the log
 	ImGui::Text("%s", ss.str().c_str());
 	//AutoScrool to the end of this text
-	ImGui::SetScrollHereY(1.0f);
+	//ImGui::SetScrollHereY(1.0f);
 	//End the child
 	ImGui::EndChild();
 	

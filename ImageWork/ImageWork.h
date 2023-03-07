@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <queue>
 #include <stack>
+#include <cmath>
 
 #include <GLFW/glfw3.h>
 
