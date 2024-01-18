@@ -184,7 +184,6 @@
     <ClInclude Include="Directories\pathwork.h" />
     <ClInclude Include="GUI\feathergui.h" />
     <ClInclude Include="GUI\IconsFontAwesome.h" />
-    <ClInclude Include="IconsFontAwesome.h" />
     <ClInclude Include="ImageIO\stb_image.h" />
     <ClInclude Include="ImageIO\stb_image_resize.h" />
     <ClInclude Include="ImageIO\stb_image_write.h" />

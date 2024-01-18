@@ -431,31 +431,32 @@ void FeatherGUI::InputFunctions() {
 	
 	//Selection for the tools
 	//If number 1 is pressed select the first tool
-	if (ImGui::IsKeyPressed(49)) {
+
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_1)) {
 		this->CurrentTool = TOOL_PENCIL;
 	}
 	//2
-	if (ImGui::IsKeyPressed(50)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_2)) {
 		this->CurrentTool = TOOL_BRUSH;
 	}
 	//3
-	if (ImGui::IsKeyPressed(51)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_3)) {
 		this->CurrentTool = TOOL_ERASER;
 	}
 	//4
-	if (ImGui::IsKeyPressed(52)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_4)) {
 		this->CurrentTool = TOOL_COLORPICKER;
 	}
 	//5
-	if (ImGui::IsKeyPressed(53)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_5)) {
 		this->CurrentTool = TOOL_SELECTION;
 	}
 	//6
-	if (ImGui::IsKeyPressed(54)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_6)) {
 		this->CurrentTool = TOOL_BUCKET;
 	}
 	//7
-	if (ImGui::IsKeyPressed(55)) {
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_7)) {
 		this->CurrentTool = TOOL_TEXT;
 	}
 
