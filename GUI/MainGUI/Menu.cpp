@@ -19,6 +19,7 @@ void FeatherGUI::OpenMenuFunction() {
 		{
 			workStation.combineLayers();
 			this->centerImage();
+			this->UpdateImage();
 		}
 	}
 }
@@ -88,12 +89,69 @@ void FeatherGUI::BuildMenu() {
 		ImGui::Separator();
 		//Edit
 		if (ImGui::BeginMenu(ICON_FA_EDIT " Edit")) {
+			bool canUndo = this->workStation.canUndo();
+			bool canRedo = this->workStation.canRedo();
+			if (!canUndo) ImGui::BeginDisabled();
+			if (ImGui::MenuItem(ICON_FA_UNDO " Undo", "Ctrl+Z")) {
+				this->workStation.undo();
+				this->UpdateImage();
+			}
+			if (!canUndo) ImGui::EndDisabled();
+
+			if (!canRedo) ImGui::BeginDisabled();
+			if (ImGui::MenuItem(ICON_FA_REDO " Redo", "Ctrl+Y / Ctrl+Shift+Z")) {
+				this->workStation.redo();
+				this->UpdateImage();
+			}
+			if (!canRedo) ImGui::EndDisabled();
 			ImGui::EndMenu();
 		}
 		//Add a separator
 		ImGui::Separator();
 		//Layer
 		if (ImGui::BeginMenu(ICON_FA_IMAGES " Layer")) {
+			if (ImGui::MenuItem(ICON_FA_PLUS " New Layer")) {
+				if (this->workStation.ImagesSize() > 0) {
+					this->workStation.pushUndoState();
+					std::string name = "Layer " + std::to_string(this->workStation.ImagesSize() + 1);
+					this->workStation.addNewLayer(name);
+					this->UpdateImage();
+				}
+			}
+			if (ImGui::MenuItem(ICON_FA_TRASH " Delete Layer")) {
+				if (this->workStation.ImagesSize() > 1) {
+					this->workStation.pushUndoState();
+					this->workStation.removeLayer(this->workStation.getActiveLayerIndex());
+					this->UpdateImage();
+				}
+			}
+			if (ImGui::MenuItem(ICON_FA_COPY " Duplicate Layer")) {
+				this->workStation.pushUndoState();
+				this->workStation.duplicateLayer(this->workStation.getActiveLayerIndex());
+				this->UpdateImage();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_FA_ARROW_DOWN " Merge Down")) {
+				int idx = this->workStation.getActiveLayerIndex();
+				if (idx < this->workStation.ImagesSize() - 1) {
+					this->workStation.pushUndoState();
+					this->workStation.mergeLayerDown(idx);
+					this->UpdateImage();
+				}
+			}
+			if (ImGui::MenuItem(ICON_FA_COMPRESS " Flatten Image")) {
+				this->workStation.pushUndoState();
+				this->workStation.flattenAllLayers();
+				this->UpdateImage();
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_FA_CROP " Canvas Size...")) {
+				this->canvasNewWidth    = this->workStation.getCanvasWidth();
+				this->canvasNewHeight   = this->workStation.getCanvasHeight();
+				this->canvasAnchorX     = 0;
+				this->canvasAnchorY     = 0;
+				this->canvasResizePopUp = true;
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::Separator();
@@ -101,21 +159,17 @@ void FeatherGUI::BuildMenu() {
 		if (ImGui::BeginMenu(ICON_FA_OBJECT_UNGROUP " Filter")) {
 			//Negative
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Negative")) {
-				//Open a new window
+				this->workStation.pushUndoState();
 				this->workStation.negative(this->workStation.getImageStrP());
-				std::cout << "Applied filter Black & white" << std::endl;
 				this->UpdateImage();
 			}
-			//Ne
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Black & White")) {
-				//Open a new window
+				this->workStation.pushUndoState();
 				this->workStation.blackAndWhite(this->workStation.getImageStrP());
-				std::cout << "Applied filter Black & white" << std::endl;
 				this->UpdateImage();
 			}
-			//Sepia
 			if (ImGui::MenuItem(ICON_FA_IMAGES " Sepia")) {
-				//Open a new window
+				this->workStation.pushUndoState();
 				this->workStation.sepia(this->workStation.getImageStrP());
 				std::cout << "Applied filter Black & white" << std::endl;
 				this->UpdateImage();

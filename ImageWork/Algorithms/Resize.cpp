@@ -1,75 +1,60 @@
 #include "../ImageWork.h"
 
 void ImageWork::resizeImage(ImageStr* _image, int _width, int _height) {
-	//Check if the image is not null
-	if (_image != nullptr) {
-		//Check if the image is not empty
-		if (_image->width > 0 && _image->height > 0) {
-			//Check if the image is not the same size
-			if (_image->width != _width || _image->height != _height) {
-				//Resize the image
-				GLubyte* newData = new GLubyte[_width * _height * 4];
+	if (!_image || _image->width <= 0 || _image->height <= 0) return;
+	if (_image->width == _width && _image->height == _height) return;
+	if (_width <= 0 || _height <= 0) return;
 
-				//Bilinear interpolation for resampling the new image
-				for (int i = 0; i < _height; i++) {
-					for (int j = 0; j < _width; j++) {
-						float x = (float)j / (float)_width * (float)_image->width;
-						float y = (float)i / (float)_height * (float)_image->height;
+	GLubyte* newData = new GLubyte[_width * _height * 4];
 
-						int x1 = (int)floor(x);
-						int x2 = (int)ceil(x);
-						int y1 = (int)floor(y);
-						int y2 = (int)ceil(y);
+	// Bilinear interpolation
+	float scaleX = (float)_image->width  / (float)_width;
+	float scaleY = (float)_image->height / (float)_height;
 
-						float a = x - x1;
-						float b = y - y1;
+	for (int i = 0; i < _height; i++) {
+		float fy = i * scaleY;
+		int   y1 = (int)fy;
+		int   y2 = y1 + 1;
+		if (y2 >= _image->height) y2 = _image->height - 1;
+		float b = fy - y1;
 
-						//Get the 4 pixels
-						RGB p1 = getPixel(_image, x1, y1);
-						RGB p2 = getPixel(_image, x2, y1);
-						RGB p3 = getPixel(_image, x1, y2);
-						RGB p4 = getPixel(_image, x2, y2);
+		for (int j = 0; j < _width; j++) {
+			float fx = j * scaleX;
+			int   x1 = (int)fx;
+			int   x2 = x1 + 1;
+			if (x2 >= _image->width) x2 = _image->width - 1;
+			float a = fx - x1;
 
-						//Interpolate the 4 pixels
-						RGB p12;
-						p12.r = (unsigned char)(((1 - a) * p1.r + a * p2.r) * 255);
-						p12.g = (unsigned char)(((1 - a) * p1.g + a * p2.g) * 255);
-						p12.b = (unsigned char)(((1 - a) * p1.b + a * p2.b) * 255);
-						p12.delta = (unsigned char)(((1 - a) * p1.delta + a * p2.delta) * 255);
+			// Sample 4 neighbours (already 0-255 uchar values)
+			RGB p00 = getPixel(_image, x1, y1);
+			RGB p10 = getPixel(_image, x2, y1);
+			RGB p01 = getPixel(_image, x1, y2);
+			RGB p11 = getPixel(_image, x2, y2);
 
-						RGB p34;
-						p34.r = (unsigned char)(((1 - a) * p3.r + a * p4.r) * 255);
-						p34.g = (unsigned char)(((1 - a) * p3.g + a * p4.g) * 255);
-						p34.b = (unsigned char)(((1 - a) * p3.b + a * p4.b) * 255);
-						p34.delta = (unsigned char)(((1 - a) * p3.delta + a * p4.delta) * 255);
+			float fa = a, fb = b;
+			float w00 = (1.0f - fa) * (1.0f - fb);
+			float w10 = fa          * (1.0f - fb);
+			float w01 = (1.0f - fa) * fb;
+			float w11 = fa          * fb;
 
-						//Interpolate the 2 pixels
-						RGB p1234;
-						p1234.r = (unsigned char)(((1 - b) * p12.r + b * p34.r) * 255);
-						p1234.g = (unsigned char)(((1 - b) * p12.g + b * p34.g) * 255);
-						p1234.b = (unsigned char)(((1 - b) * p12.b + b * p34.b) * 255);
-						p1234.delta = (unsigned char)(((1 - b) * p12.delta + b * p34.delta) * 255);
-
-						//Set the new pixel
-						newData[i * _width * 4 + j * 4 + 0] = p1234.r;
-						newData[i * _width * 4 + j * 4 + 1] = p1234.g;
-						newData[i * _width * 4 + j * 4 + 2] = p1234.b;
-						newData[i * _width * 4 + j * 4 + 3] = p1234.delta;
-					}
-				}
-
-				//Delete the old data
-				delete[] _image->data;
-
-				//Set the new data
-				_image->data = newData;
-
-				//Set the new width and height
-				_image->width = _width;
-				_image->height = _height;
-
-				this->combineLayers();
-			}
+			int idx = (i * _width + j) * 4;
+			newData[idx    ] = (GLubyte)(p00.r     * w00 + p10.r     * w10 + p01.r     * w01 + p11.r     * w11);
+			newData[idx + 1] = (GLubyte)(p00.g     * w00 + p10.g     * w10 + p01.g     * w01 + p11.g     * w11);
+			newData[idx + 2] = (GLubyte)(p00.b     * w00 + p10.b     * w10 + p01.b     * w01 + p11.b     * w11);
+			newData[idx + 3] = (GLubyte)(p00.delta * w00 + p10.delta * w10 + p01.delta * w01 + p11.delta * w11);
 		}
 	}
+
+	// Update texture
+	glBindTexture(GL_TEXTURE_2D, _image->texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newData);
+
+	delete[] _image->data;
+	_image->data     = newData;
+	_image->width    = _width;
+	_image->height   = _height;
+	_image->channels = 4;
+	_image->modified = true;
+
+	this->combineLayers();
 }

@@ -58,6 +58,21 @@ class FeatherGUI
 		bool debugConsole; //Debug console | Extern Window
 		bool newImagePopUp; //Extern Window
 		bool histogramPopUp;
+		bool canvasResizePopUp;
+		int  canvasNewWidth;
+		int  canvasNewHeight;
+		int  canvasAnchorX; // 0=left, 1=center, 2=right
+		int  canvasAnchorY; // 0=top,  1=center, 2=bottom
+
+		// TEXT TOOL STATE
+		bool textEditing;
+		int  textEditLayerIdx;
+		char textInputBuffer[512];
+		int  textFontSize;
+
+		// SELECTION TOOL — object-mode state
+		bool selToolTextDragging; // dragging a text layer with the selection tool
+		int  selToolTextIdx;      // which text layer is being dragged
 
 		//MAIN WINDOWS CONFIRGURATION VARS
 		bool disableOptionsRounding; //Option for rounding
@@ -218,6 +233,9 @@ class FeatherGUI
 
 		//IMAGE RELATED FUNCTIONS
 		void newImage();
+		void BuildCanvasResizeDialog();
+		void commitTextLayer();
+		void cancelTextLayer();
 		
 	public:
 		

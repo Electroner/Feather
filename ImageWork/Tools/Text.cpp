@@ -1,206 +1,134 @@
 #include "../ImageWork.h"
+#include <cstring>
+
+// Fully self-contained glyph record — no raw pointer aliasing
+struct GlyphRecord {
+	int advance      = 0;
+	int bitmap_left  = 0;
+	int bitmap_top   = 0;
+	int w            = 0;
+	int h            = 0;
+	std::vector<unsigned char> pixels; // grayscale bitmap data (w*h bytes)
+};
 
 ImageStr rasterText(const char* text, const char* fontPath, int size, const RGB& color)
 {
-	int totalWidth = 0;
-	int totalHeightUpper = 0;
-	int totalHeightLower = 0;
-	std::vector<ImageStr> letters;
-	std::vector<int> bitmap_tops; //numbers of pixels from the baseline to the top of the glyph bitmap
-	std::vector<int> bitmap_lefts;
-	std::vector<int> advances;
-	ImageStr word;
+	ImageStr word; // default: data=NULL, width=0, height=0
 
-	bool correct = true;
+	if (!text || !fontPath || text[0] == '\0' || size <= 0) return word;
 
-	// Initialize FreeType library
 	FT_Library library;
-	if (FT_Init_FreeType(&library))
-	{
-		// Could not initialize FreeType library
-		std::cout << "FreeType library cannot initialice" << std::endl;
-		correct = false;
-	}
-	// Load font face from file
+	if (FT_Init_FreeType(&library)) return word;
+
 	FT_Face face;
-	if (FT_New_Face(library, fontPath, 0, &face))
-	{
-		// Could not load font face
-		std::cout << "Font face not loaded" << std::endl;
-		correct = false;
-	}
-
-	if (correct) {
-		// Set font size
-		FT_Set_Pixel_Sizes(face, 0, size);
-
-		//Iterate through the text
-		for (int i = 0; i < strlen(text); i++) {
-			//Create the glyph of the letter and add to the vector with the bitmaps and the advances
-
-			FT_Load_Char(face, text[i], FT_LOAD_RENDER);
-
-			//Create the image of the letter
-			ImageStr letter;
-			letter.width = face->glyph->bitmap.width;
-			letter.height = face->glyph->bitmap.rows;
-			letter.channels = 1;
-			letter.data = NULL;
-			letter.texture = -1;
-			letter.histogramR = NULL;
-			letter.histogramRSize = 0;
-			letter.histogramG = NULL;
-			letter.histogramGSize = 0;
-			letter.histogramB = NULL;
-			letter.histogramBSize = 0;
-			letter.modified = false;
-			letter.loaded = false;
-			letter.name = text[i];
-
-			if (text[i] != ' ') {
-				letter.data = new GLubyte[letter.width * letter.height * letter.channels];
-
-				// Copy glyph bitmap to image
-				for (int y = 0; y < letter.height; y++)
-				{
-					for (int x = 0; x < letter.width; x++)
-					{
-						letter.data[y * letter.width + x] = face->glyph->bitmap.buffer[y * letter.width + x];
-					}
-				}
-			}
-
-			// Add image to vector
-			letters.push_back(letter);
-			// Add width to total width
-			totalWidth += (face->glyph->advance.x >> 6); //- face->glyph->bitmap_left;
-			// Get the maximun over the baseline
-			if (face->glyph->bitmap_top > totalHeightUpper)
-			{
-				totalHeightUpper = face->glyph->bitmap_top;
-			}
-			// Get the maximun under the baseline
-			if ((static_cast<int>(face->glyph->bitmap.rows) - face->glyph->bitmap_top) >= totalHeightLower)
-			{
-				totalHeightLower = (static_cast<int>(face->glyph->bitmap.rows) - face->glyph->bitmap_top);
-			}
-			// Add the number of pixels from the baseline to the top of the glyph bitmap
-			bitmap_tops.push_back(face->glyph->bitmap_top);
-			// Add the number of pixels from the left border of the bitmap to the left border of the glyph
-			bitmap_lefts.push_back(face->glyph->bitmap_left);
-			// Add the advance of the letter
-			advances.push_back((face->glyph->advance.x >> 6));
-		}
-
-		totalWidth += letters[letters.size() - 1].width - advances[advances.size() - 1] + bitmap_lefts[bitmap_lefts.size() - 1];
-
-		//Create the image of the word
-		word.width = totalWidth;
-		word.height = totalHeightUpper + totalHeightLower;
-		word.channels = 4;
-		word.data = new GLubyte[word.width * word.height * word.channels];
-		word.texture = -1;
-		word.histogramR = NULL;
-		word.histogramRSize = 0;
-		word.histogramG = NULL;
-		word.histogramGSize = 0;
-		word.histogramB = NULL;
-		word.histogramBSize = 0;
-		word.modified = false;
-		word.loaded = true;
-		word.name = text;
-		word.extension = "png";
-
-		//clear data
-		for (int i = 0; i < word.width * word.height * word.channels; i++)
-		{
-			word.data[i] = 0;
-		}
-
-		//Get the float value of the color
-		float r = color.r / 255.0f;
-		float g = color.g / 255.0f;
-		float b = color.b / 255.0f;
-		float a = color.delta / 255.0f;
-
-		//Iterate through the letters
-		//Copy the letter to the word following the advances and the bitmap_tops of the letters
-		int x = 0;
-		int y = 0;
-		for (int i = 0; i < letters.size(); i++)
-		{
-			//Get the position of the letter
-			y = totalHeightUpper - bitmap_tops[i];
-			
-			if (letters[i].data != NULL) {
-				//Copy the letter to the word
-				for (int j = 0; j < letters[i].height; j++)
-				{
-					for (int k = 0; k < letters[i].width; k++)
-					{
-						int index = (y + j) * word.width * word.channels + (x + k) * word.channels;
-						GLubyte letter_color = letters[i].data[j * letters[i].width + k];
-
-						//Copy the pixel
-						word.data[index] = static_cast<unsigned char>(letter_color * r);
-						word.data[index + 1] = static_cast<unsigned char>(letter_color * g);
-						word.data[index + 2] = static_cast<unsigned char>(letter_color * b);
-						word.data[index + 3] = static_cast<unsigned char>(letter_color * a);
-					}
-				}
-			}
-			x += advances[i]; //- bitmap_lefts[i];
-			
-			std::cout << "Letter: " << letters[i].name << std::endl;
-			std::cout << "advace: " << advances[i] << std::endl;
-			std::cout << "bitmap_top: " << bitmap_tops[i] << std::endl;
-			std::cout << "bitmap_left: " << bitmap_lefts[i] << std::endl;
-			std::cout << "width: " << letters[i].width << std::endl;
-		}	
-
-		// Delete letters
-		for (int i = 0; i < letters.size(); i++)
-		{
-			delete[] letters[i].data;
-		}
-
-		// Delete FreeType library
-		FT_Done_Face(face);
+	if (FT_New_Face(library, fontPath, 0, &face)) {
 		FT_Done_FreeType(library);
-
+		return word;
 	}
-	else
-	{
-		//IF not correct
-		//Create a blank image 1x1 pixel
-		word.width = 1;
-		word.height = 1;
-		word.channels = 4;
-		word.data = NULL;
-		word.texture = -1;
-		word.histogramR = NULL;
-		word.histogramRSize = 0;
-		word.histogramG = NULL;
-		word.histogramGSize = 0;
-		word.histogramB = NULL;
-		word.histogramBSize = 0;
-		word.modified = false;
-		word.loaded = false;
+
+	FT_Set_Pixel_Sizes(face, 0, (FT_UInt)size);
+
+	// ---- Collect per-glyph metrics ----
+	std::vector<GlyphRecord> glyphs;
+	int ascent  = 0; // max pixels above baseline
+	int descent = 0; // max pixels below baseline
+
+	for (int i = 0; text[i]; i++) {
+		unsigned char c = (unsigned char)text[i];
+
+		// Skip control characters (newline, tab, etc.)
+		if (c < 32) {
+			glyphs.push_back(GlyphRecord{});
+			continue;
+		}
+
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+			// Character not in font — push zero-advance placeholder
+			glyphs.push_back(GlyphRecord{});
+			continue;
+		}
+
+		FT_GlyphSlot slot = face->glyph;
+		GlyphRecord g;
+		g.advance     = (int)(slot->advance.x >> 6);
+		g.bitmap_left = slot->bitmap_left;
+		g.bitmap_top  = slot->bitmap_top;
+		g.w           = (int)slot->bitmap.width;
+		g.h           = (int)slot->bitmap.rows;
+
+		if (g.w > 0 && g.h > 0 && slot->bitmap.buffer) {
+			g.pixels.assign(slot->bitmap.buffer,
+			                slot->bitmap.buffer + g.w * g.h);
+		}
+
+		if (g.bitmap_top > ascent) ascent = g.bitmap_top;
+		int below = g.h - g.bitmap_top;
+		if (below > descent) descent = below;
+
+		glyphs.push_back(std::move(g));
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(library);
+
+	if (glyphs.empty()) return word;
+
+	// ---- Compute canvas size ----
+	// Width = sum of all advances except last + last glyph's right edge
+	int penX = 0;
+	for (int i = 0; i < (int)glyphs.size() - 1; i++)
+		penX += glyphs[i].advance;
+	// Last glyph's right edge relative to its pen position
+	const GlyphRecord& last = glyphs.back();
+	int totalW = penX + last.bitmap_left + last.w;
+	if (totalW <= 0) totalW = penX + last.advance; // fallback
+	int totalH = ascent + descent;
+
+	if (totalW <= 0 || totalH <= 0) return word;
+
+	// ---- Allocate output image (transparent) ----
+	word.width    = totalW;
+	word.height   = totalH;
+	word.channels = 4;
+	word.name     = text;
+	word.extension = "png";
+	word.loaded   = true;
+	word.modified = false;
+	word.data     = new unsigned char[totalW * totalH * 4]();  // zero-init
+
+	float fr = color.r     / 255.0f;
+	float fg = color.g     / 255.0f;
+	float fb = color.b     / 255.0f;
+	float fa = color.delta / 255.0f;
+
+	// ---- Blit each glyph onto the canvas ----
+	penX = 0;
+	for (const auto& g : glyphs) {
+		if (!g.pixels.empty() && g.w > 0 && g.h > 0) {
+			int gx = penX + g.bitmap_left;
+			int gy = ascent - g.bitmap_top;
+
+			for (int row = 0; row < g.h; row++) {
+				for (int col = 0; col < g.w; col++) {
+					int dx = gx + col;
+					int dy = gy + row;
+					// Hard bounds check — prevents every possible overflow
+					if (dx < 0 || dx >= totalW || dy < 0 || dy >= totalH) continue;
+					int idx = (dy * totalW + dx) * 4;
+					unsigned char lum = g.pixels[row * g.w + col];
+					word.data[idx    ] = (unsigned char)(lum * fr);
+					word.data[idx + 1] = (unsigned char)(lum * fg);
+					word.data[idx + 2] = (unsigned char)(lum * fb);
+					word.data[idx + 3] = (unsigned char)(lum * fa);
+				}
+			}
+		}
+		penX += g.advance;
 	}
 
 	return word;
 }
 
-void ImageWork::toolText(int _MouseImagePositionX, int _MouseImagePositionY) {
-	//TODO
-	this->textEnable = true;
-	this->text = "jkg lif";
-	this->textPosition.first = _MouseImagePositionX;
-	this->textPosition.second = _MouseImagePositionY;
-	int size = 500;
-	std::string font = this->fontsPath + "/Arial.ttf";
-	std::replace(font.begin(), font.end(), '\\', '/');
-	ImageStr word = rasterText(this->text.c_str(), font.c_str(), size, RGB(255, 255, 255, 255));
-	this->addImage(word);
-	this->combineLayers();
+void ImageWork::toolText(int, int) {
+	// Text creation is handled by FeatherGUI via createTextLayer() / renderTextToLayer().
 }

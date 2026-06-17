@@ -123,6 +123,56 @@ void FeatherGUI::BuildToolProperties() {
 		break;
 
 	case TOOL_TEXT:
+		if (this->textEditing &&
+		    this->textEditLayerIdx >= 0 &&
+		    this->textEditLayerIdx < this->workStation.ImagesSize()) {
+
+			ImageStr* tl = this->workStation.getImage(this->textEditLayerIdx);
+			ImGui::Separator();
+			ImGui::Text(ICON_FA_FONT " Text Layer");
+			ImGui::Spacing();
+
+			// Multi-line text input
+			bool textChanged = ImGui::InputTextMultiline(
+				"##txtcontent", this->textInputBuffer, 512,
+				ImVec2(-1.0f, 72.0f),
+				ImGuiInputTextFlags_AutoSelectAll);
+
+			// Font size
+			ImGui::Text("Size:");
+			ImGui::SetNextItemWidth(-1);
+			bool sizeChanged = ImGui::SliderInt("##tsize", &this->textFontSize, 6, 200);
+
+			// Color follows the main "Tool" color picker above — sync back
+			bool colorChanged = (tl &&
+				(tl->textColor.r != temp_color_RGB.r ||
+				 tl->textColor.g != temp_color_RGB.g ||
+				 tl->textColor.b != temp_color_RGB.b ||
+				 tl->textColor.delta != temp_color_RGB.delta));
+
+			if ((textChanged || sizeChanged || colorChanged) && tl && tl->isTextLayer) {
+				tl->textContent  = this->textInputBuffer;
+				tl->textFontSize = this->textFontSize;
+				tl->textColor    = temp_color_RGB;
+				this->workStation.renderTextToLayer(this->textEditLayerIdx);
+				this->UpdateImage();
+			}
+
+			ImGui::Spacing();
+			if (ImGui::Button(ICON_FA_CHECK " Commit", ImVec2(-1.0f, 0))) {
+				this->commitTextLayer();
+			}
+			ImGui::Spacing();
+			if (ImGui::Button(ICON_FA_TIMES " Remove", ImVec2(-1.0f, 0))) {
+				this->cancelTextLayer();
+			}
+		} else {
+			ImGui::Separator();
+			ImGui::TextWrapped(ICON_FA_MOUSE_POINTER " Click canvas to place text.");
+			ImGui::Text("Size:");
+			ImGui::SetNextItemWidth(-1);
+			ImGui::SliderInt("##tsize", &this->textFontSize, 6, 200);
+		}
 		break;
 
 	default:

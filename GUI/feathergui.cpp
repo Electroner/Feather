@@ -49,10 +49,22 @@ FeatherGUI::FeatherGUI(GLFWwindow* _windowContext, const char* _glsl_version)
 	this->disableOptionsRounding = true;
 	this->CursorEnabled = true;
 
-	this->placementConfig = false;
-	this->debugConsole = true;
-	this->newImagePopUp = false;
-	this->histogramPopUp = false;
+	this->placementConfig    = false;
+	this->debugConsole       = true;
+	this->newImagePopUp      = false;
+	this->histogramPopUp     = false;
+	this->canvasResizePopUp  = false;
+	this->canvasNewWidth     = 1000;
+	this->canvasNewHeight    = 1000;
+	this->canvasAnchorX      = 0;
+	this->canvasAnchorY      = 0;
+
+	this->textEditing           = false;
+	this->textEditLayerIdx      = -1;
+	this->textInputBuffer[0]    = '\0';
+	this->textFontSize          = 24;
+	this->selToolTextDragging   = false;
+	this->selToolTextIdx        = -1;
 
 	//Error Windows
 	errorWindowCode = false;
@@ -202,6 +214,30 @@ FeatherGUI::~FeatherGUI() {
 	ImGui::DestroyContext();
 }
 
+void FeatherGUI::commitTextLayer() {
+	if (this->textEditing && this->textEditLayerIdx >= 0 &&
+	    this->textEditLayerIdx < this->workStation.ImagesSize()) {
+		ImageStr* tl = this->workStation.getImage(this->textEditLayerIdx);
+		// Auto-remove if no text was entered
+		if (tl && tl->isTextLayer && tl->textContent.empty()) {
+			this->workStation.removeLayer(this->textEditLayerIdx);
+			this->UpdateImage();
+		}
+	}
+	this->textEditing      = false;
+	this->textEditLayerIdx = -1;
+}
+
+void FeatherGUI::cancelTextLayer() {
+	if (this->textEditing && this->textEditLayerIdx >= 0 &&
+	    this->textEditLayerIdx < this->workStation.ImagesSize()) {
+		this->workStation.removeLayer(this->textEditLayerIdx);
+		this->UpdateImage();
+	}
+	this->textEditing      = false;
+	this->textEditLayerIdx = -1;
+}
+
 void FeatherGUI::HelpMarker(const char* desc)
 {
 	ImGui::TextDisabled("(?)");
@@ -342,6 +378,9 @@ void FeatherGUI::BuildGUI() {
 			if (this->histogramPopUp) {
 				this->BuildHistogram();
 			}
+			if (this->canvasResizePopUp) {
+				this->BuildCanvasResizeDialog();
+			}
 		}
 	}
 	ImGui::PopStyleColor();
@@ -395,6 +434,27 @@ void FeatherGUI::InputFunctions() {
 	//Position of the mouse inside the Image Window compensating the image shift and zoom
 	this->MouseImagePositionX = (int)floor(static_cast<float>((this->io->MousePos.x - this->toolsPanelPixels - this->imageShiftX)) / (float)this->zoom);
 	this->MouseImagePositionY = (int)floor(static_cast<float>((this->io->MousePos.y - this->MenuSizePixels - this->imageShiftY)) / (float)this->zoom);
+
+	// Auto-commit text when the user switches away from the text tool
+	static int prevToolForText = -1;
+	if (prevToolForText == TOOL_TEXT && this->CurrentTool != TOOL_TEXT && this->textEditing)
+		this->commitTextLayer();
+
+	// Switching TO text tool: auto-open active text layer for editing
+	if (prevToolForText != TOOL_TEXT && this->CurrentTool == TOOL_TEXT && !this->textEditing) {
+		int ai = this->workStation.getActiveLayerIndex();
+		if (ai >= 0 && ai < this->workStation.ImagesSize()) {
+			ImageStr* atl = this->workStation.getImage(ai);
+			if (atl && atl->isTextLayer) {
+				this->textEditing      = true;
+				this->textEditLayerIdx = ai;
+				strncpy_s(this->textInputBuffer, sizeof(this->textInputBuffer), atl->textContent.c_str(), _TRUNCATE);
+				this->textFontSize = atl->textFontSize;
+				this->workStation.setToolColor(atl->textColor);
+			}
+		}
+	}
+	prevToolForText = this->CurrentTool;
 	
 	//Dragging the Image over the window
 	if (ImGui::IsMouseDown(1) && this->MouseOverImageWindow) {
@@ -462,13 +522,11 @@ void FeatherGUI::InputFunctions() {
 
 	//ESC
 	if (io->KeysDown[GLFW_KEY_ESCAPE]) {
-		//Close the overlayer windows
 		this->placementConfig = false;
 		this->debugConsole = false;
 		this->newImagePopUp = false;
-		//Tool
-		//this->CurrentTool = -1;
-		//Selection
+		if (this->textEditing)
+			this->commitTextLayer(); // keep whatever was typed
 		this->workStation.clearSelection();
 		this->workStation.setSelectionEnable(false);
 		this->workStation.setSelectionDone(false);
@@ -515,15 +573,10 @@ void FeatherGUI::InputFunctions() {
 		this->SaveMenuFunction(1);
 	}
 
-	//Key T
-	if (io->KeysDown[GLFW_KEY_T]) {
-		this->workStation.resizeImage(this->workStation.getImage(0), 1920, 540);
-	}
-
 	//Key SUPR
-	if (io->KeysDown[GLFW_KEY_DELETE]) {
+	if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
 		if (this->workStation.getSelectionEnabled()) {
-			//If selection is active delete the selection
+			this->workStation.pushUndoState();
 			this->workStation.deleteSelection();
 			std::cout << "Selection deleted" << std::endl;
 		}
@@ -537,8 +590,9 @@ void FeatherGUI::InputFunctions() {
 	//MOUSE SELECTION
 	//If Ctrl is pressed we can move the area
 	if (io->KeyCtrl) {
-		//If the mouse is over the corners of the selection
-		if (this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() && this->CurrentTool == TOOL_SELECTION) {
+		if (!this->selToolTextDragging &&
+		    this->workStation.getSelectionEnabled() && this->workStation.getSelectionDone() &&
+		    this->CurrentTool == TOOL_SELECTION) {
 			this->selectionUpdate();
 		}
 		if (topLeft || topRight || bottomLeft || bottomRight || middleLeft || middleRight || middleTop || middleBottom) {
@@ -549,18 +603,110 @@ void FeatherGUI::InputFunctions() {
 		}
 	}
 	
+	// Undo / Redo
+	if (io->KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_Z) && !io->KeyShift) {
+		this->workStation.undo();
+		this->UpdateImage();
+	}
+	if (io->KeyCtrl && (ImGui::IsKeyPressed(ImGuiKey_Y) || (ImGui::IsKeyPressed(ImGuiKey_Z) && io->KeyShift))) {
+		this->workStation.redo();
+		this->UpdateImage();
+	}
+
 	//MOUSE
-	// Check if mouse is over the image window
 	if (this->MouseOverImageWindow)
 	{
-		//If the mouse is over the image
-		if (this->MouseImagePositionX >= 0 && this->MouseImagePositionX < this->workStation.getImageStrP()->width &&
-			this->MouseImagePositionY >= 0 && this->MouseImagePositionY < this->workStation.getImageStrP()->height) {
-			//If mouse click or holded
-			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
-				if (this->CurrentTool != -1) {
-					this->workStation.useTool(this->CurrentTool, this->MouseImagePositionX, this->MouseImagePositionY);
+		int  mx       = this->MouseImagePositionX;
+		int  my       = this->MouseImagePositionY;
+		int  cw       = this->workStation.getCanvasWidth();
+		int  ch       = this->workStation.getCanvasHeight();
+		bool inBounds = (mx >= 0 && mx < cw && my >= 0 && my < ch);
+
+		// Cursor hint: hand when hovering a text layer with selection tool
+		if (this->CurrentTool == TOOL_SELECTION && inBounds) {
+			if (this->workStation.findTextLayerAt(mx, my) >= 0)
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+		}
+
+		if (this->CurrentTool == TOOL_TEXT) {
+			// ---- Text tool: create new text or re-edit existing ----
+			if (inBounds && ImGui::IsMouseClicked(0)) {
+				int hit = this->workStation.findTextLayerAt(mx, my);
+				if (hit >= 0) {
+					// Re-open existing text layer for editing
+					this->commitTextLayer();
+					this->textEditing      = true;
+					this->textEditLayerIdx = hit;
+					this->workStation.setActiveLayer(hit);
+					ImageStr* htl = this->workStation.getImage(hit);
+					strncpy_s(this->textInputBuffer, sizeof(this->textInputBuffer), htl->textContent.c_str(), _TRUNCATE);
+					this->textFontSize = htl->textFontSize;
+					this->workStation.setToolColor(htl->textColor);
+				} else {
+					// Create new text layer at click position
+					this->commitTextLayer();
+					this->workStation.pushUndoState();
+					RGB col = this->workStation.getToolColor();
+					this->workStation.createTextLayer("", mx, my, this->textFontSize, col);
+					this->textEditing      = true;
+					this->textEditLayerIdx = this->workStation.getActiveLayerIndex();
+					this->textInputBuffer[0] = '\0';
 					this->UpdateImage();
+				}
+			}
+			// Text tool does NOT move text — use TOOL_SELECTION for that
+
+		} else if (this->CurrentTool == TOOL_SELECTION) {
+			// ---- Selection tool: pixel rect selection OR text-object move ----
+			if (inBounds) {
+				if (ImGui::IsMouseClicked(0)) {
+					int hit = this->workStation.findTextLayerAt(mx, my);
+					if (hit >= 0) {
+						// Click on text object → select it
+						this->workStation.pushUndoState(); // for undo of any subsequent move
+						this->workStation.setActiveLayer(hit);
+						this->selToolTextIdx      = hit;
+						this->selToolTextDragging = true;
+					} else {
+						// Click on canvas → start rectangle selection
+						this->selToolTextDragging = false;
+						this->selToolTextIdx      = -1;
+						this->workStation.useTool(TOOL_SELECTION, mx, my);
+						this->UpdateImage();
+					}
+				} else if (ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					if (this->selToolTextDragging &&
+					    this->selToolTextIdx >= 0 &&
+					    this->selToolTextIdx < this->workStation.ImagesSize()) {
+						// Drag selected text layer to move it
+						ImageStr* tl = this->workStation.getImage(this->selToolTextIdx);
+						if (tl && tl->isTextLayer) {
+							tl->textAnchorX += (int)(this->io->MouseDelta.x / this->zoom);
+							tl->textAnchorY += (int)(this->io->MouseDelta.y / this->zoom);
+							this->workStation.renderTextToLayer(this->selToolTextIdx);
+							this->UpdateImage();
+						}
+					} else {
+						// Extend rectangle selection
+						this->workStation.useTool(TOOL_SELECTION, mx, my);
+						this->UpdateImage();
+					}
+				}
+			}
+
+		} else {
+			// ---- Drawing tools: pencil, brush, eraser, bucket, etc. ----
+			// Guard: cannot paint directly onto text layers
+			bool activeIsText = this->workStation.ImagesSize() > 0 &&
+			                    this->workStation.getImageStrP()->isTextLayer;
+			if (!activeIsText && inBounds) {
+				if (ImGui::IsMouseClicked(0) && this->CurrentTool != -1)
+					this->workStation.pushUndoState();
+				if (ImGui::IsMouseClicked(0) || ImGui::IsMouseDragging(0) || ImGui::IsMouseDown(0)) {
+					if (this->CurrentTool != -1) {
+						this->workStation.useTool(this->CurrentTool, mx, my);
+						this->UpdateImage();
+					}
 				}
 			}
 		}
@@ -593,5 +739,8 @@ void FeatherGUI::InputFunctions() {
 
 		//Selection Normalize
 		this->workStation.selectionNormalize();
+
+		// Reset selection-tool text dragging
+		this->selToolTextDragging = false;
 	}
 }

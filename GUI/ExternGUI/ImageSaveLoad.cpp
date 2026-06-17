@@ -94,8 +94,8 @@ bool FeatherGUI::loadImage(std::string _path) {
 	unloadedImage.loaded = true;
 	unloadedImage.modified = false;
 
-	//Add image to Images vector
-	this->workStation.PushNewImage(unloadedImage);
+	// Add as the topmost layer and make it active
+	this->workStation.insertImageOnTop(unloadedImage);
 
 	return true;
 }
@@ -276,115 +276,102 @@ bool FeatherGUI::loadFromClipBoard() {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, unloadedImage.width, unloadedImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, unloadedImage.data);
 
-	//Add image to Images vector
-	this->workStation.PushNewImage(unloadedImage);
+	// Add as topmost layer
+	this->workStation.insertImageOnTop(unloadedImage);
 
-	//free bitmap
 	DeleteObject(hBitmap);
-	
-	//Set the image as selected
+
 	this->workStation.combineLayers();
-	//Set the zooom
 	this->calculateZoom();
 	this->centerImage();
-
-	//Update the image
 	this->UpdateImage();
 
 	return true;
 }
 
 bool FeatherGUI::saveImage(std::string _path) {
-	std::string location;
-	if (this->workStation.getSelectionEnabled()) {
-		//Save only the selected region
-		if (_path.size() == 0)
-		{
-			std::cout << "Error saving image: No path specified" << std::endl;
-			return false;
-		}
-		//Min and max coordinates of the selection
-		std::pair<int, int> selectionMin = this->workStation.getSelectionMin();
-		std::pair<int, int> selectionMax = this->workStation.getSelectionMax();
-		GLubyte* SelectedData = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * this->workStation.getImageStrP()->channels];
+	if (_path.empty()) {
+		std::cout << "Error saving image: No path specified" << std::endl;
+		return false;
+	}
 
-		//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
-		for (int i = 0; i < (selectionMax.first - selectionMin.first); i++) {
-			for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 1];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 2];
-				SelectedData[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 3];
+	// Always save the composited (flattened) view
+	this->workStation.compositeAllLayers();
+	ImageStr* img = this->workStation.getCompositeImage();
+
+	if (!img || !img->data) {
+		std::cout << "Error saving image: No composite available" << std::endl;
+		return false;
+	}
+
+	std::string ext = this->workStation.getImageStrP()->extension;
+	if (ext.empty()) ext = "png";
+
+	if (this->workStation.getSelectionEnabled()) {
+		// Save only the selected region from the composite
+		std::pair<int, int> selMin = this->workStation.getSelectionMin();
+		std::pair<int, int> selMax = this->workStation.getSelectionMax();
+		int selW = selMax.first  - selMin.first;
+		int selH = selMax.second - selMin.second;
+		if (selW <= 0 || selH <= 0) return false;
+
+		GLubyte* selData = new GLubyte[selW * selH * 4];
+		for (int j = 0; j < selH; j++) {
+			for (int i = 0; i < selW; i++) {
+				int src = ((j + selMin.second) * img->width + (i + selMin.first)) * 4;
+				int dst = (j * selW + i) * 4;
+				selData[dst    ] = img->data[src    ];
+				selData[dst + 1] = img->data[src + 1];
+				selData[dst + 2] = img->data[src + 2];
+				selData[dst + 3] = img->data[src + 3];
 			}
 		}
-
-		//_path includes the name of the image
-		location = _path + "." + this->workStation.getImageStrP()->extension;
+		std::string location = _path + "." + ext;
+		std::cout << "Selection saved at: " << location << std::endl;
+		stbi_write_png(location.c_str(), selW, selH, 4, selData, selW * 4);
+		delete[] selData;
+		return true;
+	} else {
+		std::string location = _path + "." + ext;
 		std::cout << "Image saved at: " << location << std::endl;
-		//Save the image
-		stbi_write_png(location.c_str(), selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, this->workStation.getImageStrP()->channels, SelectedData, (selectionMax.first - selectionMin.first) * this->workStation.getImageStrP()->channels);
-		
-		//Free memory
-		delete[] SelectedData;
+		stbi_write_png(location.c_str(), img->width, img->height, 4, img->data, img->width * 4);
 		return true;
 	}
-	else 
-	{
-		//Save the entire image
-		if (_path.size() == 0)
-		{
-			std::cout << "Error saving image: No path specified" << std::endl;
-			return false;
-		}
-		//_path includes the name of the image
-		location = _path + "." + this->workStation.getImageStrP()->extension;
-		std::cout << "Image saved at: " << location << std::endl;
-		stbi_write_png(location.c_str(), this->workStation.getImageStrP()->width,
-			this->workStation.getImageStrP()->height,
-			this->workStation.getImageStrP()->channels,
-			this->workStation.getImageStrP()->data, 
-			this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->channels);
-		return true;
-	}
-	return false;
 }
 
 bool FeatherGUI::copySelectionToClipboard() {
-	//Get the selection
 	std::pair<int,int> selectionMin = this->workStation.getSelectionMin();
 	std::pair<int,int> selectionMax = this->workStation.getSelectionMax();
-	
-	//Check if the selection is valid, the selection has to be at least 1 pixel wide and 1 pixel high and the selection has to be inside the image
-	if (selectionMin.first == selectionMax.first || selectionMin.second == selectionMax.second || selectionMin.first < 0 || selectionMin.second < 0 || selectionMax.first > this->workStation.getImageStrP()->width || selectionMax.second > this->workStation.getImageStrP()->height) {
+
+	// Use composite so all visible layers are included
+	this->workStation.compositeAllLayers();
+	ImageStr* src = this->workStation.getCompositeImage();
+
+	if (!src || !src->data ||
+		selectionMin.first == selectionMax.first || selectionMin.second == selectionMax.second ||
+		selectionMin.first < 0 || selectionMin.second < 0 ||
+		selectionMax.first > src->width || selectionMax.second > src->height) {
 		std::cout << "Error copying to clipboard: Invalid selection" << std::endl;
 		return false;
 	}
 
-	GLubyte* data = new GLubyte[(selectionMax.first - selectionMin.first) * (selectionMax.second - selectionMin.second) * 4];
+	int selW = selectionMax.first  - selectionMin.first;
+	int selH = selectionMax.second - selectionMin.second;
+	GLubyte* data = new GLubyte[selW * selH * 4];
 
-	//Copy the selection to the data array interchanging the red and blue channels (BGRA) 
-	for (int i = 0; i < (selectionMax.first - selectionMin.first); i++) {
-		for (int j = 0; j < (selectionMax.second - selectionMin.second); j++) {
-			//Assume 4 channels
-			//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
-			if (this->workStation.getImageStrP()->channels == 4) {
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 2];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 1];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 4 + 3];
-			}
-			else 
-			{
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3 + 2];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 1] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3 + 1];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 2] = this->workStation.getImageStrP()->data[(i + selectionMin.first + (j + selectionMin.second) * this->workStation.getImageStrP()->width) * 3];
-				data[(i + j * (selectionMax.first - selectionMin.first)) * 4 + 3] = 255;
-			}
+	// Copy RGBA→BGRA for Windows clipboard
+	for (int j = 0; j < selH; j++) {
+		for (int i = 0; i < selW; i++) {
+			int srcIdx = ((j + selectionMin.second) * src->width + (i + selectionMin.first)) * 4;
+			int dstIdx = (j * selW + i) * 4;
+			data[dstIdx    ] = src->data[srcIdx + 2]; // B
+			data[dstIdx + 1] = src->data[srcIdx + 1]; // G
+			data[dstIdx + 2] = src->data[srcIdx    ]; // R
+			data[dstIdx + 3] = src->data[srcIdx + 3]; // A
 		}
 	}
 	
-	//Create bitmap
-	HBITMAP hBitmap = CreateBitmap(selectionMax.first - selectionMin.first, selectionMax.second - selectionMin.second, 1, 32, data);
+	HBITMAP hBitmap = CreateBitmap(selW, selH, 1, 32, data);
 	if (hBitmap == NULL) {
 		std::cout << "Error creating bitmap" << std::endl;
 		return false;
@@ -417,65 +404,54 @@ bool FeatherGUI::copySelectionToClipboard() {
 }
 
 bool FeatherGUI::copyImageToClipboard() {
-	//Check if the image is valid
-	if (this->workStation.getImageStrP()->data == NULL) {
+	// Use composite so all visible layers are copied
+	this->workStation.compositeAllLayers();
+	ImageStr* src = this->workStation.getCompositeImage();
+
+	if (!src || !src->data || src->width <= 0 || src->height <= 0) {
 		std::cout << "Error copying to clipboard: No image loaded" << std::endl;
 		return false;
 	}
-	if (this->workStation.getImageStrP()->width > 0 && this->workStation.getImageStrP()->height > 0) {
-		//Copy the image to the data array interchanging the red and blue channels (BGRA)
-		GLubyte* data = new GLubyte[this->workStation.getImageStrP()->width * this->workStation.getImageStrP()->height * 4];
 
-		for (int i = 0; i < this->workStation.getImageStrP()->width; i++) {
-			for (int j = 0; j < this->workStation.getImageStrP()->height; j++) {
-				//Assume 4 channels
-				//If the the image has 3 channels the alpha channel will be 255 and we need to skip 3 by 3
-				if (this->workStation.getImageStrP()->channels == 4) {
-					data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3];
-				}
-				else
-				{
-					data[(i + j * this->workStation.getImageStrP()->width) * 4] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 2];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 1] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3 + 1];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 2] = this->workStation.getImageStrP()->data[(i + j * this->workStation.getImageStrP()->width) * 3];
-					data[(i + j * this->workStation.getImageStrP()->width) * 4 + 3] = 255;
-				}
-			}
+	int w = src->width;
+	int h = src->height;
+	GLubyte* data = new GLubyte[w * h * 4];
+
+	// Convert RGBA → BGRA for Windows clipboard
+	for (int j = 0; j < h; j++) {
+		for (int i = 0; i < w; i++) {
+			int idx = (j * w + i) * 4;
+			data[idx    ] = src->data[idx + 2]; // B
+			data[idx + 1] = src->data[idx + 1]; // G
+			data[idx + 2] = src->data[idx    ]; // R
+			data[idx + 3] = src->data[idx + 3]; // A
 		}
-
-		//Create bitmap
-		HBITMAP hBitmap = CreateBitmap(this->workStation.getImageStrP()->width, this->workStation.getImageStrP()->height, 1, 32, data);
-		if (hBitmap == NULL) {
-			std::cout << "Error creating bitmap" << std::endl;
-			return false;
-		}
-
-		//Open clipboard
-		if (!OpenClipboard(NULL)) {
-			std::cout << "Error opening clipboard" << std::endl;
-			CloseClipboard();
-			return false;
-		}
-		//Empty clipboard
-		EmptyClipboard();
-		//Set clipboard data
-		if (!SetClipboardData(CF_BITMAP, hBitmap)) {
-			std::cout << "Error setting clipboard data" << std::endl;
-			CloseClipboard();
-			return false;
-		}
-		//Close clipboard
-		CloseClipboard();
-
-		//Free bitmap
-		DeleteObject(hBitmap);
-
-		//free data
-		delete[] data;
 	}
+
+	HBITMAP hBitmap = CreateBitmap(w, h, 1, 32, data);
+	if (hBitmap == NULL) {
+		std::cout << "Error creating bitmap" << std::endl;
+		delete[] data;
+		return false;
+	}
+
+	if (!OpenClipboard(NULL)) {
+		std::cout << "Error opening clipboard" << std::endl;
+		DeleteObject(hBitmap);
+		delete[] data;
+		return false;
+	}
+	EmptyClipboard();
+	if (!SetClipboardData(CF_BITMAP, hBitmap)) {
+		std::cout << "Error setting clipboard data" << std::endl;
+		CloseClipboard();
+		DeleteObject(hBitmap);
+		delete[] data;
+		return false;
+	}
+	CloseClipboard();
+	DeleteObject(hBitmap);
+	delete[] data;
 	
 	return true;
 }
@@ -497,6 +473,7 @@ bool FeatherGUI::loadDroppedImages() {
 
 	workStation.combineLayers();
 	this->centerImage();
+	this->UpdateImage();
 
 	return done;
 }

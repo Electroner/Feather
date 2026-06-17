@@ -13,8 +13,8 @@ void FeatherGUI::BuildProperties() {
 		if (ImGui::BeginTabItem("Images")) {
 			ImGui::Text("Data of the Image");
 			ImGui::Separator();
-			ImGui::Text("Identifier: %d", this->workStation.getImageStrP()->texture);
-			ImGui::Text("Size = %d x %d", this->workStation.getImageStrP()->width, this->workStation.getImageStrP()->height);
+			ImGui::Text("Canvas: %d x %d", this->workStation.getCanvasWidth(), this->workStation.getCanvasHeight());
+			ImGui::Text("Layers: %d  |  Active: %d", this->workStation.ImagesSize(), this->workStation.getActiveLayerIndex());
 			ImGui::Text("Channels: %d", this->workStation.getImageStrP()->channels);
 			ImGui::Text("Format: %s", this->workStation.getImageStrP()->extension.c_str());
 			ImGui::EndTabItem();

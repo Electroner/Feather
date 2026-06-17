@@ -56,15 +56,67 @@ void FeatherGUI::toolDisplays() {
 			IM_COL32(128, 128, 128, 255));
 	}
 
-	////TEXT
-	////Create a text box if textEnable is true and draw the text
-	//if (this->workStation.getTextEnabled()) {
-	//	ImGui::SetCursorPos(ImVec2((float)this->imageShiftX, (float)this->imageShiftY));
-	//	ImGui::GetWindowDrawList()->AddText(
-	//		ImVec2(this->imageShiftX + this->toolsPanelPixels + this->workStation.getTextPosition().first * this->zoom, this->imageShiftY + this->MenuSizePixels + this->workStation.getTextPosition().second * this->zoom),
-	//		IM_COL32(0, 0, 0, 255),
-	//		this->workStation.getText().c_str());
-	//}
+	// SELECTION TOOL — show outlines of all text layers
+	if (this->CurrentTool == TOOL_SELECTION && this->workStation.ImagesSize() > 0) {
+		ImDrawList* sdl = ImGui::GetWindowDrawList();
+		for (int i = 0; i < this->workStation.ImagesSize(); i++) {
+			const ImageStr* tl = this->workStation.getImage(i);
+			if (!tl || !tl->isTextLayer || !tl->visible) continue;
+
+			float ax = (float)(this->imageShiftX + this->toolsPanelPixels) + tl->textAnchorX * this->zoom;
+			float ay = (float)(this->imageShiftY + this->MenuSizePixels)  + tl->textAnchorY * this->zoom;
+			float rw = (float)((tl->textRenderW > 0 ? tl->textRenderW : tl->textFontSize * 5)) * this->zoom;
+			float rh = (float)((tl->textRenderH > 0 ? tl->textRenderH : tl->textFontSize * 2)) * this->zoom;
+
+			bool isSelected = (i == this->workStation.getActiveLayerIndex());
+			ImU32 outlineCol = isSelected ? IM_COL32(100, 180, 255, 230) : IM_COL32(160, 160, 160, 140);
+			float thickness  = isSelected ? 1.8f : 1.0f;
+
+			sdl->AddRect(ImVec2(ax, ay), ImVec2(ax + rw, ay + rh), outlineCol, 0.0f, 0, thickness);
+
+			// Anchor handle for selected layer
+			if (isSelected) {
+				const float H = 4.0f;
+				sdl->AddRectFilled(ImVec2(ax - H, ay - H), ImVec2(ax + H, ay + H), IM_COL32(100, 180, 255, 255));
+			}
+		}
+	}
+
+	// TEXT LAYER — dashed bounding box while editing
+	if (this->textEditing &&
+	    this->textEditLayerIdx >= 0 &&
+	    this->textEditLayerIdx < this->workStation.ImagesSize()) {
+
+		const ImageStr* tl = this->workStation.getImage(this->textEditLayerIdx);
+		if (tl && tl->isTextLayer) {
+			float ax = (float)(this->imageShiftX + this->toolsPanelPixels) + tl->textAnchorX * this->zoom;
+			float ay = (float)(this->imageShiftY + this->MenuSizePixels)  + tl->textAnchorY * this->zoom;
+			float rw = (float)((tl->textRenderW > 0 ? tl->textRenderW : tl->textFontSize * 5)) * this->zoom;
+			float rh = (float)((tl->textRenderH > 0 ? tl->textRenderH : tl->textFontSize * 2)) * this->zoom;
+
+			ImDrawList* dl = ImGui::GetWindowDrawList();
+			ImU32 col = IM_COL32(255, 220, 50, 220);
+			const float D = 5.0f, G = 4.0f; // dash length, gap length
+
+			// Dashed top/bottom
+			for (float x = ax; x < ax + rw; x += D + G) {
+				float x1 = x, x2 = (x + D < ax + rw) ? x + D : ax + rw;
+				dl->AddLine(ImVec2(x1, ay),      ImVec2(x2, ay),      col, 1.5f);
+				dl->AddLine(ImVec2(x1, ay + rh), ImVec2(x2, ay + rh), col, 1.5f);
+			}
+			// Dashed left/right
+			for (float y = ay; y < ay + rh; y += D + G) {
+				float y1 = y, y2 = (y + D < ay + rh) ? y + D : ay + rh;
+				dl->AddLine(ImVec2(ax,      y1), ImVec2(ax,      y2), col, 1.5f);
+				dl->AddLine(ImVec2(ax + rw, y1), ImVec2(ax + rw, y2), col, 1.5f);
+			}
+
+			// Anchor handle (small filled square at origin)
+			const float H = 5.0f;
+			dl->AddRectFilled(ImVec2(ax - H, ay - H), ImVec2(ax + H, ay + H), col);
+			dl->AddRect(ImVec2(ax - H, ay - H), ImVec2(ax + H, ay + H), IM_COL32(0,0,0,180));
+		}
+	}
 }
 
 void FeatherGUI::selectionUpdate() {
